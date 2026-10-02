@@ -17,7 +17,7 @@ import type {
   MiniGameStartResponse,
   MiniGameSubmission,
 } from '@mimo/types';
-import { ChildId, ChildOnly } from '../auth/decorators';
+import { PlayerId, PlayerOnly } from '../auth/decorators';
 import { MinigamesService } from './minigames.service';
 
 class StartGameDto {
@@ -50,19 +50,19 @@ class SubmitGameDto {
   submission!: SubmissionDto;
 }
 
-@ChildOnly()
+@PlayerOnly()
 @Controller('me/games')
 export class MinigamesController {
   constructor(private readonly games: MinigamesService) {}
 
   @Get()
-  list(@ChildId() childId: string): Promise<MiniGameInfo[]> {
+  list(@PlayerId() childId: string): Promise<MiniGameInfo[]> {
     return this.games.list(childId);
   }
 
   @Post(':key/start')
   start(
-    @ChildId() childId: string,
+    @PlayerId() childId: string,
     @Param('key') key: string,
     @Body() dto: StartGameDto,
   ): Promise<MiniGameStartResponse> {
@@ -72,7 +72,7 @@ export class MinigamesController {
   @HttpCode(200)
   @Post('sessions/:id/submit')
   submit(
-    @ChildId() childId: string,
+    @PlayerId() childId: string,
     @Param('id') id: string,
     @Body() dto: SubmitGameDto,
   ): Promise<MiniGameResult> {

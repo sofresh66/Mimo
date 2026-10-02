@@ -68,15 +68,20 @@ export class AuthService {
     return this.openSession(user, client);
   }
 
-  /** Une connexion par mot de passe ouvre directement l'espace parent. */
+  /**
+   * Une connexion par mot de passe ouvre directement l'espace parent… sauf pour un adulte
+   * joueur : sa session est toujours en mode PLAYER, liée à son propre profil de jeu.
+   */
   private async openSession(user: User, client: ClientInfo): Promise<IssuedTokens> {
+    const player = user.familyRole === 'ADULT_PLAYER' ? await this.adultProfile(user) : null;
     const refresh = this.tokens.generateRefreshToken();
     const session = await this.prisma.authSession.create({
       data: {
         userId: user.id,
         refreshTokenHash: refresh.hash,
-        mode: 'PARENT',
-        parentModeExpiresAt: this.tokens.parentModeExpiry(),
+        ...(player
+          ? { mode: 'PLAYER', childId: player.id, parentModeExpiresAt: null }
+          : { mode: 'PARENT', parentModeExpiresAt: this.tokens.parentModeExpiry() }),
         userAgent: client.userAgent?.slice(0, 255) ?? null,
         expiresAt: this.tokens.refreshExpiry(),
       },
@@ -84,12 +89,24 @@ export class AuthService {
     return { access: this.tokens.signAccess(session, user.familyId), refresh: refresh.token };
   }
 
+  /** Profil adulte du compte, dans sa famille actuelle. */
+  private async adultProfile(user: User) {
+    const profile = await this.prisma.playerProfile.findFirst({
+      where: { userId: user.id, type: 'ADULT', familyId: user.familyId ?? undefined },
+      select: { id: true },
+    });
+    if (!user.familyId || !profile) {
+      throw Errors.forbidden('Aucun profil de joueur pour ce compte');
+    }
+    return profile;
+  }
+
   /** Rotation du refresh token et réémission du JWT d'accès selon le mode courant. */
   async refresh(refreshToken: string | undefined): Promise<IssuedTokens> {
     if (!refreshToken) throw Errors.unauthorized('SESSION_REVOKED', 'Session terminée');
     const session = await this.prisma.authSession.findUnique({
       where: { refreshTokenHash: this.tokens.hashRefreshToken(refreshToken) },
-      include: { user: { select: { familyId: true } } },
+      include: { user: { select: { familyId: true, familyRole: true } } },
     });
     const now = new Date();
     if (!session || session.revokedAt || session.expiresAt < now) {
@@ -100,6 +117,17 @@ export class AuthService {
       session.mode === 'PARENT' &&
       (!session.parentModeExpiresAt || session.parentModeExpiresAt < now);
     const childMissing = session.mode === 'CHILD' && !session.childId;
+    // Un adulte joueur sans profil (supprimé) ou une session PLAYER d'un autre rôle : fin de session.
+    if (
+      (session.mode === 'PLAYER' || session.user.familyRole === 'ADULT_PLAYER') &&
+      (session.mode !== 'PLAYER' || session.user.familyRole !== 'ADULT_PLAYER' || !session.childId)
+    ) {
+      await this.prisma.authSession.update({
+        where: { id: session.id },
+        data: { revokedAt: now },
+      });
+      throw Errors.unauthorized('SESSION_REVOKED', 'Session terminée');
+    }
     // Rotation atomique : deux refresh simultanés avec le même jeton ne peuvent pas réussir tous les deux.
     const rotated = await this.prisma.authSession.updateMany({
       where: { id: session.id, refreshTokenHash: session.refreshTokenHash, revokedAt: null },
@@ -143,6 +171,9 @@ export class AuthService {
   /** Déverrouille l'espace parent sur un appareil familial grâce au PIN parent. */
   async unlockParent(auth: AuthContext, pin: string, client: ClientInfo): Promise<IssuedTokens> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: auth.userId } });
+    // Défense en profondeur (le garde refuse déjà le mode PLAYER) : un adulte joueur n'a
+    // jamais l'espace parent, même s'il connaît le PIN d'un parent.
+    if (user.familyRole !== 'PARENT') throw Errors.forbidden('Réservé aux parents');
     if (!user.parentPinHash)
       throw Errors.badRequest('PARENT_PIN_NOT_SET', 'Aucun PIN parent défini');
     assertPinNotLocked({
@@ -207,24 +238,25 @@ export class AuthService {
     pin: string,
     client: ClientInfo,
   ): Promise<IssuedTokens> {
-    if (!auth.familyId) throw Errors.forbidden();
-    const child = await this.prisma.childProfile.findFirst({
-      where: { id: childId, familyId: auth.familyId },
+    if (!auth.familyId || auth.role !== 'PARENT') throw Errors.forbidden();
+    // Seuls les profils enfants se sélectionnent avec un PIN (un adulte se connecte avec son compte).
+    const child = await this.prisma.playerProfile.findFirst({
+      where: { id: childId, familyId: auth.familyId, type: 'CHILD' },
     });
-    if (!child) throw Errors.notFound('Profil');
+    if (!child?.pinHash) throw Errors.notFound('Profil');
     assertPinNotLocked({
       failedAttempts: child.pinFailedAttempts,
       lockedUntil: child.pinLockedUntil,
     });
     if (!(await verifySecret(child.pinHash, pin))) {
-      const { pinFailedAttempts } = await this.prisma.childProfile.update({
+      const { pinFailedAttempts } = await this.prisma.playerProfile.update({
         where: { id: child.id },
         data: { pinFailedAttempts: { increment: 1 } },
         select: { pinFailedAttempts: true },
       });
       const { lockedUntil, error } = pinFailure(pinFailedAttempts);
       if (lockedUntil) {
-        await this.prisma.childProfile.update({
+        await this.prisma.playerProfile.update({
           where: { id: child.id },
           data: { pinLockedUntil: lockedUntil },
         });
@@ -242,7 +274,7 @@ export class AuthService {
       });
       throw error;
     }
-    await this.prisma.childProfile.update({
+    await this.prisma.playerProfile.update({
       where: { id: child.id },
       data: { pinFailedAttempts: 0, pinLockedUntil: null, lastSeenAt: new Date() },
     });
@@ -256,6 +288,8 @@ export class AuthService {
 
   /** Revient à l'écran « Qui joue ? » (verrouille l'espace parent ou enfant). */
   async lock(auth: AuthContext): Promise<IssuedTokens> {
+    // Un adulte joueur n'a pas d'écran « Qui joue ? » : il se déconnecte.
+    if (auth.role !== 'PARENT') throw Errors.forbidden();
     const session: AuthSession = await this.prisma.authSession.update({
       where: { id: auth.sessionId },
       data: { mode: 'DEVICE', childId: null, parentModeExpiresAt: null },
@@ -270,15 +304,26 @@ export class AuthService {
       include: { family: true },
     });
     const child =
-      auth.mode === 'CHILD' && auth.childId
-        ? await this.prisma.childProfile.findUnique({ where: { id: auth.childId } })
+      (auth.mode === 'CHILD' || auth.mode === 'PLAYER') && auth.childId
+        ? await this.prisma.playerProfile.findUnique({ where: { id: auth.childId } })
         : null;
     return {
-      user: { id: user.id, email: user.email, displayName: user.displayName },
+      user: {
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName,
+        role: user.familyRole,
+      },
       family: user.family ? { id: user.family.id, name: user.family.name } : null,
       mode: auth.mode,
       child: child
-        ? { id: child.id, displayName: child.displayName, avatar: child.avatar, color: child.color }
+        ? {
+            id: child.id,
+            displayName: child.displayName,
+            avatar: child.avatar,
+            color: child.color,
+            type: child.type,
+          }
         : null,
       parentModeExpiresAt: auth.parentModeExpiresAt?.toISOString() ?? null,
       hasParentPin: Boolean(user.parentPinHash),

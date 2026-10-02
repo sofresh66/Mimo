@@ -5,7 +5,7 @@ import type { Request, Response } from 'express';
 import { AuthService, type ClientInfo, type IssuedTokens } from './auth.service';
 import type { AuthContext } from './auth.types';
 import { REFRESH_COOKIE } from './auth.types';
-import { AllowWithoutFamily, AnyMode, Auth, ParentOnly, Public } from './decorators';
+import { AllowWithoutFamily, AnyMode, AnySession, Auth, ParentOnly, Public } from './decorators';
 import { ChangePasswordDto, LoginDto, PinDto, RegisterDto, UnlockChildDto } from './dto';
 import { TokenService } from './token.service';
 
@@ -59,7 +59,7 @@ export class AuthController {
     return { ok: true };
   }
 
-  @AnyMode()
+  @AnySession()
   @AllowWithoutFamily()
   @HttpCode(200)
   @Post('logout')
@@ -83,7 +83,7 @@ export class AuthController {
     return { ok: true };
   }
 
-  @AnyMode()
+  @AnySession()
   @AllowWithoutFamily()
   @Get('me')
   me(@Auth() auth: AuthContext): Promise<MeResponse> {

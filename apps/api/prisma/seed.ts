@@ -106,7 +106,7 @@ async function main(): Promise<void> {
 
   const children = [];
   for (const [i, c] of DEMO.children.entries()) {
-    const child = await prisma.childProfile.create({
+    const child = await prisma.playerProfile.create({
       data: {
         familyId: family.id,
         displayName: c.name,

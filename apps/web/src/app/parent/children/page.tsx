@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 import { ChildForm } from '@/components/ChildForm';
+import { AdultBadge } from '@/components/ParentsPanel';
 import { AVATARS, CHILD_COLORS, ChoiceGrid, Field } from '@/components/forms';
 import { useToast } from '@/components/Toast';
 import { useI18n } from '@/i18n';
@@ -44,6 +45,7 @@ export default function ParentChildrenPage() {
                   <Link href={`/parent/children/${p.id}`} className="font-medium hover:underline">
                     {p.displayName}
                   </Link>
+                  {p.type === 'ADULT' && <AdultBadge label={t('parent.adultBadge')} />}
                   <p className="text-sm text-slate-500">
                     {p.creature
                       ? `${p.creature.name} · ${t('parent.level', { level: p.creature.level })}`
@@ -51,30 +53,33 @@ export default function ParentChildrenPage() {
                     {p.locked ? ' · 🔒' : ''}
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setDialog({ kind: 'edit', child: p })}
-                  >
-                    {t('common.edit')}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setDialog({ kind: 'pin', child: p })}
-                  >
-                    🔑 {t('parentChildren.changePin')}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setDialog({ kind: 'delete', child: p })}
-                    aria-label={`${t('common.delete')} ${p.displayName}`}
-                  >
-                    🗑
-                  </Button>
-                </div>
+                {/* Le profil d'un adulte joueur appartient à son compte : ni PIN, ni édition, ni suppression ici. */}
+                {p.type === 'CHILD' && (
+                  <div className="flex flex-wrap gap-1.5">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setDialog({ kind: 'edit', child: p })}
+                    >
+                      {t('common.edit')}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setDialog({ kind: 'pin', child: p })}
+                    >
+                      🔑 {t('parentChildren.changePin')}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setDialog({ kind: 'delete', child: p })}
+                      aria-label={`${t('common.delete')} ${p.displayName}`}
+                    >
+                      🗑
+                    </Button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

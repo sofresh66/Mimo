@@ -26,7 +26,7 @@ const NAV: Array<{ href: string; label: MessageKey; emoji: string }> = [
 export default function PlayLayout({ children }: { children: ReactNode }) {
   const { me, loading } = useSession();
   const router = useRouter();
-  const ready = me?.mode === 'CHILD' && me.child;
+  const ready = (me?.mode === 'CHILD' || me?.mode === 'PLAYER') && me.child;
 
   useEffect(() => {
     if (!loading && !ready) router.replace('/');
@@ -49,7 +49,7 @@ export default function PlayLayout({ children }: { children: ReactNode }) {
 function ChildShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const { me } = useSession();
-  const { lock } = useSessionActions();
+  const { lock, logout } = useSessionActions();
   const router = useRouter();
   const pathname = usePathname();
   const { data: home } = useHome();
@@ -64,6 +64,9 @@ function ChildShell({ children }: { children: ReactNode }) {
 
   const child = me?.child;
   if (!child) return null;
+  // Adulte joueur : pas d'écran « Qui joue ? », il se déconnecte de son propre compte.
+  const adult = me?.mode === 'PLAYER';
+  const leaveLabel = adult ? t('child.logout') : t('child.switchProfile');
 
   return (
     <div className="kid-bg flex min-h-dvh flex-col">
@@ -115,10 +118,11 @@ function ChildShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             className="grid size-11 place-items-center rounded-full bg-white text-xl shadow-sm"
-            aria-label={t('child.switchProfile')}
-            title={t('child.switchProfile')}
+            aria-label={leaveLabel}
+            title={leaveLabel}
             onClick={async () => {
-              await lock();
+              if (adult) await logout();
+              else await lock();
               router.push('/');
             }}
           >

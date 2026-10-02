@@ -1,7 +1,7 @@
 import { Controller, Get, HttpCode, Param, ParseEnumPipe, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { CompanionAction, CompanionResponse, CompanionStatus } from '@mimo/types';
-import { ChildId, ChildOnly } from '../auth/decorators';
+import { PlayerId, PlayerOnly } from '../auth/decorators';
 import { CompanionService } from './companion.service';
 
 enum Action {
@@ -12,13 +12,13 @@ enum Action {
   joke = 'joke',
 }
 
-@ChildOnly()
+@PlayerOnly()
 @Controller('me/companion')
 export class CompanionController {
   constructor(private readonly companion: CompanionService) {}
 
   @Get()
-  status(@ChildId() childId: string): Promise<CompanionStatus> {
+  status(@PlayerId() childId: string): Promise<CompanionStatus> {
     return this.companion.status(childId);
   }
 
@@ -26,7 +26,7 @@ export class CompanionController {
   @HttpCode(200)
   @Post(':action')
   ask(
-    @ChildId() childId: string,
+    @PlayerId() childId: string,
     @Param('action', new ParseEnumPipe(Action)) action: CompanionAction,
   ): Promise<CompanionResponse> {
     return this.companion.ask(childId, action);

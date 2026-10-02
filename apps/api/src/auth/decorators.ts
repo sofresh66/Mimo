@@ -17,11 +17,18 @@ export const Modes = (...modes: SessionMode[]) => SetMetadata(REQUIRED_MODES, mo
 /** Espace parent déverrouillé (mot de passe ou PIN parent) et famille créée. */
 export const ParentOnly = () => SetMetadata(REQUIRED_MODES, ['PARENT']);
 
-/** Tout mode authentifié (appareil, parent, enfant). */
+/**
+ * Modes d'un appareil familial (appareil, parent, enfant). Exclut volontairement PLAYER :
+ * un adulte joueur ne peut ni déverrouiller l'espace parent ni sélectionner un profil enfant.
+ */
 export const AnyMode = () => SetMetadata(REQUIRED_MODES, ['DEVICE', 'PARENT', 'CHILD']);
 
-/** Session enfant (profil sélectionné + PIN). */
-export const ChildOnly = () => SetMetadata(REQUIRED_MODES, ['CHILD']);
+/** Toute session authentifiée, adulte joueur compris (profil, déconnexion). */
+export const AnySession = () =>
+  SetMetadata(REQUIRED_MODES, ['DEVICE', 'PARENT', 'CHILD', 'PLAYER']);
+
+/** Session de jeu : enfant (profil + PIN) ou adulte joueur (son propre compte). */
+export const PlayerOnly = () => SetMetadata(REQUIRED_MODES, ['CHILD', 'PLAYER']);
 
 /** Autorise une session parent sans famille (création de la famille). */
 export const AllowWithoutFamily = () => SetMetadata(REQUIRES_FAMILY, false);
@@ -34,11 +41,17 @@ export const Auth = createParamDecorator((_: unknown, ctx: ExecutionContext): Au
   return req.auth;
 });
 
-/** Identifiant de l'enfant connecté — toujours issu de la session, jamais de l'URL. */
-export const ChildId = createParamDecorator((_: unknown, ctx: ExecutionContext): string => {
+/**
+ * Identifiant du profil de jeu connecté (enfant ou adulte joueur) — toujours issu de la
+ * session vérifiée en base, jamais de l'URL ni du corps de la requête.
+ */
+export const PlayerId = createParamDecorator((_: unknown, ctx: ExecutionContext): string => {
   const req = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
-  if (!req.auth || req.auth.mode !== 'CHILD' || !req.auth.childId) throw Errors.forbidden();
-  return req.auth.childId;
+  const auth = req.auth;
+  if (!auth || (auth.mode !== 'CHILD' && auth.mode !== 'PLAYER') || !auth.childId) {
+    throw Errors.forbidden();
+  }
+  return auth.childId;
 });
 
 /** Identifiant de la famille de la session. */

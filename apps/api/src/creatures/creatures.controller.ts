@@ -9,7 +9,7 @@ import type {
   HatchResult,
   SpeciesView,
 } from '@mimo/types';
-import { ChildId, ChildOnly } from '../auth/decorators';
+import { PlayerId, PlayerOnly } from '../auth/decorators';
 import { MissionsService } from '../missions/missions.service';
 import { CreaturesService } from './creatures.service';
 
@@ -29,7 +29,7 @@ class AdoptDto extends CreatureNameDto {
   speciesId!: string;
 }
 
-@ChildOnly()
+@PlayerOnly()
 @Controller('me')
 export class CreaturesController {
   constructor(
@@ -38,7 +38,7 @@ export class CreaturesController {
   ) {}
 
   @Get('home')
-  async home(@ChildId() childId: string): Promise<ChildHome> {
+  async home(@PlayerId() childId: string): Promise<ChildHome> {
     const [home, missionsTodo] = await Promise.all([
       this.creatures.home(childId),
       this.missions.todoCount(childId),
@@ -52,30 +52,30 @@ export class CreaturesController {
   }
 
   @Post('creature/adopt')
-  adopt(@ChildId() childId: string, @Body() dto: AdoptDto): Promise<CreatureView> {
+  adopt(@PlayerId() childId: string, @Body() dto: AdoptDto): Promise<CreatureView> {
     return this.creatures.adopt(childId, dto.speciesId, dto.name);
   }
 
   @Get('creatures')
-  list(@ChildId() childId: string): Promise<CreatureView[]> {
+  list(@PlayerId() childId: string): Promise<CreatureView[]> {
     return this.creatures.list(childId);
   }
 
   @HttpCode(200)
   @Post('creatures/:id/activate')
-  activate(@ChildId() childId: string, @Param('id') id: string): Promise<CreatureView> {
+  activate(@PlayerId() childId: string, @Param('id') id: string): Promise<CreatureView> {
     return this.creatures.activate(childId, id);
   }
 
   @HttpCode(200)
   @Post('creature/play')
-  play(@ChildId() childId: string): Promise<FeedResult> {
+  play(@PlayerId() childId: string): Promise<FeedResult> {
     return this.creatures.play(childId);
   }
 
   @Post('eggs/:itemId/hatch')
   hatch(
-    @ChildId() childId: string,
+    @PlayerId() childId: string,
     @Param('itemId') itemId: string,
     @Body() dto: CreatureNameDto,
   ): Promise<HatchResult> {
@@ -83,7 +83,7 @@ export class CreaturesController {
   }
 
   @Get('dex')
-  dex(@ChildId() childId: string): Promise<DexView> {
+  dex(@PlayerId() childId: string): Promise<DexView> {
     return this.creatures.dex(childId);
   }
 }

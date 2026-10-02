@@ -83,7 +83,7 @@ export class RewardsService {
   }
 
   async create(auth: AuthContext, familyId: string, dto: CreateRewardDto): Promise<RewardView> {
-    const child = await this.prisma.childProfile.findFirst({
+    const child = await this.prisma.playerProfile.findFirst({
       where: { id: dto.childId, familyId },
     });
     if (!child) throw Errors.notFound('Profil');

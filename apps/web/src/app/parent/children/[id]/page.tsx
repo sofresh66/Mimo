@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { MissionForm, draftFromTemplate, type MissionDraft } from '@/components/MissionForm';
 import { CategoryBalance, Timeline } from '@/components/parent';
+import { AdultBadge } from '@/components/ParentsPanel';
 import { useToast } from '@/components/Toast';
 import { useI18n } from '@/i18n';
 import { http } from '@/lib/api';
@@ -39,7 +40,10 @@ export default function ChildDetailPage() {
       <div className="flex items-center gap-3">
         <Avatar emoji={o.avatar} color={o.color} size={56} />
         <div>
-          <h1 className="text-2xl font-semibold">{o.displayName}</h1>
+          <h1 className="text-2xl font-semibold">
+            {o.displayName}
+            {o.type === 'ADULT' && <AdultBadge label={t('parent.adultBadge')} />}
+          </h1>
           <p className="text-sm text-slate-500">
             {t('parent.lastSeen', {
               date: o.lastSeenAt ? relativeTime(o.lastSeenAt) : t('parent.never'),

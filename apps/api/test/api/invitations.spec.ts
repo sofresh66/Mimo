@@ -48,6 +48,7 @@ describe('Invitation d’un second parent', () => {
       invitedBy: 'Papa',
       expiresAt: expect.any(String),
       alreadyMember: false,
+      role: 'PARENT',
     });
     expect((await f.parent.get(`/api/invitations/${created.body.token}`)).body.alreadyMember).toBe(
       true,
@@ -185,11 +186,11 @@ describe('Invitation d’un second parent', () => {
     );
     expect(results.filter((r) => r.status === 200)).toHaveLength(1);
     const family = await prisma.family.findFirstOrThrow({
-      where: { parents: { some: { email: { startsWith: 'parent' } } }, invitations: { some: {} } },
+      where: { members: { some: { email: { startsWith: 'parent' } } }, invitations: { some: {} } },
       orderBy: { createdAt: 'desc' },
-      include: { parents: true },
+      include: { members: true },
     });
-    expect(family.parents).toHaveLength(2);
+    expect(family.members).toHaveLength(2);
   });
 
   it('acceptations simultanées de deux liens : la limite de 4 parents tient', async () => {

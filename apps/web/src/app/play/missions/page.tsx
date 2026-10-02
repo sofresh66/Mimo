@@ -9,6 +9,7 @@ import { useI18n } from '@/i18n';
 import { http } from '@/lib/api';
 import { useErrorMessage } from '@/lib/errors';
 import { keys, useChildMissions, useVillage } from '@/lib/queries';
+import { useSession } from '@/lib/session';
 import { playSound } from '@/lib/sound';
 
 export default function MissionsPage() {
@@ -18,6 +19,8 @@ export default function MissionsPage() {
   const errorMessage = useErrorMessage();
   const { data: missions, isPending } = useChildMissions();
   const { data: village } = useVillage();
+  const { me } = useSession();
+  const adult = me?.child?.type === 'ADULT';
 
   const done = useMutation({
     mutationFn: (id: string) => http.post<ChildMissionView[]>(`/me/missions/${id}/done`),
@@ -25,7 +28,7 @@ export default function MissionsPage() {
       playSound('success');
       client.setQueryData(keys.missions, list);
       void client.invalidateQueries({ queryKey: keys.home });
-      toast(t('missions.sent'), 'success');
+      toast(adult ? t('missions.adultSent') : t('missions.sent'), 'success');
     },
     onError: (error) => toast(errorMessage(error), 'error'),
   });
@@ -39,12 +42,16 @@ export default function MissionsPage() {
 
   return (
     <div>
-      <PageHeader title={t('missions.title')} subtitle={t('missions.subtitle')} emoji="📋" />
+      <PageHeader
+        title={t('missions.title')}
+        subtitle={adult ? t('missions.adultSubtitle') : t('missions.subtitle')}
+        emoji="📋"
+      />
       {isPending ? (
         <Spinner size={36} />
       ) : !missions || missions.length === 0 ? (
         <EmptyState emoji="🌈" title={t('missions.empty')}>
-          {t('missions.emptyHint')}
+          {adult ? t('missions.adultEmptyHint') : t('missions.emptyHint')}
         </EmptyState>
       ) : (
         <ul className="flex flex-col gap-3">
@@ -66,6 +73,7 @@ export default function MissionsPage() {
                 }
                 action={
                   <MissionAction
+                    adult={adult}
                     mission={m}
                     onDone={() => done.mutate(m.id)}
                     busy={done.isPending && done.variables === m.id}
@@ -113,10 +121,12 @@ function MissionAction({
   mission,
   onDone,
   busy,
+  adult,
 }: {
   mission: ChildMissionView;
   onDone: () => void;
   busy: boolean;
+  adult: boolean;
 }) {
   const { t } = useI18n();
   if (mission.status === 'APPROVED') {
@@ -139,7 +149,7 @@ function MissionAction({
   return (
     <div className="flex shrink-0 flex-col items-end gap-1">
       <Button size="sm" variant="success" onClick={onDone} loading={busy}>
-        {t('missions.done')}
+        {adult ? t('missions.adultDone') : t('missions.done')}
       </Button>
       {mission.status === 'DECLINED' && (
         <span className="text-[11px] text-ink/50">{t('missions.declinedHint')}</span>

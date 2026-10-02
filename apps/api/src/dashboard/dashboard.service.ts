@@ -67,7 +67,7 @@ export class DashboardService {
 
   /** Vue d'ensemble de chaque enfant — agrégats calculés en peu de requêtes groupées. */
   async overviews(familyId: string, onlyChildId?: string): Promise<ChildOverview[]> {
-    const children = await this.prisma.childProfile.findMany({
+    const children = await this.prisma.playerProfile.findMany({
       where: { familyId, ...(onlyChildId ? { id: onlyChildId } : {}) },
       orderBy: { createdAt: 'asc' },
       include: { creatures: { where: { isActive: true }, take: 1 } },
@@ -114,6 +114,7 @@ export class DashboardService {
       const creature = child.creatures[0];
       return {
         id: child.id,
+        type: child.type,
         displayName: child.displayName,
         avatar: child.avatar,
         color: child.color,

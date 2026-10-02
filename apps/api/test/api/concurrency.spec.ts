@@ -53,7 +53,7 @@ describe('Concurrence et rejeux', () => {
         f.parent.post('/api/auth/unlock/child').send({ childId: f.secondChildId, pin: '0000' }),
       ),
     );
-    const child = await prisma.childProfile.findUniqueOrThrow({ where: { id: f.secondChildId } });
+    const child = await prisma.playerProfile.findUniqueOrThrow({ where: { id: f.secondChildId } });
     expect(child.pinFailedAttempts).toBe(4);
     const fifth = await f.parent
       .post('/api/auth/unlock/child')
@@ -63,7 +63,7 @@ describe('Concurrence et rejeux', () => {
 
   it('le verrouillage s’allonge et le compteur ne repart à zéro qu’après un succès', async () => {
     const f = await setupFamily(app);
-    await prisma.childProfile.update({
+    await prisma.playerProfile.update({
       where: { id: f.secondChildId },
       data: { pinFailedAttempts: 9 },
     });

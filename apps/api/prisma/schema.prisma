@@ -63,6 +63,20 @@ enum SessionMode {
   DEVICE
   PARENT
   CHILD
+  /// Adulte joueur connecté avec son propre compte : joue sur son profil, sans aucun droit parent.
+  PLAYER
+}
+
+/// Rôle d'un compte dans sa famille. Seul PARENT a des droits parentaux.
+enum FamilyUserRole {
+  PARENT
+  ADULT_PLAYER
+}
+
+/// Type de profil de jeu : enfant (sélection + PIN) ou adulte joueur (son propre compte).
+enum PlayerType {
+  CHILD
+  ADULT
 }
 
 enum MissionRecurrence {
@@ -151,18 +165,20 @@ enum GameEventType {
 
 /// Compte parent (seul type de compte avec e-mail et mot de passe).
 model User {
-  id                      String    @id @default(cuid())
-  email                   String    @unique
+  id                      String         @id @default(cuid())
+  email                   String         @unique
   passwordHash            String
   /// Nom affiché aux enfants (« Papa », « Maman », « Mamie »…).
   displayName             String
   familyId                String?
+  /// Rôle dans la famille : les comptes existants restent PARENT.
+  familyRole              FamilyUserRole @default(PARENT)
   parentPinHash           String?
-  parentPinFailedAttempts Int       @default(0)
+  parentPinFailedAttempts Int            @default(0)
   parentPinLockedUntil    DateTime?
   lastLoginAt             DateTime?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
 
   family              Family?             @relation(fields: [familyId], references: [id], onDelete: SetNull)
   sessions            AuthSession[]
@@ -172,6 +188,8 @@ model User {
   auditLogs           AuditLog[]
   sentInvitations     ParentInvitation[]  @relation("InvitationCreator")
   acceptedInvitations ParentInvitation[]  @relation("InvitationAcceptor")
+  /// Profil de jeu d'un adulte joueur (aucun pour un parent).
+  playerProfile       PlayerProfile?
 
   @@index([familyId])
 }
@@ -191,8 +209,8 @@ model AuthSession {
   expiresAt           DateTime
   revokedAt           DateTime?
 
-  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  child ChildProfile? @relation(fields: [childId], references: [id], onDelete: SetNull)
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  child PlayerProfile? @relation(fields: [childId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([expiresAt])
@@ -207,8 +225,9 @@ model Family {
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
-  parents        User[]
-  children       ChildProfile[]
+  /// Comptes de la famille : parents et adultes joueurs (voir User.familyRole).
+  members        User[]
+  players        PlayerProfile[]
   missions       Mission[]
   rewards        Reward[]
   village        Village?
@@ -223,15 +242,17 @@ model Family {
 /// Seul le hash SHA-256 du jeton est stocké ; le jeton n'est montré qu'une fois, à la création.
 /// Une invitation est utilisable une seule fois, jusqu'à `expiresAt`, sauf si elle est révoquée.
 model ParentInvitation {
-  id           String    @id @default(cuid())
+  id           String         @id @default(cuid())
   familyId     String
-  tokenHash    String    @unique
+  tokenHash    String         @unique
+  /// Rôle accordé à l'acceptation : parent ou adulte joueur.
+  role         FamilyUserRole @default(PARENT)
   createdById  String?
   expiresAt    DateTime
   acceptedAt   DateTime?
   acceptedById String?
   revokedAt    DateTime?
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime       @default(now())
 
   family     Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
   createdBy  User?  @relation("InvitationCreator", fields: [createdById], references: [id], onDelete: SetNull)
@@ -241,22 +262,33 @@ model ParentInvitation {
 }
 
 /// Profil enfant : aucune adresse e-mail, aucun nom de famille, aucune donnée de contact.
-model ChildProfile {
-  id                String    @id @default(cuid())
+/// Profil de jeu (enfant ou adulte joueur). Table historique « PlayerProfile » conservée ;
+/// les colonnes `childId` des autres tables référencent ce profil, quel que soit son type.
+model PlayerProfile {
+  id                String     @id @default(cuid())
   familyId          String
+  type              PlayerType @default(CHILD)
+  /// Compte propriétaire d'un profil adulte (null pour un enfant).
+  userId            String?    @unique
   displayName       String
   avatar            String
   color             String
-  pinHash           String
-  pinFailedAttempts Int       @default(0)
+  /// PIN enfant. Null uniquement pour un profil adulte, qui se connecte avec son propre compte.
+  /// Invariant garanti en base (CHECK "ChildProfile_player_type_check", non exprimable en Prisma) :
+  /// CHILD ⇒ pinHash non nul et userId nul ; ADULT ⇒ userId non nul et pinHash nul.
+  pinHash           String?
+  pinFailedAttempts Int        @default(0)
   pinLockedUntil    DateTime?
   /// Décorations installées dans la chambre de la créature (clés d'objets).
-  roomDecorations   String[]  @default([])
+  roomDecorations   String[]   @default([])
   lastSeenAt        DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   family           Family              @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  /// Restrict : un compte qui possède un profil adulte ne peut pas être supprimé tant que ce profil
+  /// existe (pas de profil orphelin, pas d'effacement silencieux des données de jeu).
+  user             User?               @relation(fields: [userId], references: [id], onDelete: Restrict)
   creatures        Creature[]
   inventory        Inventory?
   completions      MissionCompletion[]
@@ -271,6 +303,7 @@ model ChildProfile {
   dexDiscoveries   CreaturedexEntry[]
 
   @@index([familyId])
+  @@map("ChildProfile")
 }
 
 // ─── Définitions de contenu (synchronisées depuis packages/game-data) ────────
@@ -442,7 +475,7 @@ model Creature {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  child        ChildProfile      @relation(fields: [childId], references: [id], onDelete: Cascade)
+  child        PlayerProfile     @relation(fields: [childId], references: [id], onDelete: Cascade)
   species      CreatureSpecies   @relation(fields: [speciesId], references: [id])
   form         CreatureEvolution @relation(fields: [formId], references: [id])
   headItem     ItemDefinition?   @relation("EquippedHead", fields: [headItemId], references: [id])
@@ -464,7 +497,7 @@ model CreaturedexEntry {
 
   family       Family            @relation(fields: [familyId], references: [id], onDelete: Cascade)
   form         CreatureEvolution @relation(fields: [formId], references: [id])
-  discoveredBy ChildProfile?     @relation(fields: [discoveredByChildId], references: [id], onDelete: SetNull)
+  discoveredBy PlayerProfile?    @relation(fields: [discoveredByChildId], references: [id], onDelete: SetNull)
 
   @@id([familyId, formId])
 }
@@ -477,7 +510,7 @@ model Inventory {
   coins     Int      @default(0)
   updatedAt DateTime @updatedAt
 
-  child ChildProfile    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  child PlayerProfile   @relation(fields: [childId], references: [id], onDelete: Cascade)
   items InventoryItem[]
 }
 
@@ -500,8 +533,8 @@ model RecipeDiscovery {
   recipeId     String
   discoveredAt DateTime @default(now())
 
-  child  ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
-  recipe Recipe       @relation(fields: [recipeId], references: [id])
+  child  PlayerProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  recipe Recipe        @relation(fields: [recipeId], references: [id])
 
   @@id([childId, recipeId])
 }
@@ -530,7 +563,7 @@ model Mission {
   family        Family              @relation(fields: [familyId], references: [id], onDelete: Cascade)
   createdBy     User?               @relation("MissionCreator", fields: [createdById], references: [id], onDelete: SetNull)
   template      MissionTemplate?    @relation(fields: [templateId], references: [id])
-  assignedChild ChildProfile?       @relation("MissionAssignee", fields: [assignedChildId], references: [id], onDelete: Cascade)
+  assignedChild PlayerProfile?      @relation("MissionAssignee", fields: [assignedChildId], references: [id], onDelete: Cascade)
   rewardItem    ItemDefinition?     @relation(fields: [rewardItemId], references: [id])
   completions   MissionCompletion[]
 
@@ -552,9 +585,9 @@ model MissionCompletion {
   createdAt    DateTime                @default(now())
   updatedAt    DateTime                @updatedAt
 
-  mission    Mission      @relation(fields: [missionId], references: [id], onDelete: Cascade)
-  child      ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
-  reviewedBy User?        @relation("CompletionReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  mission    Mission       @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  child      PlayerProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  reviewedBy User?         @relation("CompletionReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
 
   @@unique([missionId, childId, periodKey])
   @@index([childId, status])
@@ -571,8 +604,8 @@ model XPEvent {
   sourceId   String?
   createdAt  DateTime   @default(now())
 
-  child    ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
-  creature Creature?    @relation(fields: [creatureId], references: [id], onDelete: SetNull)
+  child    PlayerProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  creature Creature?     @relation(fields: [creatureId], references: [id], onDelete: SetNull)
 
   /// Filet de sécurité : un même événement source (mission validée, exploration, partie,
   /// cadeau) ne peut jamais rapporter d'XP deux fois. (NULL autorisé plusieurs fois.)
@@ -596,7 +629,7 @@ model Exploration {
   seenAt      DateTime?
   rewards     Json?
 
-  child    ChildProfile    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  child    PlayerProfile   @relation(fields: [childId], references: [id], onDelete: Cascade)
   creature Creature        @relation(fields: [creatureId], references: [id], onDelete: Cascade)
   zone     ExplorationZone @relation(fields: [zoneId], references: [id])
 
@@ -624,7 +657,7 @@ model Reward {
   createdAt   DateTime     @default(now())
 
   family    Family          @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  child     ChildProfile    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  child     PlayerProfile   @relation(fields: [childId], references: [id], onDelete: Cascade)
   item      ItemDefinition? @relation(fields: [itemId], references: [id])
   createdBy User?           @relation("RewardCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
@@ -687,7 +720,7 @@ model GameSession {
   startedAt   DateTime          @default(now())
   completedAt DateTime?
 
-  child ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  child PlayerProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
 
   @@index([childId, gameKey, startedAt])
 }
@@ -703,8 +736,8 @@ model GameEvent {
   payload   Json
   createdAt DateTime      @default(now())
 
-  family Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  child  ChildProfile? @relation(fields: [childId], references: [id], onDelete: Cascade)
+  family Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  child  PlayerProfile? @relation(fields: [childId], references: [id], onDelete: Cascade)
 
   @@index([childId, createdAt])
   @@index([familyId, createdAt])

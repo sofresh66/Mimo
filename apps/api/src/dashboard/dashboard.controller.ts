@@ -6,7 +6,7 @@ import type {
   ParentDashboard,
   VillageView,
 } from '@mimo/types';
-import { ChildId, ChildOnly, FamilyId, ParentOnly } from '../auth/decorators';
+import { PlayerId, PlayerOnly, FamilyId, ParentOnly } from '../auth/decorators';
 import { Errors } from '../common/errors';
 import { PrismaService } from '../prisma/prisma.service';
 import { VillageService } from '../village/village.service';
@@ -53,7 +53,7 @@ export class DashboardController {
   }
 }
 
-@ChildOnly()
+@PlayerOnly()
 @Controller('me/village')
 export class ChildVillageController {
   constructor(
@@ -62,8 +62,8 @@ export class ChildVillageController {
   ) {}
 
   @Get()
-  async view(@ChildId() childId: string): Promise<VillageView> {
-    const child = await this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+  async view(@PlayerId() childId: string): Promise<VillageView> {
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     return this.village.view(child.familyId);
   }
 }

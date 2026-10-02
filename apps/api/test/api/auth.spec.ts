@@ -32,7 +32,7 @@ describe('Authentification et permissions', () => {
 
   it('stocke les mots de passe et PIN hachés (Argon2)', async () => {
     const { childId } = await setupFamily(app);
-    const child = await prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+    const child = await prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     expect(child.pinHash).toMatch(/^\$argon2id\$/);
     expect(child.pinHash).not.toContain('1234');
   });

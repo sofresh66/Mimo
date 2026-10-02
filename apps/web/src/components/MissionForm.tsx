@@ -197,6 +197,7 @@ export function MissionForm({
         {profiles?.map((p) => (
           <option key={p.id} value={p.id}>
             {p.avatar} {p.displayName}
+            {p.type === 'ADULT' ? ` (${t('parent.adultBadge')})` : ''}
           </option>
         ))}
       </SelectField>

@@ -24,7 +24,11 @@ export default defineConfig({
   },
   projects: [
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testMatch: /responsive|parent/ },
+    {
+      name: 'desktop',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /responsive|parent|adult/,
+    },
   ],
   webServer: {
     command: 'pnpm --dir ../.. dev',

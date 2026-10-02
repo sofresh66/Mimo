@@ -48,7 +48,9 @@ export function PendingList({ pending }: { pending: PendingCompletionView[] }) {
               {p.mission.icon} {p.mission.title}
             </p>
             <p className="text-sm text-slate-500">
-              {p.child.displayName} · +{p.mission.xp} XP · {t(`categories.${p.mission.category}`)}
+              {p.child.displayName}
+              {p.child.type === 'ADULT' ? ` (${t('parent.adultBadge')})` : ''} · +{p.mission.xp} XP
+              · {t(`categories.${p.mission.category}`)}
               {p.requestedAt ? ` · ${relativeTime(p.requestedAt)}` : ''}
             </p>
           </div>
@@ -82,7 +84,7 @@ export function ChildOverviewCard({ child }: { child: ChildOverview }) {
   const { t } = useI18n();
   return (
     <ParentPanel
-      title={`${child.avatar} ${child.displayName}`}
+      title={`${child.avatar} ${child.displayName}${child.type === 'ADULT' ? ` · ${t('parent.adultBadge')}` : ''}`}
       description={
         child.lastSeenAt
           ? t('parent.lastSeen', { date: relativeTime(child.lastSeenAt) })

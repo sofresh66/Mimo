@@ -139,7 +139,7 @@ export class InventoryService {
         update: {},
         include: { items: { orderBy: { acquiredAt: 'asc' } } },
       }),
-      this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } }),
+      this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } }),
       this.prisma.creature.findFirst({ where: { childId, isActive: true } }),
     ]);
     const index = this.catalog.index;
@@ -184,7 +184,7 @@ export class InventoryService {
     const def = this.catalog.index.items.get(itemId);
     if (!def || def.price === undefined) throw Errors.notFound('Article');
     const total = def.price * quantity;
-    const child = await this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     await this.prisma.$transaction(async (tx) => {
       const inventory = await this.ensureInventory(tx, childId);
       const paid = await tx.inventory.updateMany({
@@ -214,7 +214,7 @@ export class InventoryService {
     const effect = def.effect;
     const effects = new Effects();
     const result = await this.prisma.$transaction(async (tx) => {
-      const child = await tx.childProfile.findUniqueOrThrow({ where: { id: childId } });
+      const child = await tx.playerProfile.findUniqueOrThrow({ where: { id: childId } });
       const creature = await this.activeCreature(tx, childId);
       if (await this.isExploring(tx, creature.id)) {
         throw Errors.badRequest('CREATURE_EXPLORING', 'Ton compagnon est en exploration');
@@ -258,7 +258,7 @@ export class InventoryService {
     const recipe = matchRecipe(index.catalog.recipes, ingredients);
     // Une combinaison inconnue ne consomme rien : on peut expérimenter sans rien perdre.
     if (!recipe) return { success: false, recipe: null, newlyDiscovered: false, result: null };
-    const child = await this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     return this.prisma.$transaction(async (tx) => {
       const counts = new Map<string, number>();
       for (const key of ingredients) counts.set(key, (counts.get(key) ?? 0) + 1);
@@ -305,7 +305,7 @@ export class InventoryService {
     if (!def || def.category !== 'CHEST' || !def.loot)
       throw Errors.badRequest('NOT_A_CHEST', 'Ce n’est pas un coffre');
     const lootTable = def.loot;
-    const child = await this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     const loot = await this.prisma.$transaction(async (tx) => {
       await this.removeItem(tx, childId, itemId, 1);
       const rolled = rollLoot(lootTable, createRng(randomInt(2 ** 31)));
@@ -354,7 +354,7 @@ export class InventoryService {
         if (!(await this.owns(tx, childId, key)))
           throw Errors.badRequest('NOT_OWNED', 'Tu ne possèdes pas cet objet');
       }
-      await tx.childProfile.update({ where: { id: childId }, data: { roomDecorations: unique } });
+      await tx.playerProfile.update({ where: { id: childId }, data: { roomDecorations: unique } });
     });
     return this.view(childId);
   }
@@ -365,7 +365,7 @@ export class InventoryService {
     if (!def || def.category !== 'MATERIAL')
       throw Errors.badRequest('NOT_MATERIAL', 'Seuls les matériaux peuvent être donnés');
     const points = MATERIAL_DONATION_POINTS[def.rarity] * quantity;
-    const child = await this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     const effects = new Effects();
     await this.prisma.$transaction(async (tx) => {
       await this.removeItem(tx, childId, itemId, quantity);

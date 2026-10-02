@@ -37,6 +37,19 @@ PostgreSQL, schéma Prisma : `apps/api/prisma/schema.prisma`. Migrations : `apps
 | `GameEvent`                     | Journal (MISSION_COMPLETED, LEVEL_UP, EVOLUTION, ITEM_FOUND, EXPLORATION_*, RECIPE_DISCOVERED…)       |
 | `AuditLog`                      | Journal de sécurité (connexions, échecs PIN, changements de PIN, suppressions)                        |
 
+### Profils de jeu (enfants et adultes joueurs)
+
+Le modèle Prisma `PlayerProfile` utilise la table historique `"ChildProfile"` (`@@map`) : aucune
+table renommée. Les colonnes `childId` des tables de jeu désignent ce profil, quel que soit son
+type. `type` (`CHILD` par défaut | `ADULT`), `userId` unique (compte d'un adulte joueur),
+`pinHash` facultatif **uniquement** pour un adulte. Invariant garanti par la contrainte
+`ChildProfile_player_type_check` : CHILD ⇒ PIN obligatoire et `userId` nul ; ADULT ⇒ `userId`
+obligatoire et PIN nul. La clé étrangère `userId` est en `ON DELETE RESTRICT` : un compte qui
+possède un profil adulte ne peut pas être supprimé tant que ce profil existe (ni profil orphelin,
+ni effacement silencieux des données de jeu).
+Migration `20261004120000_adult_players` : strictement additive (enums, colonnes avec défaut,
+index unique, clé étrangère `ON DELETE RESTRICT`, contrainte CHECK, `DROP NOT NULL` sur `pinHash`).
+
 ## Contraintes et index notables
 
 - `MissionCompletion @@unique([missionId, childId, periodKey])` : une réalisation par période.

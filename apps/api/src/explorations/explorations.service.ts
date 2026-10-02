@@ -79,7 +79,7 @@ export class ExplorationsService implements OnModuleInit {
     const zone = this.catalog.index.zones.get(zoneId);
     if (!zone) throw Errors.notFound('Zone');
     const exploration = await this.prisma.$transaction(async (tx) => {
-      const child = await tx.childProfile.findUniqueOrThrow({ where: { id: childId } });
+      const child = await tx.playerProfile.findUniqueOrThrow({ where: { id: childId } });
       const creature = await tx.creature.findFirst({ where: { childId, isActive: true } });
       if (!creature) throw Errors.badRequest('NO_CREATURE', 'Adopte d’abord un compagnon');
       if (this.catalog.index.form(creature.formId).stage === 'EGG') {

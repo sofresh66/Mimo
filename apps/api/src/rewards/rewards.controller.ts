@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import type { ItemView, RewardOpenResult, RewardView } from '@mimo/types';
 import type { AuthContext } from '../auth/auth.types';
-import { Auth, ChildId, ChildOnly, FamilyId, ParentOnly } from '../auth/decorators';
+import { Auth, PlayerId, PlayerOnly, FamilyId, ParentOnly } from '../auth/decorators';
 import { CatalogService } from '../content/catalog.service';
 import { itemView } from '../content/views';
 import { isGiftableItem } from '../missions/missions.service';
@@ -36,19 +36,19 @@ export class ParentRewardsController {
   }
 }
 
-@ChildOnly()
+@PlayerOnly()
 @Controller('me/rewards')
 export class ChildRewardsController {
   constructor(private readonly rewards: RewardsService) {}
 
   @Get()
-  pending(@ChildId() childId: string): Promise<RewardView[]> {
+  pending(@PlayerId() childId: string): Promise<RewardView[]> {
     return this.rewards.pendingForChild(childId);
   }
 
   @HttpCode(200)
   @Post(':id/open')
-  open(@ChildId() childId: string, @Param('id') id: string): Promise<RewardOpenResult> {
+  open(@PlayerId() childId: string, @Param('id') id: string): Promise<RewardOpenResult> {
     return this.rewards.open(childId, id);
   }
 }

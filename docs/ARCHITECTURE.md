@@ -42,6 +42,13 @@ Points clés :
   traduit `code` en message bienveillant.
 - **Langue** : `Accept-Language` → AsyncLocalStorage → textes de contenu localisés (`fr` par défaut).
 
+### Profils de jeu et modes de session
+
+Modes : `DEVICE` (« Qui joue ? »), `PARENT`, `CHILD` (profil enfant + PIN) et `PLAYER`
+(adulte joueur sur son propre compte). Les routes de jeu `/api/me/*` sont `@PlayerOnly()`
+(CHILD ou PLAYER) et lisent l'identifiant du profil via `@PlayerId()`, toujours depuis la
+session vérifiée en base. Le moteur de jeu et les routes sont communs aux enfants et aux adultes.
+
 ### Tâches et temps réel
 
 - `QueueService` : BullMQ si `REDIS_URL` est défini (jobs persistants, relances), sinon minuteries en mémoire.

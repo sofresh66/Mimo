@@ -26,9 +26,12 @@ export default function WelcomePage() {
   const { me, loading } = useSession();
   const router = useRouter();
 
+  // Un adulte joueur n'a pas d'écran « Qui joue ? » : il entre directement dans le jeu.
+  const player = me?.mode === 'PLAYER';
   useEffect(() => {
     if (me && !me.family) router.replace('/setup');
-  }, [me, router]);
+    else if (player) router.replace('/play');
+  }, [me, player, router]);
 
   if (loading) {
     return (
@@ -38,7 +41,7 @@ export default function WelcomePage() {
     );
   }
   if (!me) return <Landing />;
-  if (!me.family) return null;
+  if (!me.family || player) return null;
   return <WhoPlays familyName={me.family.name} parentMode={me.mode === 'PARENT'} />;
 }
 
@@ -101,7 +104,9 @@ function WhoPlays({ familyName, parentMode }: { familyName: string; parentMode: 
   const { t } = useI18n();
   const router = useRouter();
   const errorMessage = useErrorMessage();
-  const { data: profiles, isPending } = useProfiles();
+  const { data: all, isPending } = useProfiles();
+  // Seuls les enfants se sélectionnent ici (un adulte joueur se connecte avec son compte).
+  const profiles = all?.filter((p) => p.type === 'CHILD');
   const { unlockChild, unlockParent } = useSessionActions();
   const [target, setTarget] = useState<Target | null>(null);
   const [error, setError] = useState<string | null>(null);

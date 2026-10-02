@@ -32,7 +32,11 @@ export type {
 };
 
 export type IsoDate = string;
-export type SessionMode = 'DEVICE' | 'PARENT' | 'CHILD';
+export type SessionMode = 'DEVICE' | 'PARENT' | 'CHILD' | 'PLAYER';
+/** Rôle d'un compte dans sa famille : seul PARENT a des droits parentaux. */
+export type FamilyRole = 'PARENT' | 'ADULT_PLAYER';
+/** Profil de jeu : enfant (PIN) ou adulte joueur (son propre compte, sans droits parentaux). */
+export type PlayerType = 'CHILD' | 'ADULT';
 export type MissionRecurrence = 'ONCE' | 'DAILY' | 'WEEKLY';
 export type MissionStatus = 'TODO' | 'PENDING' | 'APPROVED' | 'DECLINED';
 export type RewardType = 'XP' | 'COINS' | 'ITEM';
@@ -57,10 +61,17 @@ export interface ApiErrorBody {
 // ─── Authentification ────────────────────────────────────────────────────────
 
 export interface MeResponse {
-  user: { id: string; email: string; displayName: string };
+  user: { id: string; email: string; displayName: string; role: FamilyRole };
   family: { id: string; name: string } | null;
   mode: SessionMode;
-  child: { id: string; displayName: string; avatar: string; color: string } | null;
+  /** Profil de jeu de la session (mode CHILD ou PLAYER). */
+  child: {
+    id: string;
+    displayName: string;
+    avatar: string;
+    color: string;
+    type: PlayerType;
+  } | null;
   parentModeExpiresAt: IsoDate | null;
   hasParentPin: boolean;
 }
@@ -146,6 +157,7 @@ export interface ProgressOutcome {
 
 export interface PlayerProfile {
   id: string;
+  type: PlayerType;
   displayName: string;
   avatar: string;
   color: string;
@@ -206,7 +218,7 @@ export interface PendingCompletionView {
     coins: number;
     category: XpCategory;
   };
-  child: { id: string; displayName: string; avatar: string; color: string };
+  child: { id: string; displayName: string; avatar: string; color: string; type: PlayerType };
   requestedAt: IsoDate | null;
 }
 
@@ -465,6 +477,7 @@ export interface GameEventView {
 
 export interface ChildOverview {
   id: string;
+  type: PlayerType;
   displayName: string;
   avatar: string;
   color: string;
@@ -509,11 +522,14 @@ export interface FamilySettings {
   companionEnabled: boolean;
   companionAllowedActions: CompanionAction[];
   parents: Array<{ id: string; displayName: string; email: string }>;
+  /** Adultes joueurs : membres sans aucun droit parental. */
+  adultPlayers: Array<{ id: string; displayName: string; email: string; profileId: string | null }>;
 }
 
 /** Invitation d'un parent en attente (le jeton n'est jamais renvoyé après sa création). */
 export interface ParentInvitationView {
   id: string;
+  role: FamilyRole;
   createdAt: IsoDate;
   expiresAt: IsoDate;
   createdBy: string | null;
@@ -531,6 +547,14 @@ export interface ParentInvitationPreview {
   expiresAt: IsoDate;
   /** Vrai si le visiteur connecté fait déjà partie de cette famille. */
   alreadyMember: boolean;
+  /** Rôle proposé : parent ou adulte joueur. */
+  role: FamilyRole;
+}
+
+export interface AcceptedInvitation {
+  familyId: string;
+  familyName: string;
+  role: FamilyRole;
 }
 
 export interface MissionSuggestion {

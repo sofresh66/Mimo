@@ -19,6 +19,18 @@ import type {
 export const MAX_CHILDREN = 8;
 /** Pièces de bienvenue pour un nouveau profil enfant. */
 export const WELCOME_COINS = 50;
+/** Inventaire de départ de tout nouveau profil de jeu (enfant ou adulte joueur). */
+export const STARTER_INVENTORY = {
+  coins: WELCOME_COINS,
+  items: {
+    create: [
+      { itemId: 'apple', quantity: 3 },
+      { itemId: 'strawberry', quantity: 2 },
+      { itemId: 'milk', quantity: 2 },
+      { itemId: 'ball', quantity: 1 },
+    ],
+  },
+};
 
 @Injectable()
 export class FamilyService {
@@ -60,14 +72,33 @@ export class FamilyService {
   async settings(familyId: string): Promise<FamilySettings> {
     const family = await this.prisma.family.findUniqueOrThrow({
       where: { id: familyId },
-      include: { parents: { select: { id: true, displayName: true, email: true } } },
+      include: {
+        members: {
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            displayName: true,
+            email: true,
+            familyRole: true,
+            playerProfile: { select: { id: true } },
+          },
+        },
+      },
     });
+    const parents = family.members.filter((m) => m.familyRole === 'PARENT');
+    const adults = family.members.filter((m) => m.familyRole === 'ADULT_PLAYER');
     return {
       id: family.id,
       name: family.name,
       companionEnabled: family.companionEnabled,
       companionAllowedActions: family.companionAllowedActions as CompanionAction[],
-      parents: family.parents,
+      parents: parents.map(({ id, displayName, email }) => ({ id, displayName, email })),
+      adultPlayers: adults.map((a) => ({
+        id: a.id,
+        displayName: a.displayName,
+        email: a.email,
+        profileId: a.playerProfile?.id ?? null,
+      })),
     };
   }
 
@@ -106,16 +137,21 @@ export class FamilyService {
 
   // ─── Profils enfants ───────────────────────────────────────────────────────
 
-  /** Écran « Qui joue ? » : profils de la famille de l'appareil. */
-  async profiles(familyId: string): Promise<PlayerProfile[]> {
-    const children = await this.prisma.childProfile.findMany({
-      where: { familyId },
+  /**
+   * Écran « Qui joue ? » : profils enfants de la famille de l'appareil. Les adultes joueurs
+   * n'y figurent pas (ils se connectent avec leur propre compte, jamais par PIN), sauf pour
+   * l'espace parent (`includeAdults`) qui leur attribue missions et récompenses.
+   */
+  async profiles(familyId: string, includeAdults = false): Promise<PlayerProfile[]> {
+    const children = await this.prisma.playerProfile.findMany({
+      where: { familyId, ...(includeAdults ? {} : { type: 'CHILD' as const }) },
       orderBy: { createdAt: 'asc' },
       include: { creatures: { where: { isActive: true }, take: 1 } },
     });
     const now = new Date();
     return children.map((c) => ({
       id: c.id,
+      type: c.type,
       displayName: c.displayName,
       avatar: c.avatar,
       color: c.color,
@@ -125,30 +161,19 @@ export class FamilyService {
   }
 
   async createChild(auth: AuthContext, familyId: string, dto: CreateChildDto, client: ClientInfo) {
-    const count = await this.prisma.childProfile.count({ where: { familyId } });
+    const count = await this.prisma.playerProfile.count({ where: { familyId, type: 'CHILD' } });
     if (count >= MAX_CHILDREN) {
       throw Errors.badRequest('TOO_MANY_CHILDREN', `Maximum ${MAX_CHILDREN} profils par famille`);
     }
-    const child = await this.prisma.childProfile.create({
+    const child = await this.prisma.playerProfile.create({
       data: {
         familyId,
+        type: 'CHILD',
         displayName: dto.displayName,
         avatar: dto.avatar,
         color: dto.color,
         pinHash: await hashSecret(dto.pin),
-        inventory: {
-          create: {
-            coins: WELCOME_COINS,
-            items: {
-              create: [
-                { itemId: 'apple', quantity: 3 },
-                { itemId: 'strawberry', quantity: 2 },
-                { itemId: 'milk', quantity: 2 },
-                { itemId: 'ball', quantity: 1 },
-              ],
-            },
-          },
-        },
+        inventory: { create: STARTER_INVENTORY },
       },
     });
     await this.audit.log({
@@ -163,7 +188,7 @@ export class FamilyService {
 
   async updateChild(familyId: string, childId: string, dto: UpdateChildDto): Promise<void> {
     await this.assertChild(familyId, childId);
-    await this.prisma.childProfile.update({ where: { id: childId }, data: dto });
+    await this.prisma.playerProfile.update({ where: { id: childId }, data: dto });
   }
 
   async changeChildPin(
@@ -174,7 +199,7 @@ export class FamilyService {
     client: ClientInfo,
   ) {
     await this.assertChild(familyId, childId);
-    await this.prisma.childProfile.update({
+    await this.prisma.playerProfile.update({
       where: { id: childId },
       data: { pinHash: await hashSecret(pin), pinFailedAttempts: 0, pinLockedUntil: null },
     });
@@ -195,13 +220,17 @@ export class FamilyService {
     client: ClientInfo,
   ): Promise<void> {
     await this.assertChild(familyId, childId);
-    await this.prisma.childProfile.delete({ where: { id: childId } });
+    await this.prisma.playerProfile.delete({ where: { id: childId } });
     await this.audit.log({ action: 'CHILD_DELETED', userId: auth.userId, familyId, ...client });
   }
 
+  /**
+   * Profil ENFANT de la famille. Le profil d'un adulte joueur n'est ni modifiable, ni
+   * supprimable, ni doté d'un PIN par ces routes : il appartient au compte de l'adulte.
+   */
   async assertChild(familyId: string, childId: string): Promise<void> {
-    const child = await this.prisma.childProfile.findFirst({
-      where: { id: childId, familyId },
+    const child = await this.prisma.playerProfile.findFirst({
+      where: { id: childId, familyId, type: 'CHILD' },
       select: { id: true },
     });
     if (!child) throw Errors.notFound('Profil');

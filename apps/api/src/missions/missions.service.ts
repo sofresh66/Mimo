@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Prisma, type Mission, type MissionCompletion } from '@prisma/client';
+import { Prisma, type Mission, type MissionCompletion, type PlayerType } from '@prisma/client';
 import { VILLAGE_POINTS, type ItemDefinition } from '@mimo/game-data';
 import type {
   ChildMissionView,
@@ -25,6 +25,16 @@ import type { CreateMissionDto, UpdateMissionDto } from './dto';
 import { periodKey } from './period';
 
 /** Objets qu'un parent peut attacher en récompense (les légendaires restent à découvrir). */
+/**
+ * Missions visibles par un profil : un enfant voit les missions familiales (sans destinataire)
+ * et les siennes ; un adulte joueur ne voit QUE les missions qui lui sont attribuées.
+ */
+export function assignedTo(profile: { id: string; type: PlayerType }): Prisma.MissionWhereInput {
+  return profile.type === 'CHILD'
+    ? { OR: [{ assignedChildId: null }, { assignedChildId: profile.id }] }
+    : { assignedChildId: profile.id };
+}
+
 export function isGiftableItem(def: ItemDefinition | undefined): def is ItemDefinition {
   return (
     !!def &&
@@ -198,8 +208,11 @@ export class MissionsService {
     if (mission.assignedChildId && mission.assignedChildId !== childId) {
       throw Errors.badRequest('NOT_ASSIGNED', 'Cette mission est destinée à un autre enfant');
     }
-    const child = await this.prisma.childProfile.findFirst({ where: { id: childId, familyId } });
+    const child = await this.prisma.playerProfile.findFirst({ where: { id: childId, familyId } });
     if (!child) throw Errors.notFound('Profil');
+    if (!mission.assignedChildId && child.type !== 'CHILD') {
+      throw Errors.badRequest('NOT_ASSIGNED', 'Cette mission est destinée aux enfants');
+    }
     const parent = await this.prisma.user.findUniqueOrThrow({ where: { id: auth.userId } });
     const period = periodKey(mission.recurrence, new Date(), this.config.timezone);
     const effects = new Effects();
@@ -326,13 +339,9 @@ export class MissionsService {
   // ─── Enfant ────────────────────────────────────────────────────────────────
 
   async forChild(childId: string): Promise<ChildMissionView[]> {
-    const child = await this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     const missions = await this.prisma.mission.findMany({
-      where: {
-        familyId: child.familyId,
-        isActive: true,
-        OR: [{ assignedChildId: null }, { assignedChildId: childId }],
-      },
+      where: { familyId: child.familyId, isActive: true, ...assignedTo(child) },
       orderBy: { createdAt: 'asc' },
     });
     const now = new Date();
@@ -366,16 +375,14 @@ export class MissionsService {
     ).length;
   }
 
-  /** L'enfant indique qu'il a réalisé la mission : un parent doit valider. */
+  /**
+   * Le joueur (enfant ou adulte joueur) indique qu'il a réalisé la mission : un PARENT doit
+   * valider. Seul l'espace parent peut valider ; un joueur ne valide jamais sa propre mission.
+   */
   async requestValidation(childId: string, missionId: string): Promise<ChildMissionView[]> {
-    const child = await this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     const mission = await this.prisma.mission.findFirst({
-      where: {
-        id: missionId,
-        familyId: child.familyId,
-        isActive: true,
-        OR: [{ assignedChildId: null }, { assignedChildId: childId }],
-      },
+      where: { id: missionId, familyId: child.familyId, isActive: true, ...assignedTo(child) },
     });
     if (!mission) throw Errors.notFound('Mission');
     const period = periodKey(mission.recurrence, new Date(), this.config.timezone);
@@ -429,7 +436,7 @@ export class MissionsService {
   private pendingView(
     c: MissionCompletion,
     m: Mission,
-    child: { id: string; displayName: string; avatar: string; color: string },
+    child: { id: string; displayName: string; avatar: string; color: string; type: PlayerType },
   ): PendingCompletionView {
     return {
       id: c.id,
@@ -446,6 +453,7 @@ export class MissionsService {
         displayName: child.displayName,
         avatar: child.avatar,
         color: child.color,
+        type: child.type,
       },
       requestedAt: c.requestedAt?.toISOString() ?? null,
     };
@@ -464,7 +472,7 @@ export class MissionsService {
     templateId: string | undefined,
   ): Promise<void> {
     if (childId) {
-      const child = await this.prisma.childProfile.findFirst({ where: { id: childId, familyId } });
+      const child = await this.prisma.playerProfile.findFirst({ where: { id: childId, familyId } });
       if (!child) throw Errors.badRequest('INVALID_CHILD', 'Profil inconnu');
     }
     if (rewardItemId && !isGiftableItem(this.catalog.index.items.get(rewardItemId))) {

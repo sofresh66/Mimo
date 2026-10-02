@@ -80,7 +80,7 @@ export class CompanionService {
   ) {}
 
   async status(childId: string): Promise<CompanionStatus> {
-    const child = await this.prisma.childProfile.findUniqueOrThrow({
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({
       where: { id: childId },
       include: { family: true },
     });
@@ -91,7 +91,7 @@ export class CompanionService {
   }
 
   async ask(childId: string, action: CompanionAction): Promise<CompanionResponse> {
-    const child = await this.prisma.childProfile.findUniqueOrThrow({
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({
       where: { id: childId },
       include: { family: true, creatures: { where: { isActive: true }, take: 1 } },
     });

@@ -130,7 +130,7 @@ export class MinigamesService {
       // Sérialise les soumissions d'un même enfant pour un même jeu : le plafond quotidien
       // ne peut pas être contourné en soumettant plusieurs parties en parallèle.
       await tx.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(hashtext(${`${childId}:${game.key}`}))`;
-      const child = await tx.childProfile.findUniqueOrThrow({ where: { id: childId } });
+      const child = await tx.playerProfile.findUniqueOrThrow({ where: { id: childId } });
       const rewardedCount = await tx.gameSession.count({
         where: {
           childId,

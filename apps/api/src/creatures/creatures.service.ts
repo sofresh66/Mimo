@@ -39,7 +39,10 @@ export class CreaturesService {
   async home(childId: string): Promise<ChildHome> {
     await this.explorations.completeDueForChild(childId);
     const [child, creature, inventory, pendingRewards, current, unseen] = await Promise.all([
-      this.prisma.childProfile.update({ where: { id: childId }, data: { lastSeenAt: new Date() } }),
+      this.prisma.playerProfile.update({
+        where: { id: childId },
+        data: { lastSeenAt: new Date() },
+      }),
       this.prisma.creature.findFirst({ where: { childId, isActive: true } }),
       this.prisma.inventory.findUnique({ where: { childId } }),
       this.prisma.reward.count({ where: { childId, status: 'PENDING' } }),
@@ -89,7 +92,7 @@ export class CreaturesService {
     const egg = this.catalog.index.formsOf(speciesId).find((f) => f.stage === 'EGG');
     if (!egg) throw Errors.badRequest('INVALID_SPECIES', 'Espèce inconnue');
     const creature = await this.prisma.$transaction(async (tx) => {
-      const child = await tx.childProfile.findUniqueOrThrow({ where: { id: childId } });
+      const child = await tx.playerProfile.findUniqueOrThrow({ where: { id: childId } });
       if ((await tx.creature.count({ where: { childId } })) > 0) {
         throw Errors.conflict('ALREADY_ADOPTED', 'Tu as déjà un compagnon');
       }
@@ -137,7 +140,7 @@ export class CreaturesService {
   async play(childId: string): Promise<FeedResult> {
     const effects = new Effects();
     const result = await this.prisma.$transaction(async (tx) => {
-      const child = await tx.childProfile.findUniqueOrThrow({ where: { id: childId } });
+      const child = await tx.playerProfile.findUniqueOrThrow({ where: { id: childId } });
       const creature = await this.requireActive(tx, childId);
       if (
         (await tx.exploration.count({
@@ -199,7 +202,7 @@ export class CreaturesService {
     const babyForm = this.catalog.index.formsOf(speciesId).find((f) => f.stage === 'EGG');
     if (!babyForm) throw Errors.badRequest('NOT_AN_EGG', 'Ce n’est pas un oeuf');
     const creature = await this.prisma.$transaction(async (tx) => {
-      const child = await tx.childProfile.findUniqueOrThrow({ where: { id: childId } });
+      const child = await tx.playerProfile.findUniqueOrThrow({ where: { id: childId } });
       await this.inventory.removeItem(tx, childId, itemId, 1);
       const hasActive = (await tx.creature.count({ where: { childId, isActive: true } })) > 0;
       const created = await tx.creature.create({
@@ -222,7 +225,7 @@ export class CreaturesService {
 
   /** Créaturopédie familiale : les formes inconnues restent « ??? ». */
   async dex(childId: string): Promise<DexView> {
-    const child = await this.prisma.childProfile.findUniqueOrThrow({ where: { id: childId } });
+    const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     const discovered = new Set(
       (await this.prisma.creaturedexEntry.findMany({ where: { familyId: child.familyId } })).map(
         (e) => e.formId,

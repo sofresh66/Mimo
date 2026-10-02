@@ -7,7 +7,7 @@ import type {
   PendingCompletionView,
 } from '@mimo/types';
 import type { AuthContext } from '../auth/auth.types';
-import { Auth, ChildId, ChildOnly, FamilyId, ParentOnly } from '../auth/decorators';
+import { Auth, PlayerId, PlayerOnly, FamilyId, ParentOnly } from '../auth/decorators';
 import { CreateMissionDto, UpdateMissionDto, ValidateForChildDto } from './dto';
 import { MissionsService } from './missions.service';
 
@@ -84,19 +84,19 @@ export class ParentMissionsController {
   }
 }
 
-@ChildOnly()
+@PlayerOnly()
 @Controller('me/missions')
 export class ChildMissionsController {
   constructor(private readonly missions: MissionsService) {}
 
   @Get()
-  list(@ChildId() childId: string): Promise<ChildMissionView[]> {
+  list(@PlayerId() childId: string): Promise<ChildMissionView[]> {
     return this.missions.forChild(childId);
   }
 
   @HttpCode(200)
   @Post(':id/done')
-  done(@ChildId() childId: string, @Param('id') id: string): Promise<ChildMissionView[]> {
+  done(@PlayerId() childId: string, @Param('id') id: string): Promise<ChildMissionView[]> {
     return this.missions.requestValidation(childId, id);
   }
 }

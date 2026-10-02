@@ -45,6 +45,26 @@ Suppression d'un profil enfant = effacement définitif de toutes ses données (c
 - Le paramètre `?next=` des pages de connexion/inscription n'accepte que des chemins internes simples
   (pas de redirection ouverte). Création, révocation et acceptation sont journalisées dans l'audit.
 
+## Adultes joueurs (« Mamie »)
+
+Un membre adulte peut rejoindre la famille **comme joueur, sans aucun droit parental**
+(`User.familyRole = ADULT_PLAYER`, les comptes existants restent `PARENT`).
+
+- Invitation par lien `/join-player/<jeton>` : même infrastructure que l'invitation parent
+  (`ParentInvitation.role`), jeton haché, usage unique, 72 h, révocable, verrou de famille,
+  limite de 6 adultes joueurs. Le rôle accordé vient de l'invitation côté serveur, jamais de l'URL.
+- À l'acceptation : profil de jeu `ADULT` créé (sans PIN, sans créature), PIN parent effacé,
+  autres sessions du compte révoquées, session courante basculée en mode `PLAYER` (cookie réémis).
+- Connexion par e-mail + mot de passe → toujours une session `PLAYER` liée à **son** profil.
+  Le garde refuse (401) toute autre session de ce compte (mode parent, appareil, enfant, profil
+  d'un autre membre ou d'une autre famille), y compris après refresh.
+- Refusé (403) : toutes les routes parent (`@ParentOnly` par défaut), `unlock/parent` (même avec
+  le PIN d'un parent), `unlock/child`, `lock`, `/profiles`, acceptation d'une invitation parent.
+- Temps réel : jamais la salle `parents:` (contrôle du rôle dans la passerelle), seulement
+  `child:<son profil>` et `family:`. Il ne reçoit donc pas `mission:requested`.
+- Missions : il ne voit que les missions qui lui sont attribuées ; il les envoie pour validation,
+  seul un parent valide. Le parent ne peut ni modifier, ni supprimer, ni doter d'un PIN son profil.
+
 ## Autorisations
 
 - Garde global : sans décorateur, une route est **réservée au mode parent** (refus par défaut).

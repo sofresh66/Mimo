@@ -67,8 +67,9 @@ export class FamilyController {
   /** « Qui joue ? » — accessible à tout appareil connecté à la famille. */
   @AnyMode()
   @Get('profiles')
-  profiles(@FamilyId() familyId: string): Promise<PlayerProfile[]> {
-    return this.family.profiles(familyId);
+  profiles(@Auth() auth: AuthContext, @FamilyId() familyId: string): Promise<PlayerProfile[]> {
+    // L'espace parent voit aussi les adultes joueurs (missions, récompenses, suivi).
+    return this.family.profiles(familyId, auth.mode === 'PARENT');
   }
 
   @ParentOnly()

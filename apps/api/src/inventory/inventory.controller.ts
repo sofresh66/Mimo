@@ -20,7 +20,7 @@ import type {
   LootView,
   RecipeView,
 } from '@mimo/types';
-import { ChildId, ChildOnly } from '../auth/decorators';
+import { PlayerId, PlayerOnly } from '../auth/decorators';
 import { InventoryService, MAX_ROOM_DECORATIONS } from './inventory.service';
 
 class ItemDto {
@@ -60,13 +60,13 @@ class RoomDto {
   decorations!: string[];
 }
 
-@ChildOnly()
+@PlayerOnly()
 @Controller('me')
 export class InventoryController {
   constructor(private readonly inventory: InventoryService) {}
 
   @Get('inventory')
-  view(@ChildId() childId: string): Promise<InventoryView> {
+  view(@PlayerId() childId: string): Promise<InventoryView> {
     return this.inventory.view(childId);
   }
 
@@ -77,46 +77,46 @@ export class InventoryController {
 
   @HttpCode(200)
   @Post('shop/buy')
-  buy(@ChildId() childId: string, @Body() dto: QuantityItemDto): Promise<InventoryView> {
+  buy(@PlayerId() childId: string, @Body() dto: QuantityItemDto): Promise<InventoryView> {
     return this.inventory.buy(childId, dto.itemId, dto.quantity);
   }
 
   @HttpCode(200)
   @Post('feed')
-  feed(@ChildId() childId: string, @Body() dto: ItemDto): Promise<FeedResult> {
+  feed(@PlayerId() childId: string, @Body() dto: ItemDto): Promise<FeedResult> {
     return this.inventory.feed(childId, dto.itemId);
   }
 
   @HttpCode(200)
   @Post('cook')
-  cook(@ChildId() childId: string, @Body() dto: CookDto): Promise<CookResult> {
+  cook(@PlayerId() childId: string, @Body() dto: CookDto): Promise<CookResult> {
     return this.inventory.cook(childId, dto.ingredients);
   }
 
   @Get('recipes')
-  recipes(@ChildId() childId: string): Promise<RecipeView[]> {
+  recipes(@PlayerId() childId: string): Promise<RecipeView[]> {
     return this.inventory.recipes(childId);
   }
 
   @HttpCode(200)
   @Post('chests/:itemId/open')
-  openChest(@ChildId() childId: string, @Param('itemId') itemId: string): Promise<LootView> {
+  openChest(@PlayerId() childId: string, @Param('itemId') itemId: string): Promise<LootView> {
     return this.inventory.openChest(childId, itemId);
   }
 
   @Put('equipment')
-  equip(@ChildId() childId: string, @Body() dto: EquipDto): Promise<InventoryView> {
+  equip(@PlayerId() childId: string, @Body() dto: EquipDto): Promise<InventoryView> {
     return this.inventory.equip(childId, dto.slot, dto.itemId);
   }
 
   @Put('room')
-  room(@ChildId() childId: string, @Body() dto: RoomDto): Promise<InventoryView> {
+  room(@PlayerId() childId: string, @Body() dto: RoomDto): Promise<InventoryView> {
     return this.inventory.setRoom(childId, dto.decorations);
   }
 
   @HttpCode(200)
   @Post('village/donate')
-  donate(@ChildId() childId: string, @Body() dto: QuantityItemDto): Promise<{ points: number }> {
+  donate(@PlayerId() childId: string, @Body() dto: QuantityItemDto): Promise<{ points: number }> {
     return this.inventory.donate(childId, dto.itemId, dto.quantity);
   }
 }

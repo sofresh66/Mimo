@@ -208,7 +208,9 @@ function ValidateModal({ mission, onClose }: { mission: MissionView | null; onCl
   const errorMessage = useErrorMessage();
   const { data: profiles } = useProfiles();
   const eligible =
-    profiles?.filter((p) => !mission?.assignedChildId || p.id === mission.assignedChildId) ?? [];
+    profiles?.filter((p) =>
+      mission?.assignedChildId ? p.id === mission.assignedChildId : p.type === 'CHILD',
+    ) ?? [];
   const [childId, setChildId] = useState('');
   const validate = useMutation({
     mutationFn: () =>

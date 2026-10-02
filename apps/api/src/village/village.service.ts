@@ -152,7 +152,7 @@ export class VillageService {
         update: {},
         include: { buildings: true },
       }),
-      this.prisma.childProfile.findMany({
+      this.prisma.playerProfile.findMany({
         where: { familyId },
         orderBy: { createdAt: 'asc' },
         include: { creatures: { where: { isActive: true }, take: 1 } },

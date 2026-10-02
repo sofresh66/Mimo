@@ -1,11 +1,14 @@
-import type { SessionMode } from '@prisma/client';
+import type { FamilyUserRole, SessionMode } from '@prisma/client';
 
 /** Contexte d'authentification attaché à chaque requête par l'AuthGuard. */
 export interface AuthContext {
   userId: string;
   sessionId: string;
   familyId: string | null;
+  /** Rôle du compte dans sa famille (lu en base à chaque requête). */
+  role: FamilyUserRole;
   mode: SessionMode;
+  /** Profil de jeu de la session (mode CHILD ou PLAYER). */
   childId: string | null;
   parentModeExpiresAt: Date | null;
 }
