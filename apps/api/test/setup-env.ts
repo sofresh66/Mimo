@@ -8,17 +8,20 @@ import { resolve } from 'node:path';
 
 const envFile = resolve(__dirname, '../../../.env');
 config({ path: envFile, quiet: true });
-const devDatabaseUrl = existsSync(envFile) ? parse(readFileSync(envFile)).DATABASE_URL : undefined;
+const devEnv = existsSync(envFile) ? parse(readFileSync(envFile)) : {};
 
 const testDb = process.env.TEST_DATABASE_URL;
 if (!testDb) throw new Error('TEST_DATABASE_URL est requis pour les tests (voir .env.example)');
-if (testDb === devDatabaseUrl) {
+if (testDb === devEnv.DATABASE_URL || testDb === devEnv.DIRECT_URL) {
   throw new Error(
-    'TEST_DATABASE_URL doit être différent de DATABASE_URL : les tests vident la base.',
+    'TEST_DATABASE_URL doit être différent de DATABASE_URL et DIRECT_URL : les tests vident la base.',
   );
 }
 
 process.env.DATABASE_URL = testDb;
+// Prisma passe par DIRECT_URL pour les migrations (`prisma migrate deploy` du global-setup) :
+// elle doit viser la même base de test, jamais la base de développement.
+process.env.DIRECT_URL = testDb;
 process.env.NODE_ENV = 'test';
 process.env.REDIS_URL = '';
 process.env.ENGINE_URL = '';
