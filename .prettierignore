@@ -1,0 +1,13 @@
+pnpm-lock.yaml
+**/dist
+**/.next
+**/coverage
+**/migrations/**/*.sql
+apps/engine/.venv
+infra/local/.data
+
+# Fichiers d’instructions gérés à la main
+AGENTS.md
+CLAUDE.md
+agent.md
+.claude

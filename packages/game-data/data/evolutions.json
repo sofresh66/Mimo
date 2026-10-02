@@ -1,0 +1,1205 @@
+[
+  {
+    "key": "dragon_egg",
+    "species": "dragon",
+    "stage": "EGG",
+    "name": {
+      "fr": "Oeuf de dragon"
+    },
+    "description": {
+      "fr": "Un oeuf tiède qui frémit doucement."
+    },
+    "hint": {
+      "fr": "Tout commence par un oeuf…"
+    },
+    "palette": {
+      "body": "#5ccf8f",
+      "belly": "#fff1c1",
+      "accent": "#ff8a5c"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 1
+    }
+  },
+  {
+    "key": "dragon_baby",
+    "species": "dragon",
+    "stage": "BABY",
+    "name": {
+      "fr": "Dragonnet"
+    },
+    "description": {
+      "fr": "Un minuscule dragon qui crache des bulles au lieu de flammes."
+    },
+    "hint": {
+      "fr": "Un peu d’attention et l’oeuf éclora."
+    },
+    "palette": {
+      "body": "#5ccf8f",
+      "belly": "#fff1c1",
+      "accent": "#ff8a5c"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 2
+    }
+  },
+  {
+    "key": "dragon_young",
+    "species": "dragon",
+    "stage": "YOUNG",
+    "name": {
+      "fr": "Jeune dragon"
+    },
+    "description": {
+      "fr": "Ses ailes sont assez grandes pour planer quelques secondes."
+    },
+    "hint": {
+      "fr": "Il grandit à chaque aventure."
+    },
+    "palette": {
+      "body": "#5ccf8f",
+      "belly": "#fff1c1",
+      "accent": "#ff8a5c"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 6
+    }
+  },
+  {
+    "key": "dragon_sage",
+    "species": "dragon",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dragon Sage"
+    },
+    "description": {
+      "fr": "Il résout les énigmes les plus difficiles en un battement d’ailes."
+    },
+    "hint": {
+      "fr": "On raconte qu’un dragon qui aime les énigmes devient très sage…"
+    },
+    "palette": {
+      "body": "#3fa7a0",
+      "belly": "#fff1c1",
+      "accent": "#ffd166"
+    },
+    "feature": "glasses",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "LOGIC"
+    }
+  },
+  {
+    "key": "dragon_explorer",
+    "species": "dragon",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dragon Explorateur"
+    },
+    "description": {
+      "fr": "Il connaît tous les chemins secrets du royaume."
+    },
+    "hint": {
+      "fr": "Les dragons qui voyagent beaucoup gardent une boussole sous l’aile."
+    },
+    "palette": {
+      "body": "#4cbf6b",
+      "belly": "#fff1c1",
+      "accent": "#ff7b3a"
+    },
+    "feature": "compass",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "ADVENTURE"
+    }
+  },
+  {
+    "key": "dragon_artist",
+    "species": "dragon",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dragon Artiste"
+    },
+    "description": {
+      "fr": "Ses flammes dessinent des arcs-en-ciel."
+    },
+    "hint": {
+      "fr": "Un dragon qui crée sans cesse finit par peindre avec ses flammes."
+    },
+    "palette": {
+      "body": "#e86fb0",
+      "belly": "#fff1c1",
+      "accent": "#7ad3ff"
+    },
+    "feature": "beret",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "CREATIVITY"
+    }
+  },
+  {
+    "key": "dragon_guardian",
+    "species": "dragon",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dragon Gardien"
+    },
+    "description": {
+      "fr": "Il veille sur tous ses amis."
+    },
+    "hint": {
+      "fr": "Aider les autres rend certains dragons très protecteurs."
+    },
+    "palette": {
+      "body": "#5a8cff",
+      "belly": "#fff1c1",
+      "accent": "#ffd166"
+    },
+    "feature": "shield",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "HELPING"
+    }
+  },
+  {
+    "key": "dragon_blaze",
+    "species": "dragon",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dragon Flamboyant"
+    },
+    "description": {
+      "fr": "Un dragon équilibré, curieux de tout."
+    },
+    "hint": {
+      "fr": "Un dragon qui aime un peu de tout trouve sa propre voie."
+    },
+    "palette": {
+      "body": "#48c78e",
+      "belly": "#fff1c1",
+      "accent": "#ff6b3d"
+    },
+    "feature": "flame",
+    "conditions": {
+      "minLevel": 12
+    }
+  },
+  {
+    "key": "dragon_celestial",
+    "species": "dragon",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Dragon Céleste"
+    },
+    "description": {
+      "fr": "Ses écailles reflètent les constellations."
+    },
+    "hint": {
+      "fr": "Un dragon à la fois sage et aventurier pourrait toucher les étoiles…"
+    },
+    "palette": {
+      "body": "#2b2d6e",
+      "belly": "#fff6c9",
+      "accent": "#ffe066"
+    },
+    "feature": "star",
+    "aura": "#ffe066",
+    "conditions": {
+      "minLevel": 20,
+      "categoryXp": {
+        "LOGIC": 400,
+        "ADVENTURE": 400
+      }
+    }
+  },
+  {
+    "key": "dragon_aurora",
+    "species": "dragon",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Dragon Aurore"
+    },
+    "description": {
+      "fr": "Il apparaît à l’aube après de longs voyages."
+    },
+    "hint": {
+      "fr": "Après d’innombrables voyages, un dragon devient lumière du matin."
+    },
+    "palette": {
+      "body": "#ff9ec7",
+      "belly": "#fff4fb",
+      "accent": "#7ad3ff"
+    },
+    "feature": "flame",
+    "aura": "#ff9ec7",
+    "conditions": {
+      "minLevel": 22,
+      "explorationsCompleted": 20
+    }
+  },
+  {
+    "key": "fox_egg",
+    "species": "fox",
+    "stage": "EGG",
+    "name": {
+      "fr": "Oeuf de renard"
+    },
+    "description": {
+      "fr": "Un oeuf roux tout doux, comme une fourrure."
+    },
+    "hint": {
+      "fr": "Tout commence par un oeuf…"
+    },
+    "palette": {
+      "body": "#ff9a4d",
+      "belly": "#fff6ea",
+      "accent": "#7a4a2b"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 1
+    }
+  },
+  {
+    "key": "fox_baby",
+    "species": "fox",
+    "stage": "BABY",
+    "name": {
+      "fr": "Renardeau"
+    },
+    "description": {
+      "fr": "Un renardeau qui se cache dans sa propre queue."
+    },
+    "hint": {
+      "fr": "Un peu d’attention et l’oeuf éclora."
+    },
+    "palette": {
+      "body": "#ff9a4d",
+      "belly": "#fff6ea",
+      "accent": "#7a4a2b"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 2
+    }
+  },
+  {
+    "key": "fox_young",
+    "species": "fox",
+    "stage": "YOUNG",
+    "name": {
+      "fr": "Jeune renard"
+    },
+    "description": {
+      "fr": "Il écoute toutes les histoires, les oreilles bien dressées."
+    },
+    "hint": {
+      "fr": "Il grandit à chaque aventure."
+    },
+    "palette": {
+      "body": "#ff9a4d",
+      "belly": "#fff6ea",
+      "accent": "#7a4a2b"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 6
+    }
+  },
+  {
+    "key": "fox_storyteller",
+    "species": "fox",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Renard Conteur"
+    },
+    "description": {
+      "fr": "Il connaît des milliers d’histoires."
+    },
+    "hint": {
+      "fr": "Les renards qui dévorent les livres deviennent de grands conteurs."
+    },
+    "palette": {
+      "body": "#f08a3c",
+      "belly": "#fff6ea",
+      "accent": "#6b4bd6"
+    },
+    "feature": "book",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "READING"
+    }
+  },
+  {
+    "key": "fox_swift",
+    "species": "fox",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Renard Agile"
+    },
+    "description": {
+      "fr": "Plus rapide que le vent d’automne."
+    },
+    "hint": {
+      "fr": "Courir, sauter, bouger… certains renards deviennent très agiles."
+    },
+    "palette": {
+      "body": "#ff7a33",
+      "belly": "#fff6ea",
+      "accent": "#2bb673"
+    },
+    "feature": "headband",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "SPORT"
+    }
+  },
+  {
+    "key": "fox_clever",
+    "species": "fox",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Renard Rusé"
+    },
+    "description": {
+      "fr": "Aucun casse-tête ne lui résiste."
+    },
+    "hint": {
+      "fr": "Un renard qui réfléchit beaucoup devient… rusé !"
+    },
+    "palette": {
+      "body": "#d9772e",
+      "belly": "#fff6ea",
+      "accent": "#3a86ff"
+    },
+    "feature": "glasses",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "LOGIC"
+    }
+  },
+  {
+    "key": "fox_kind",
+    "species": "fox",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Renard Bienveillant"
+    },
+    "description": {
+      "fr": "Toujours le premier à donner un coup de patte."
+    },
+    "hint": {
+      "fr": "La gentillesse fait pousser une écharpe toute douce."
+    },
+    "palette": {
+      "body": "#ffa25c",
+      "belly": "#fff6ea",
+      "accent": "#ff5d8f"
+    },
+    "feature": "scarf",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "HELPING"
+    }
+  },
+  {
+    "key": "fox_golden",
+    "species": "fox",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Renard Doré"
+    },
+    "description": {
+      "fr": "Son pelage brille comme le soleil couchant."
+    },
+    "hint": {
+      "fr": "Un renard qui aime tout faire prend la couleur du soleil."
+    },
+    "palette": {
+      "body": "#f7b538",
+      "belly": "#fff6ea",
+      "accent": "#8a4f1d"
+    },
+    "feature": "star",
+    "conditions": {
+      "minLevel": 12
+    }
+  },
+  {
+    "key": "fox_ninetails",
+    "species": "fox",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Renard aux Neuf Queues"
+    },
+    "description": {
+      "fr": "Une légende vivante aux neuf queues de lumière."
+    },
+    "hint": {
+      "fr": "Une légende parle d’un renard qui a lu tous les livres du monde."
+    },
+    "palette": {
+      "body": "#fff1e0",
+      "belly": "#ffffff",
+      "accent": "#ff8a3d"
+    },
+    "feature": "tails",
+    "aura": "#ffd166",
+    "conditions": {
+      "minLevel": 20,
+      "categoryXp": {
+        "READING": 600
+      }
+    }
+  },
+  {
+    "key": "fox_lunar",
+    "species": "fox",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Renard Lunaire"
+    },
+    "description": {
+      "fr": "Il ne sort qu’au clair de lune."
+    },
+    "hint": {
+      "fr": "Un renard gourmand qui connaît beaucoup de recettes…"
+    },
+    "palette": {
+      "body": "#8e9aff",
+      "belly": "#eef0ff",
+      "accent": "#fff1a8"
+    },
+    "feature": "moon",
+    "aura": "#b8c0ff",
+    "conditions": {
+      "minLevel": 20,
+      "recipesDiscovered": 6
+    }
+  },
+  {
+    "key": "dino_egg",
+    "species": "dino",
+    "stage": "EGG",
+    "name": {
+      "fr": "Oeuf de dino"
+    },
+    "description": {
+      "fr": "Un oeuf moucheté qui bouge tout seul."
+    },
+    "hint": {
+      "fr": "Tout commence par un oeuf…"
+    },
+    "palette": {
+      "body": "#7cb7ff",
+      "belly": "#e6f3ff",
+      "accent": "#ffcd4d"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 1
+    }
+  },
+  {
+    "key": "dino_baby",
+    "species": "dino",
+    "stage": "BABY",
+    "name": {
+      "fr": "Dino bébé"
+    },
+    "description": {
+      "fr": "Un bébé dino qui trottine partout."
+    },
+    "hint": {
+      "fr": "Un peu d’attention et l’oeuf éclora."
+    },
+    "palette": {
+      "body": "#7cb7ff",
+      "belly": "#e6f3ff",
+      "accent": "#ffcd4d"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 2
+    }
+  },
+  {
+    "key": "dino_young",
+    "species": "dino",
+    "stage": "YOUNG",
+    "name": {
+      "fr": "Jeune dino"
+    },
+    "description": {
+      "fr": "Il saute plus haut que son ombre !"
+    },
+    "hint": {
+      "fr": "Il grandit à chaque aventure."
+    },
+    "palette": {
+      "body": "#7cb7ff",
+      "belly": "#e6f3ff",
+      "accent": "#ffcd4d"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 6
+    }
+  },
+  {
+    "key": "dino_sprinter",
+    "species": "dino",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dino Sprinteur"
+    },
+    "description": {
+      "fr": "Il bat tous les records de vitesse."
+    },
+    "hint": {
+      "fr": "Les dinos sportifs ont des jambes de champion."
+    },
+    "palette": {
+      "body": "#5aa9ff",
+      "belly": "#e6f3ff",
+      "accent": "#ff5d5d"
+    },
+    "feature": "headband",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "SPORT"
+    }
+  },
+  {
+    "key": "dino_scholar",
+    "species": "dino",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dino Savant"
+    },
+    "description": {
+      "fr": "Il sait tout sur les étoiles et les volcans."
+    },
+    "hint": {
+      "fr": "Un dino qui lit beaucoup devient un vrai savant."
+    },
+    "palette": {
+      "body": "#6c8cff",
+      "belly": "#e6f3ff",
+      "accent": "#ffd166"
+    },
+    "feature": "book",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "READING"
+    }
+  },
+  {
+    "key": "dino_adventurer",
+    "species": "dino",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dino Aventurier"
+    },
+    "description": {
+      "fr": "Il a escaladé toutes les montagnes."
+    },
+    "hint": {
+      "fr": "Les dinos explorateurs reviennent avec des cartes au trésor."
+    },
+    "palette": {
+      "body": "#53b3a0",
+      "belly": "#e6f3ff",
+      "accent": "#ff9f1c"
+    },
+    "feature": "compass",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "ADVENTURE"
+    }
+  },
+  {
+    "key": "dino_gardener",
+    "species": "dino",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dino Jardinier"
+    },
+    "description": {
+      "fr": "Des fleurs poussent partout où il passe."
+    },
+    "hint": {
+      "fr": "Aider à la maison fait parfois pousser des feuilles…"
+    },
+    "palette": {
+      "body": "#6cc46c",
+      "belly": "#e6f3ff",
+      "accent": "#ff7aa2"
+    },
+    "feature": "leaf",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "HELPING"
+    }
+  },
+  {
+    "key": "dino_thunder",
+    "species": "dino",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Dino Tonnerre"
+    },
+    "description": {
+      "fr": "Un dino équilibré au rugissement joyeux."
+    },
+    "hint": {
+      "fr": "Un dino qui touche à tout rugit plus fort."
+    },
+    "palette": {
+      "body": "#4d8dff",
+      "belly": "#e6f3ff",
+      "accent": "#ffe066"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 12
+    }
+  },
+  {
+    "key": "dino_volcano",
+    "species": "dino",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Dino Volcan"
+    },
+    "description": {
+      "fr": "Son énergie est aussi brûlante qu’un volcan."
+    },
+    "hint": {
+      "fr": "Un dino très sportif et aventurier pourrait réveiller un volcan."
+    },
+    "palette": {
+      "body": "#c0392b",
+      "belly": "#ffd8a8",
+      "accent": "#ffb703"
+    },
+    "feature": "flame",
+    "aura": "#ff7b3a",
+    "conditions": {
+      "minLevel": 20,
+      "categoryXp": {
+        "SPORT": 400,
+        "ADVENTURE": 300
+      }
+    }
+  },
+  {
+    "key": "dino_crystal",
+    "species": "dino",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Dino Cristal"
+    },
+    "description": {
+      "fr": "Son corps scintille comme une géode."
+    },
+    "hint": {
+      "fr": "Les dinos qui aident beaucoup leur famille finissent par scintiller."
+    },
+    "palette": {
+      "body": "#9be7ff",
+      "belly": "#f0fcff",
+      "accent": "#c59bff"
+    },
+    "feature": "crystal",
+    "aura": "#9be7ff",
+    "conditions": {
+      "minLevel": 22,
+      "missionsCompleted": 60
+    }
+  },
+  {
+    "key": "robot_egg",
+    "species": "robot",
+    "stage": "EGG",
+    "name": {
+      "fr": "Capsule robot"
+    },
+    "description": {
+      "fr": "Une capsule brillante qui émet de petits bips."
+    },
+    "hint": {
+      "fr": "Tout commence par un oeuf…"
+    },
+    "palette": {
+      "body": "#b8c4d6",
+      "belly": "#eef3fa",
+      "accent": "#26c6da"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 1
+    }
+  },
+  {
+    "key": "robot_baby",
+    "species": "robot",
+    "stage": "BABY",
+    "name": {
+      "fr": "Robot mini"
+    },
+    "description": {
+      "fr": "Un robot tout neuf qui apprend à cligner des yeux."
+    },
+    "hint": {
+      "fr": "Un peu d’attention et l’oeuf éclora."
+    },
+    "palette": {
+      "body": "#b8c4d6",
+      "belly": "#eef3fa",
+      "accent": "#26c6da"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 2
+    }
+  },
+  {
+    "key": "robot_young",
+    "species": "robot",
+    "stage": "YOUNG",
+    "name": {
+      "fr": "Jeune robot"
+    },
+    "description": {
+      "fr": "Ses circuits s’allument quand il réfléchit."
+    },
+    "hint": {
+      "fr": "Il grandit à chaque aventure."
+    },
+    "palette": {
+      "body": "#b8c4d6",
+      "belly": "#eef3fa",
+      "accent": "#26c6da"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 6
+    }
+  },
+  {
+    "key": "robot_engineer",
+    "species": "robot",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Robot Ingénieur"
+    },
+    "description": {
+      "fr": "Il invente des machines incroyables."
+    },
+    "hint": {
+      "fr": "Les robots logiques finissent par construire leurs propres engrenages."
+    },
+    "palette": {
+      "body": "#9fb3c8",
+      "belly": "#eef3fa",
+      "accent": "#ff9f1c"
+    },
+    "feature": "gear",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "LOGIC"
+    }
+  },
+  {
+    "key": "robot_musician",
+    "species": "robot",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Robot Musicien"
+    },
+    "description": {
+      "fr": "Ses bips forment des mélodies."
+    },
+    "hint": {
+      "fr": "Un robot créatif découvre la musique dans ses circuits."
+    },
+    "palette": {
+      "body": "#c0a6e8",
+      "belly": "#eef3fa",
+      "accent": "#ff5d8f"
+    },
+    "feature": "note",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "CREATIVITY"
+    }
+  },
+  {
+    "key": "robot_turbo",
+    "species": "robot",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Robot Turbo"
+    },
+    "description": {
+      "fr": "Équipé de réacteurs ultra-rapides."
+    },
+    "hint": {
+      "fr": "Bouger beaucoup active un mode secret…"
+    },
+    "palette": {
+      "body": "#a7c4dd",
+      "belly": "#eef3fa",
+      "accent": "#ff4d4d"
+    },
+    "feature": "headband",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "SPORT"
+    }
+  },
+  {
+    "key": "robot_librarian",
+    "species": "robot",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Robot Bibliothécaire"
+    },
+    "description": {
+      "fr": "Sa mémoire contient une bibliothèque entière."
+    },
+    "hint": {
+      "fr": "Les robots lecteurs ont une mémoire infinie."
+    },
+    "palette": {
+      "body": "#b5c9b5",
+      "belly": "#eef3fa",
+      "accent": "#3a86ff"
+    },
+    "feature": "book",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "READING"
+    }
+  },
+  {
+    "key": "robot_versatile",
+    "species": "robot",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Robot Polyvalent"
+    },
+    "description": {
+      "fr": "Un robot qui sait (presque) tout faire."
+    },
+    "hint": {
+      "fr": "Un robot curieux de tout devient polyvalent."
+    },
+    "palette": {
+      "body": "#b0bfd4",
+      "belly": "#eef3fa",
+      "accent": "#2ec4b6"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 12
+    }
+  },
+  {
+    "key": "robot_quantum",
+    "species": "robot",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Robot Quantique"
+    },
+    "description": {
+      "fr": "Il peut être à deux endroits en même temps."
+    },
+    "hint": {
+      "fr": "Un robot qui a résolu énormément d’énigmes change de dimension."
+    },
+    "palette": {
+      "body": "#3a3f5c",
+      "belly": "#d7f9ff",
+      "accent": "#7af0ff"
+    },
+    "feature": "crystal",
+    "aura": "#7af0ff",
+    "conditions": {
+      "minLevel": 20,
+      "categoryXp": {
+        "LOGIC": 600
+      }
+    }
+  },
+  {
+    "key": "robot_galactic",
+    "species": "robot",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Robot Galactique"
+    },
+    "description": {
+      "fr": "Il a visité toutes les galaxies."
+    },
+    "hint": {
+      "fr": "Les robots grands voyageurs finissent par rejoindre les étoiles."
+    },
+    "palette": {
+      "body": "#5b4b8a",
+      "belly": "#efe7ff",
+      "accent": "#ffd166"
+    },
+    "feature": "star",
+    "aura": "#c59bff",
+    "conditions": {
+      "minLevel": 22,
+      "explorationsCompleted": 20
+    }
+  },
+  {
+    "key": "spirit_egg",
+    "species": "spirit",
+    "stage": "EGG",
+    "name": {
+      "fr": "Perle mystique"
+    },
+    "description": {
+      "fr": "Une perle lumineuse qui change de couleur."
+    },
+    "hint": {
+      "fr": "Tout commence par un oeuf…"
+    },
+    "palette": {
+      "body": "#c59bff",
+      "belly": "#f6edff",
+      "accent": "#ffd6f5"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 1
+    }
+  },
+  {
+    "key": "spirit_baby",
+    "species": "spirit",
+    "stage": "BABY",
+    "name": {
+      "fr": "Petite lueur"
+    },
+    "description": {
+      "fr": "Une petite lueur qui rit en scintillant."
+    },
+    "hint": {
+      "fr": "Un peu d’attention et l’oeuf éclora."
+    },
+    "palette": {
+      "body": "#c59bff",
+      "belly": "#f6edff",
+      "accent": "#ffd6f5"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 2
+    }
+  },
+  {
+    "key": "spirit_young",
+    "species": "spirit",
+    "stage": "YOUNG",
+    "name": {
+      "fr": "Jeune esprit"
+    },
+    "description": {
+      "fr": "Il laisse une traînée d’étoiles derrière lui."
+    },
+    "hint": {
+      "fr": "Il grandit à chaque aventure."
+    },
+    "palette": {
+      "body": "#c59bff",
+      "belly": "#f6edff",
+      "accent": "#ffd6f5"
+    },
+    "feature": "none",
+    "conditions": {
+      "minLevel": 6
+    }
+  },
+  {
+    "key": "spirit_dream",
+    "species": "spirit",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Esprit des Rêves"
+    },
+    "description": {
+      "fr": "Il peint les rêves de la nuit."
+    },
+    "hint": {
+      "fr": "Les esprits créatifs vivent dans le pays des rêves."
+    },
+    "palette": {
+      "body": "#b18cff",
+      "belly": "#f6edff",
+      "accent": "#ffd6f5"
+    },
+    "feature": "moon",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "CREATIVITY"
+    }
+  },
+  {
+    "key": "spirit_warden",
+    "species": "spirit",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Esprit Gardien"
+    },
+    "description": {
+      "fr": "Une lumière qui protège et rassure."
+    },
+    "hint": {
+      "fr": "Aider les autres fait briller certains esprits très fort."
+    },
+    "palette": {
+      "body": "#8fb5ff",
+      "belly": "#f6edff",
+      "accent": "#fff3b0"
+    },
+    "feature": "shield",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "HELPING"
+    }
+  },
+  {
+    "key": "spirit_wind",
+    "species": "spirit",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Esprit des Vents"
+    },
+    "description": {
+      "fr": "Il voyage sur les courants d’air."
+    },
+    "hint": {
+      "fr": "Les esprits voyageurs se laissent porter par le vent."
+    },
+    "palette": {
+      "body": "#9be7e0",
+      "belly": "#f6edff",
+      "accent": "#c59bff"
+    },
+    "feature": "compass",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "ADVENTURE"
+    }
+  },
+  {
+    "key": "spirit_erudite",
+    "species": "spirit",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Esprit Érudit"
+    },
+    "description": {
+      "fr": "Il murmure des secrets anciens."
+    },
+    "hint": {
+      "fr": "Les livres donnent aux esprits une lumière dorée."
+    },
+    "palette": {
+      "body": "#c9a7ff",
+      "belly": "#f6edff",
+      "accent": "#ffcf56"
+    },
+    "feature": "book",
+    "conditions": {
+      "minLevel": 12,
+      "dominant": "READING"
+    }
+  },
+  {
+    "key": "spirit_radiant",
+    "species": "spirit",
+    "stage": "ADULT",
+    "name": {
+      "fr": "Esprit Lumineux"
+    },
+    "description": {
+      "fr": "Un esprit équilibré qui illumine la nuit."
+    },
+    "hint": {
+      "fr": "Un esprit qui aime tout brille de mille feux."
+    },
+    "palette": {
+      "body": "#d4b3ff",
+      "belly": "#f6edff",
+      "accent": "#fff1a8"
+    },
+    "feature": "star",
+    "conditions": {
+      "minLevel": 12
+    }
+  },
+  {
+    "key": "spirit_rainbow",
+    "species": "spirit",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Esprit Arc-en-ciel"
+    },
+    "description": {
+      "fr": "Chaque sourire ajoute une couleur à sa lumière."
+    },
+    "hint": {
+      "fr": "Créer et partager… voilà qui colore un esprit."
+    },
+    "palette": {
+      "body": "#ffb3d9",
+      "belly": "#ffffff",
+      "accent": "#7ad3ff"
+    },
+    "feature": "star",
+    "aura": "#ff9ec7",
+    "conditions": {
+      "minLevel": 20,
+      "categoryXp": {
+        "CREATIVITY": 400,
+        "HELPING": 300
+      }
+    }
+  },
+  {
+    "key": "spirit_eternal",
+    "species": "spirit",
+    "stage": "SPECIAL",
+    "name": {
+      "fr": "Esprit Éternel"
+    },
+    "description": {
+      "fr": "Une lumière douce qui ne s’éteint jamais."
+    },
+    "hint": {
+      "fr": "Une lumière très ancienne attend les familles très patientes."
+    },
+    "palette": {
+      "body": "#fff7d6",
+      "belly": "#ffffff",
+      "accent": "#c59bff"
+    },
+    "feature": "moon",
+    "aura": "#fff1a8",
+    "conditions": {
+      "minLevel": 25,
+      "missionsCompleted": 80
+    }
+  }
+]

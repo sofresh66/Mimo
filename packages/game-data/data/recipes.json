@@ -1,0 +1,112 @@
+[
+  {
+    "key": "recipe_magic_milkshake",
+    "name": {
+      "fr": "Milkshake magique"
+    },
+    "ingredients": ["strawberry", "milk"],
+    "result": "magic_milkshake",
+    "hint": {
+      "fr": "Quelque chose de rouge et quelque chose de blanc…"
+    }
+  },
+  {
+    "key": "recipe_caramel_apple",
+    "name": {
+      "fr": "Pomme caramel"
+    },
+    "ingredients": ["apple", "honey"],
+    "result": "caramel_apple",
+    "hint": {
+      "fr": "Un fruit croquant et quelque chose de doré."
+    }
+  },
+  {
+    "key": "recipe_banana_smoothie",
+    "name": {
+      "fr": "Smoothie banane"
+    },
+    "ingredients": ["banana", "milk"],
+    "result": "banana_smoothie",
+    "hint": {
+      "fr": "Un fruit jaune qui aime nager dans le blanc."
+    }
+  },
+  {
+    "key": "recipe_golden_toast",
+    "name": {
+      "fr": "Tartine dorée"
+    },
+    "ingredients": ["bread", "honey"],
+    "result": "golden_toast",
+    "hint": {
+      "fr": "Une tartine qui brille comme le soleil."
+    }
+  },
+  {
+    "key": "recipe_forest_soup",
+    "name": {
+      "fr": "Soupe de la forêt"
+    },
+    "ingredients": ["mushroom", "carrot"],
+    "result": "forest_soup",
+    "hint": {
+      "fr": "Deux trésors de la terre dans une marmite."
+    }
+  },
+  {
+    "key": "recipe_grape_pie",
+    "name": {
+      "fr": "Tarte aux raisins"
+    },
+    "ingredients": ["grapes", "bread"],
+    "result": "grape_pie",
+    "hint": {
+      "fr": "Des petits grains violets sur une pâte."
+    }
+  },
+  {
+    "key": "recipe_choco_banana",
+    "name": {
+      "fr": "Banane chocolatée"
+    },
+    "ingredients": ["banana", "chocolate"],
+    "result": "choco_banana",
+    "hint": {
+      "fr": "Le jaune et le brun font la paire."
+    }
+  },
+  {
+    "key": "recipe_fruit_salad",
+    "name": {
+      "fr": "Salade de fruits"
+    },
+    "ingredients": ["apple", "strawberry", "banana"],
+    "result": "fruit_salad",
+    "hint": {
+      "fr": "Trois fruits, trois couleurs."
+    }
+  },
+  {
+    "key": "recipe_carrot_cake",
+    "name": {
+      "fr": "Gâteau à la carotte"
+    },
+    "ingredients": ["carrot", "bread", "honey"],
+    "result": "carrot_cake",
+    "hint": {
+      "fr": "Un légume orange dans un gâteau ? Oui !"
+    }
+  },
+  {
+    "key": "recipe_star_cake",
+    "name": {
+      "fr": "Gâteau étoilé"
+    },
+    "ingredients": ["star_fruit", "milk", "honey"],
+    "result": "star_cake",
+    "hint": {
+      "fr": "Une recette qui vient des étoiles…"
+    }
+  }
+]

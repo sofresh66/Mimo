@@ -1,0 +1,100 @@
+# Mimo — services Docker.
+#
+# Développement (le plus courant) : seulement la base et Redis, les apps tournent avec `pnpm dev`.
+#   docker compose up -d
+#
+# Stack complète conteneurisée (web + api + moteur) :
+#   docker compose --profile app up -d --build
+#
+# Les valeurs par défaut ci-dessous sont des valeurs de DÉVELOPPEMENT.
+# En production, définir les variables dans un fichier .env (voir .env.example et docs/DEPLOYMENT.md).
+
+name: mimo
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mimo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mimo}
+      POSTGRES_DB: mimo
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/docker/postgres-init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-mimo} -d mimo']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  engine:
+    profiles: ['app']
+    build:
+      context: ./apps/engine
+    restart: unless-stopped
+    environment:
+      ENGINE_API_KEY: ${ENGINE_API_KEY:-change-me-engine-key}
+    expose:
+      - '8000'
+
+  api:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-mimo}:${POSTGRES_PASSWORD:-mimo}@postgres:5432/mimo?schema=public
+      REDIS_URL: redis://redis:6379
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET doit être défini}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-10}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Paris}
+      EXPLORATION_TIME_SCALE: ${EXPLORATION_TIME_SCALE:-1}
+      ENGINE_URL: http://engine:8000
+      ENGINE_API_KEY: ${ENGINE_API_KEY:-change-me-engine-key}
+    expose:
+      - '4000'
+
+  web:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        API_INTERNAL_URL: http://api:4000
+        NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Mimo}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - '3000:3000'
+
+volumes:
+  postgres-data:
+  redis-data:

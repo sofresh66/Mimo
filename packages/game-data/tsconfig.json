@@ -1,0 +1,5 @@
+{
+  "extends": "@mimo/config/tsconfig/library.json",
+  "compilerOptions": { "rootDir": ".", "noEmit": true },
+  "include": ["src", "data", "test"]
+}

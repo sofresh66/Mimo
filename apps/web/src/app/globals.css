@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+@import '@mimo/ui/styles.css';
+
+/* Les composants du design system sont dans packages/ui. */
+@source '../../../../packages/ui/src';
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+}
+
+/* Fond « jeu » : petites formes douces. */
+.kid-bg {
+  background:
+    radial-gradient(circle at 12% 18%, #ffe3d3 0 70px, transparent 71px),
+    radial-gradient(circle at 88% 12%, #e5ddff 0 90px, transparent 91px),
+    radial-gradient(circle at 80% 85%, #d9f5e6 0 110px, transparent 111px),
+    radial-gradient(circle at 5% 90%, #fff0c7 0 80px, transparent 81px), var(--color-cream);
+  background-attachment: fixed;
+}
+
+.parent-bg {
+  background: #f6f7fb;
+}
+
+/* Zones sûres des appareils à encoche (PWA installée). */
+.safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+.safe-top {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}

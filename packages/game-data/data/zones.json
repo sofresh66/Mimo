@@ -1,0 +1,389 @@
+[
+  {
+    "key": "glowing_forest",
+    "name": {
+      "fr": "Forêt lumineuse"
+    },
+    "description": {
+      "fr": "Des arbres qui brillent doucement et des champignons partout."
+    },
+    "emoji": "🌲",
+    "colors": ["#5ccf8f", "#1f7a5a"],
+    "durationMinutes": 5,
+    "minLevel": 1,
+    "energyCost": 15,
+    "xp": {
+      "category": "ADVENTURE",
+      "amount": 15
+    },
+    "loot": {
+      "rolls": 3,
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 4,
+          "min": 5,
+          "max": 15
+        },
+        {
+          "kind": "item",
+          "item": "apple",
+          "weight": 4,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "mushroom",
+          "weight": 4,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "grapes",
+          "weight": 3
+        },
+        {
+          "kind": "item",
+          "item": "wood",
+          "weight": 3,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "kind": "item",
+          "item": "flower",
+          "weight": 3,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "honey",
+          "weight": 1
+        }
+      ]
+    }
+  },
+  {
+    "key": "shell_beach",
+    "name": {
+      "fr": "Plage aux coquillages"
+    },
+    "description": {
+      "fr": "Du sable chaud et des vagues qui chantent."
+    },
+    "emoji": "🏖️",
+    "colors": ["#ffd48a", "#3fb6e8"],
+    "durationMinutes": 10,
+    "minLevel": 3,
+    "energyCost": 20,
+    "xp": {
+      "category": "ADVENTURE",
+      "amount": 20
+    },
+    "loot": {
+      "rolls": 3,
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 4,
+          "min": 10,
+          "max": 20
+        },
+        {
+          "kind": "item",
+          "item": "shell",
+          "weight": 5,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "kind": "item",
+          "item": "strawberry",
+          "weight": 3,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "banana",
+          "weight": 3
+        },
+        {
+          "kind": "item",
+          "item": "sunglasses",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "chest_common",
+          "weight": 1
+        }
+      ]
+    }
+  },
+  {
+    "key": "cloud_mountain",
+    "name": {
+      "fr": "Montagne des nuages"
+    },
+    "description": {
+      "fr": "Un sommet si haut qu’on peut toucher les nuages."
+    },
+    "emoji": "⛰️",
+    "colors": ["#b8c8ff", "#6b7bd6"],
+    "durationMinutes": 20,
+    "minLevel": 6,
+    "energyCost": 25,
+    "xp": {
+      "category": "ADVENTURE",
+      "amount": 30
+    },
+    "loot": {
+      "rolls": 3,
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 4,
+          "min": 15,
+          "max": 30
+        },
+        {
+          "kind": "item",
+          "item": "stone",
+          "weight": 4,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "kind": "item",
+          "item": "feather",
+          "weight": 4,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "milk",
+          "weight": 3
+        },
+        {
+          "kind": "item",
+          "item": "honey",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "crystal",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "map_fragment",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "chest_rare",
+          "weight": 1
+        }
+      ]
+    }
+  },
+  {
+    "key": "crystal_cave",
+    "name": {
+      "fr": "Grotte de cristal"
+    },
+    "description": {
+      "fr": "Une grotte où chaque pierre brille comme un arc-en-ciel."
+    },
+    "emoji": "💎",
+    "colors": ["#9be7ff", "#7a5cff"],
+    "durationMinutes": 30,
+    "minLevel": 9,
+    "energyCost": 30,
+    "xp": {
+      "category": "ADVENTURE",
+      "amount": 40
+    },
+    "loot": {
+      "rolls": 4,
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 4,
+          "min": 20,
+          "max": 40
+        },
+        {
+          "kind": "item",
+          "item": "crystal",
+          "weight": 4,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "stone",
+          "weight": 3,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "kind": "item",
+          "item": "chocolate",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "stardust",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "chest_rare",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "egg_robot",
+          "weight": 0.3
+        }
+      ]
+    }
+  },
+  {
+    "key": "floating_library",
+    "name": {
+      "fr": "Bibliothèque flottante"
+    },
+    "description": {
+      "fr": "Des livres qui volent et murmurent des histoires."
+    },
+    "emoji": "📚",
+    "colors": ["#ffcf8a", "#b06cff"],
+    "durationMinutes": 45,
+    "minLevel": 12,
+    "energyCost": 30,
+    "xp": {
+      "category": "READING",
+      "amount": 50
+    },
+    "loot": {
+      "rolls": 4,
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 4,
+          "min": 25,
+          "max": 50
+        },
+        {
+          "kind": "item",
+          "item": "magnifier",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "round_glasses",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "feather",
+          "weight": 3,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "kind": "item",
+          "item": "star_fruit",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "wizard_hat",
+          "weight": 0.5
+        },
+        {
+          "kind": "item",
+          "item": "chest_epic",
+          "weight": 0.5
+        },
+        {
+          "kind": "item",
+          "item": "egg_fox",
+          "weight": 0.3
+        }
+      ]
+    }
+  },
+  {
+    "key": "star_island",
+    "name": {
+      "fr": "Île des étoiles"
+    },
+    "description": {
+      "fr": "Une île lointaine où tombent les étoiles filantes."
+    },
+    "emoji": "🌟",
+    "colors": ["#2b2d6e", "#ff9ec7"],
+    "durationMinutes": 60,
+    "minLevel": 16,
+    "energyCost": 35,
+    "xp": {
+      "category": "ADVENTURE",
+      "amount": 70
+    },
+    "loot": {
+      "rolls": 4,
+      "guaranteed": [
+        {
+          "item": "stardust",
+          "quantity": 1
+        }
+      ],
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 4,
+          "min": 40,
+          "max": 80
+        },
+        {
+          "kind": "item",
+          "item": "star_fruit",
+          "weight": 3
+        },
+        {
+          "kind": "item",
+          "item": "stardust",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "chest_epic",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "egg_spirit",
+          "weight": 0.5
+        },
+        {
+          "kind": "item",
+          "item": "egg_dragon",
+          "weight": 0.3
+        },
+        {
+          "kind": "item",
+          "item": "golden_crown",
+          "weight": 0.2
+        }
+      ]
+    }
+  }
+]

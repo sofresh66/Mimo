@@ -1,0 +1,6 @@
+{
+  "extends": "@mimo/config/tsconfig/library.json",
+  "compilerOptions": { "outDir": "dist", "rootDir": "." },
+  "include": ["src", "data"],
+  "exclude": ["**/*.test.ts"]
+}

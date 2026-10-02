@@ -1,0 +1,29 @@
+/*
+ * Jetons de design Mimo (Tailwind CSS v4).
+ * Importé par l'application web : `@import "@mimo/ui/styles.css";`
+ */
+@theme {
+  --color-cream: #fff8f0;
+  --color-ink: #2d2a3e;
+  --color-primary: #7c5cff;
+  --color-primary-dark: #5b3fd6;
+  --color-coral: #ff8a5c;
+  --color-mint: #4cc283;
+  --color-sky: #3fb6e8;
+  --color-sun: #ffc145;
+  --color-pink: #ff7aa2;
+
+  --font-display: var(--font-fredoka), 'Nunito', system-ui, sans-serif;
+  --font-sans: var(--font-nunito), system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

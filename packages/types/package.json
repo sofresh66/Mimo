@@ -1,0 +1,28 @@
+{
+  "name": "@mimo/types",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Types partagés (contrat API et événements temps réel)",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@mimo/game-data": "workspace:*"
+  },
+  "devDependencies": {
+    "@mimo/config": "workspace:*",
+    "eslint": "^9.39.5",
+    "typescript": "5.9.3"
+  }
+}

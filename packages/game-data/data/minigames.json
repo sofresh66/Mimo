@@ -1,0 +1,50 @@
+[
+  {
+    "key": "memory",
+    "name": {
+      "fr": "Mémoire"
+    },
+    "description": {
+      "fr": "Retrouve les paires de cartes identiques."
+    },
+    "emoji": "🧠",
+    "category": "CREATIVITY",
+    "maxXp": 15,
+    "dailyRewardedSessions": 5,
+    "minDurationSeconds": 8,
+    "maxDurationSeconds": 600,
+    "energyCost": 5
+  },
+  {
+    "key": "math",
+    "name": {
+      "fr": "Calcul mental"
+    },
+    "description": {
+      "fr": "Résous 10 petits calculs."
+    },
+    "emoji": "➕",
+    "category": "LOGIC",
+    "maxXp": 15,
+    "dailyRewardedSessions": 5,
+    "minDurationSeconds": 8,
+    "maxDurationSeconds": 600,
+    "energyCost": 5
+  },
+  {
+    "key": "sequence",
+    "name": {
+      "fr": "Suite logique"
+    },
+    "description": {
+      "fr": "Trouve ce qui vient ensuite."
+    },
+    "emoji": "🔢",
+    "category": "LOGIC",
+    "maxXp": 15,
+    "dailyRewardedSessions": 5,
+    "minDurationSeconds": 8,
+    "maxDurationSeconds": 600,
+    "energyCost": 5
+  }
+]

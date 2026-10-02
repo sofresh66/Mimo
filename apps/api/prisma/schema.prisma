@@ -1,0 +1,705 @@
+// Schéma de données de Mimo.
+// Conventions :
+// - les tables de définition (espèces, formes, objets, recettes, zones, modèles de missions,
+//   bâtiments, missions familiales) utilisent la clé fonctionnelle du contenu comme `id`
+//   (ex. "dragon_sage") ; elles sont synchronisées depuis packages/game-data ;
+// - les tables de jeu utilisent des identifiants cuid ;
+// - aucune donnée personnelle superflue sur les enfants (prénom/pseudo uniquement).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Énumérations ────────────────────────────────────────────────────────────
+
+enum XpCategory {
+  LOGIC
+  CREATIVITY
+  READING
+  ADVENTURE
+  HELPING
+  SPORT
+}
+
+enum EvolutionStage {
+  EGG
+  BABY
+  YOUNG
+  ADULT
+  SPECIAL
+}
+
+enum Rarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum ItemCategory {
+  FOOD
+  ACCESSORY
+  OBJECT
+  MATERIAL
+  DECORATION
+  SPECIAL
+  CHEST
+}
+
+enum AccessorySlot {
+  HEAD
+  FACE
+  NECK
+  BACK
+}
+
+enum SessionMode {
+  DEVICE
+  PARENT
+  CHILD
+}
+
+enum MissionRecurrence {
+  ONCE
+  DAILY
+  WEEKLY
+}
+
+enum MissionCompletionStatus {
+  PENDING
+  APPROVED
+  DECLINED
+}
+
+enum XpSource {
+  MISSION
+  MINIGAME
+  EXPLORATION
+  REWARD
+  FOOD
+  PLAY
+  FAMILY_MISSION
+}
+
+enum ExplorationStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum RewardType {
+  XP
+  COINS
+  ITEM
+}
+
+enum RewardStatus {
+  PENDING
+  CLAIMED
+}
+
+enum RewardSource {
+  PARENT
+  MISSION
+  FAMILY_MISSION
+  LEVEL_UP
+}
+
+enum GameSessionStatus {
+  STARTED
+  COMPLETED
+  EXPIRED
+}
+
+enum FamilyGoalType {
+  MISSIONS_COMPLETED
+  EXPLORATIONS_COMPLETED
+  GAMES_PLAYED
+  CREATURES_FED
+}
+
+enum GameEventType {
+  CREATURE_ADOPTED
+  CREATURE_HATCHED
+  MISSION_REQUESTED
+  MISSION_COMPLETED
+  XP_GAINED
+  LEVEL_UP
+  EVOLUTION
+  ITEM_FOUND
+  ITEM_BOUGHT
+  CREATURE_FED
+  CREATURE_PLAYED
+  RECIPE_DISCOVERED
+  CHEST_OPENED
+  REWARD_RECEIVED
+  EXPLORATION_STARTED
+  EXPLORATION_COMPLETED
+  GAME_PLAYED
+  MATERIAL_DONATED
+  BUILDING_UNLOCKED
+  FAMILY_MISSION_COMPLETED
+  COMPANION_USED
+}
+
+// ─── Comptes et familles ─────────────────────────────────────────────────────
+
+/// Compte parent (seul type de compte avec e-mail et mot de passe).
+model User {
+  id                      String    @id @default(cuid())
+  email                   String    @unique
+  passwordHash            String
+  /// Nom affiché aux enfants (« Papa », « Maman », « Mamie »…).
+  displayName             String
+  familyId                String?
+  parentPinHash           String?
+  parentPinFailedAttempts Int       @default(0)
+  parentPinLockedUntil    DateTime?
+  lastLoginAt             DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  family              Family?             @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  sessions            AuthSession[]
+  createdMissions     Mission[]           @relation("MissionCreator")
+  reviewedCompletions MissionCompletion[] @relation("CompletionReviewer")
+  createdRewards      Reward[]            @relation("RewardCreator")
+  auditLogs           AuditLog[]
+
+  @@index([familyId])
+}
+
+/// Session d'appareil. Le refresh token (haché) permet de renouveler le JWT d'accès.
+/// Le mode actif (appareil, parent, enfant) est porté par la session côté serveur.
+model AuthSession {
+  id                  String      @id @default(cuid())
+  userId              String
+  refreshTokenHash    String      @unique
+  mode                SessionMode @default(DEVICE)
+  childId             String?
+  parentModeExpiresAt DateTime?
+  userAgent           String?
+  createdAt           DateTime    @default(now())
+  lastUsedAt          DateTime    @default(now())
+  expiresAt           DateTime
+  revokedAt           DateTime?
+
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  child ChildProfile? @relation(fields: [childId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Family {
+  id                      String   @id @default(cuid())
+  name                    String
+  /// Contrôle parental du compagnon (actions prédéfinies uniquement, pas de chat libre).
+  companionEnabled        Boolean  @default(true)
+  companionAllowedActions String[] @default(["story", "riddle", "math", "fact", "joke"])
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  parents         User[]
+  children        ChildProfile[]
+  missions        Mission[]
+  rewards         Reward[]
+  village         Village?
+  familyProgress  FamilyMissionProgress[]
+  creaturedex     CreaturedexEntry[]
+  events          GameEvent[]
+  auditLogs       AuditLog[]
+}
+
+/// Profil enfant : aucune adresse e-mail, aucun nom de famille, aucune donnée de contact.
+model ChildProfile {
+  id                String    @id @default(cuid())
+  familyId          String
+  displayName       String
+  avatar            String
+  color             String
+  pinHash           String
+  pinFailedAttempts Int       @default(0)
+  pinLockedUntil    DateTime?
+  /// Décorations installées dans la chambre de la créature (clés d'objets).
+  roomDecorations   String[]  @default([])
+  lastSeenAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  family           Family              @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  creatures        Creature[]
+  inventory        Inventory?
+  completions      MissionCompletion[]
+  assignedMissions Mission[]           @relation("MissionAssignee")
+  xpEvents         XPEvent[]
+  explorations     Exploration[]
+  rewards          Reward[]
+  gameSessions     GameSession[]
+  recipes          RecipeDiscovery[]
+  events           GameEvent[]
+  sessions         AuthSession[]
+  dexDiscoveries   CreaturedexEntry[]
+
+  @@index([familyId])
+}
+
+// ─── Définitions de contenu (synchronisées depuis packages/game-data) ────────
+
+model CreatureSpecies {
+  id          String     @id
+  name        Json
+  description Json
+  emoji       String
+  affinity    XpCategory
+  palette     Json
+  starter     Boolean    @default(true)
+  updatedAt   DateTime   @updatedAt
+
+  forms     CreatureEvolution[]
+  creatures Creature[]
+  eggs      ItemDefinition[]
+}
+
+/// Forme d'évolution d'une espèce (ex. « Dragon Sage »). Les conditions restent côté serveur.
+model CreatureEvolution {
+  id          String         @id
+  speciesId   String
+  stage       EvolutionStage
+  name        Json
+  description Json
+  hint        Json
+  palette     Json
+  feature     String
+  aura        String?
+  conditions  Json
+  sortOrder   Int
+  updatedAt   DateTime       @updatedAt
+
+  species     CreatureSpecies    @relation(fields: [speciesId], references: [id])
+  creatures   Creature[]
+  discoveries CreaturedexEntry[]
+
+  @@index([speciesId, stage])
+}
+
+model ItemDefinition {
+  id               String         @id
+  name             Json
+  description      Json
+  category         ItemCategory
+  rarity           Rarity
+  emoji            String
+  price            Int?
+  effect           Json?
+  slot             AccessorySlot?
+  loot             Json?
+  hatchesSpeciesId String?
+  updatedAt        DateTime       @updatedAt
+
+  hatchesSpecies CreatureSpecies? @relation(fields: [hatchesSpeciesId], references: [id])
+  inventoryItems InventoryItem[]
+  recipeResults  Recipe[]
+  missionRewards Mission[]
+  rewards        Reward[]
+  equippedHead   Creature[]       @relation("EquippedHead")
+  equippedFace   Creature[]       @relation("EquippedFace")
+  equippedNeck   Creature[]       @relation("EquippedNeck")
+  equippedBack   Creature[]       @relation("EquippedBack")
+
+  @@index([category])
+}
+
+model Recipe {
+  id           String   @id
+  name         Json
+  ingredients  String[]
+  resultItemId String
+  hint         Json
+  updatedAt    DateTime @updatedAt
+
+  result      ItemDefinition    @relation(fields: [resultItemId], references: [id])
+  discoveries RecipeDiscovery[]
+}
+
+model ExplorationZone {
+  id              String     @id
+  name            Json
+  description     Json
+  emoji           String
+  colors          String[]
+  durationMinutes Int
+  minLevel        Int
+  energyCost      Int
+  xpCategory      XpCategory
+  xpAmount        Int
+  loot            Json
+  sortOrder       Int
+  updatedAt       DateTime   @updatedAt
+
+  explorations Exploration[]
+}
+
+model MissionTemplate {
+  id          String     @id
+  title       Json
+  description Json
+  category    XpCategory
+  xp          Int
+  coins       Int
+  icon        String
+  sortOrder   Int
+  updatedAt   DateTime   @updatedAt
+
+  missions Mission[]
+}
+
+model BuildingDefinition {
+  id             String   @id
+  name           Json
+  description    Json
+  emoji          String
+  requiredPoints Int
+  positionX      Int
+  positionY      Int
+  updatedAt      DateTime @updatedAt
+
+  villageBuildings VillageBuilding[]
+}
+
+/// Modèle de mission coopérative hebdomadaire (ex. « 10 missions ensemble cette semaine »).
+model FamilyMission {
+  id           String         @id
+  title        Json
+  description  Json
+  goalType     FamilyGoalType
+  target       Int
+  rewardPoints Int
+  icon         String
+  isActive     Boolean        @default(true)
+  updatedAt    DateTime       @updatedAt
+
+  progress FamilyMissionProgress[]
+}
+
+// ─── Créatures ───────────────────────────────────────────────────────────────
+
+model Creature {
+  id             String    @id @default(cuid())
+  childId        String
+  speciesId      String
+  formId         String
+  name           String
+  isActive       Boolean   @default(true)
+  level          Int       @default(1)
+  totalXp        Int       @default(0)
+  xpLogic        Int       @default(0)
+  xpCreativity   Int       @default(0)
+  xpReading      Int       @default(0)
+  xpAdventure    Int       @default(0)
+  xpHelping      Int       @default(0)
+  xpSport        Int       @default(0)
+  happiness      Int       @default(70)
+  energy         Int       @default(100)
+  curiosity      Int       @default(50)
+  statsUpdatedAt DateTime  @default(now())
+  headItemId     String?
+  faceItemId     String?
+  neckItemId     String?
+  backItemId     String?
+  /// Date d'adoption (oeuf). La date d'éclosion est renseignée au passage au stade bébé.
+  bornAt         DateTime  @default(now())
+  hatchedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  child        ChildProfile      @relation(fields: [childId], references: [id], onDelete: Cascade)
+  species      CreatureSpecies   @relation(fields: [speciesId], references: [id])
+  form         CreatureEvolution @relation(fields: [formId], references: [id])
+  headItem     ItemDefinition?   @relation("EquippedHead", fields: [headItemId], references: [id])
+  faceItem     ItemDefinition?   @relation("EquippedFace", fields: [faceItemId], references: [id])
+  neckItem     ItemDefinition?   @relation("EquippedNeck", fields: [neckItemId], references: [id])
+  backItem     ItemDefinition?   @relation("EquippedBack", fields: [backItemId], references: [id])
+  xpEvents     XPEvent[]
+  explorations Exploration[]
+
+  @@index([childId, isActive])
+}
+
+/// Découvertes de la Créaturopédie, partagées par toute la famille (coopératif).
+model CreaturedexEntry {
+  familyId            String
+  formId              String
+  discoveredByChildId String?
+  discoveredAt        DateTime @default(now())
+
+  family       Family            @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  form         CreatureEvolution @relation(fields: [formId], references: [id])
+  discoveredBy ChildProfile?     @relation(fields: [discoveredByChildId], references: [id], onDelete: SetNull)
+
+  @@id([familyId, formId])
+}
+
+// ─── Inventaire et cuisine ───────────────────────────────────────────────────
+
+model Inventory {
+  id        String   @id @default(cuid())
+  childId   String   @unique
+  coins     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  child ChildProfile    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  items InventoryItem[]
+}
+
+model InventoryItem {
+  id          String   @id @default(cuid())
+  inventoryId String
+  itemId      String
+  quantity    Int
+  acquiredAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  inventory Inventory      @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  item      ItemDefinition @relation(fields: [itemId], references: [id])
+
+  @@unique([inventoryId, itemId])
+}
+
+model RecipeDiscovery {
+  childId      String
+  recipeId     String
+  discoveredAt DateTime @default(now())
+
+  child  ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  recipe Recipe       @relation(fields: [recipeId], references: [id])
+
+  @@id([childId, recipeId])
+}
+
+// ─── Missions et progression ─────────────────────────────────────────────────
+
+model Mission {
+  id              String            @id @default(cuid())
+  familyId        String
+  createdById     String?
+  templateId      String?
+  /// null = mission proposée à tous les enfants de la famille.
+  assignedChildId String?
+  title           String
+  description     String?
+  category        XpCategory
+  icon            String
+  xp              Int
+  coins           Int               @default(0)
+  rewardItemId    String?
+  recurrence      MissionRecurrence @default(DAILY)
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  family        Family              @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdBy     User?               @relation("MissionCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  template      MissionTemplate?    @relation(fields: [templateId], references: [id])
+  assignedChild ChildProfile?       @relation("MissionAssignee", fields: [assignedChildId], references: [id], onDelete: Cascade)
+  rewardItem    ItemDefinition?     @relation(fields: [rewardItemId], references: [id])
+  completions   MissionCompletion[]
+
+  @@index([familyId, isActive])
+}
+
+/// Réalisation d'une mission par un enfant pour une période donnée (jour, semaine ou unique).
+model MissionCompletion {
+  id           String                  @id @default(cuid())
+  missionId    String
+  childId      String
+  periodKey    String
+  status       MissionCompletionStatus @default(PENDING)
+  requestedAt  DateTime?
+  reviewedAt   DateTime?
+  reviewedById String?
+  xpAwarded    Int                     @default(0)
+  coinsAwarded Int                     @default(0)
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+
+  mission    Mission      @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  child      ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  reviewedBy User?        @relation("CompletionReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@unique([missionId, childId, periodKey])
+  @@index([childId, status])
+  @@index([status, createdAt])
+}
+
+model XPEvent {
+  id         String     @id @default(cuid())
+  childId    String
+  creatureId String?
+  amount     Int
+  category   XpCategory
+  source     XpSource
+  sourceId   String?
+  createdAt  DateTime   @default(now())
+
+  child    ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+  creature Creature?    @relation(fields: [creatureId], references: [id], onDelete: SetNull)
+
+  /// Filet de sécurité : un même événement source (mission validée, exploration, partie,
+  /// cadeau) ne peut jamais rapporter d'XP deux fois. (NULL autorisé plusieurs fois.)
+  @@unique([source, sourceId])
+  @@index([childId, createdAt])
+  @@index([childId, source, createdAt])
+}
+
+// ─── Exploration ─────────────────────────────────────────────────────────────
+
+model Exploration {
+  id          String            @id @default(cuid())
+  childId     String
+  creatureId  String
+  zoneId      String
+  status      ExplorationStatus @default(IN_PROGRESS)
+  startedAt   DateTime          @default(now())
+  endsAt      DateTime
+  completedAt DateTime?
+  /// L'enfant a vu l'écran de retour.
+  seenAt      DateTime?
+  rewards     Json?
+
+  child    ChildProfile    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  creature Creature        @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+  zone     ExplorationZone @relation(fields: [zoneId], references: [id])
+
+  @@index([status, endsAt])
+  @@index([childId, status])
+}
+
+// ─── Récompenses ─────────────────────────────────────────────────────────────
+
+/// Cadeau à ouvrir par l'enfant (créé par un parent, une mission ou une mission familiale).
+model Reward {
+  id          String       @id @default(cuid())
+  familyId    String
+  childId     String
+  type        RewardType
+  source      RewardSource
+  itemId      String?
+  /// Catégorie de l'XP offerte (récompenses de type XP).
+  xpCategory  XpCategory?
+  amount      Int          @default(1)
+  message     String?
+  status      RewardStatus @default(PENDING)
+  createdById String?
+  claimedAt   DateTime?
+  createdAt   DateTime     @default(now())
+
+  family    Family          @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  child     ChildProfile    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  item      ItemDefinition? @relation(fields: [itemId], references: [id])
+  createdBy User?           @relation("RewardCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([childId, status])
+}
+
+// ─── Monde familial ──────────────────────────────────────────────────────────
+
+model Village {
+  id        String   @id @default(cuid())
+  familyId  String   @unique
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  family    Family            @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  buildings VillageBuilding[]
+}
+
+model VillageBuilding {
+  id         String   @id @default(cuid())
+  villageId  String
+  buildingId String
+  unlockedAt DateTime @default(now())
+
+  village  Village            @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  building BuildingDefinition @relation(fields: [buildingId], references: [id])
+
+  @@unique([villageId, buildingId])
+}
+
+model FamilyMissionProgress {
+  id              String    @id @default(cuid())
+  familyId        String
+  familyMissionId String
+  /// Semaine ISO (ex. « 2026-W40 »).
+  weekKey         String
+  progress        Int       @default(0)
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  family        Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyMission FamilyMission @relation(fields: [familyMissionId], references: [id])
+
+  @@unique([familyId, familyMissionId, weekKey])
+}
+
+// ─── Mini-jeux ───────────────────────────────────────────────────────────────
+
+/// Partie de mini-jeu. Le défi (et ses réponses) est généré et conservé côté serveur.
+model GameSession {
+  id          String            @id @default(cuid())
+  childId     String
+  gameKey     String
+  status      GameSessionStatus @default(STARTED)
+  challenge   Json
+  score       Int?
+  xpAwarded   Int               @default(0)
+  startedAt   DateTime          @default(now())
+  completedAt DateTime?
+
+  child ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId, gameKey, startedAt])
+}
+
+// ─── Historique et audit ─────────────────────────────────────────────────────
+
+/// Journal des événements de jeu (timeline enfant et parent).
+model GameEvent {
+  id        String        @id @default(cuid())
+  familyId  String
+  childId   String?
+  type      GameEventType
+  payload   Json
+  createdAt DateTime      @default(now())
+
+  family Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  child  ChildProfile? @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId, createdAt])
+  @@index([familyId, createdAt])
+}
+
+/// Journal de sécurité (connexions, PIN, actions parent sensibles).
+model AuditLog {
+  id        String   @id @default(cuid())
+  familyId  String?
+  userId    String?
+  childId   String?
+  action    String
+  ip        String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  family Family? @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([familyId, createdAt])
+  @@index([userId, createdAt])
+}

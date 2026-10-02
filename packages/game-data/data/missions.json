@@ -1,0 +1,197 @@
+[
+  {
+    "key": "read_15",
+    "title": {
+      "fr": "Lire 15 minutes"
+    },
+    "description": {
+      "fr": "Un livre, une BD, un magazine : tout compte !"
+    },
+    "category": "READING",
+    "xp": 20,
+    "coins": 10,
+    "icon": "📖"
+  },
+  {
+    "key": "read_aloud",
+    "title": {
+      "fr": "Lire une histoire à voix haute"
+    },
+    "description": {
+      "fr": "À un parent, un frère, une soeur… ou au doudou."
+    },
+    "category": "READING",
+    "xp": 25,
+    "coins": 12,
+    "icon": "🗣️"
+  },
+  {
+    "key": "tidy_toys",
+    "title": {
+      "fr": "Ranger les jouets"
+    },
+    "description": {
+      "fr": "Chaque jouet retrouve sa maison."
+    },
+    "category": "HELPING",
+    "xp": 15,
+    "coins": 8,
+    "icon": "🧸"
+  },
+  {
+    "key": "school_bag",
+    "title": {
+      "fr": "Préparer le cartable"
+    },
+    "description": {
+      "fr": "Tout est prêt pour demain."
+    },
+    "category": "HELPING",
+    "xp": 10,
+    "coins": 5,
+    "icon": "🎒"
+  },
+  {
+    "key": "set_table",
+    "title": {
+      "fr": "Aider à mettre la table"
+    },
+    "description": {
+      "fr": "Assiettes, verres, couverts !"
+    },
+    "category": "HELPING",
+    "xp": 15,
+    "coins": 8,
+    "icon": "🍽️"
+  },
+  {
+    "key": "help_someone",
+    "title": {
+      "fr": "Aider quelqu’un"
+    },
+    "description": {
+      "fr": "Un coup de main qui fait plaisir."
+    },
+    "category": "HELPING",
+    "xp": 20,
+    "coins": 10,
+    "icon": "🤝"
+  },
+  {
+    "key": "math_exercise",
+    "title": {
+      "fr": "Faire un exercice de maths"
+    },
+    "description": {
+      "fr": "Un petit défi pour le cerveau."
+    },
+    "category": "LOGIC",
+    "xp": 20,
+    "coins": 10,
+    "icon": "➗"
+  },
+  {
+    "key": "homework",
+    "title": {
+      "fr": "Faire ses devoirs"
+    },
+    "description": {
+      "fr": "Bien concentré, et c’est fait !"
+    },
+    "category": "LOGIC",
+    "xp": 25,
+    "coins": 12,
+    "icon": "📝"
+  },
+  {
+    "key": "puzzle",
+    "title": {
+      "fr": "Faire un puzzle ou un casse-tête"
+    },
+    "description": {
+      "fr": "Pièce par pièce."
+    },
+    "category": "LOGIC",
+    "xp": 15,
+    "coins": 8,
+    "icon": "🧩"
+  },
+  {
+    "key": "play_outside",
+    "title": {
+      "fr": "Jouer dehors"
+    },
+    "description": {
+      "fr": "Prendre l’air et bouger."
+    },
+    "category": "SPORT",
+    "xp": 15,
+    "coins": 8,
+    "icon": "🌳"
+  },
+  {
+    "key": "sport_30",
+    "title": {
+      "fr": "Faire 30 minutes de sport"
+    },
+    "description": {
+      "fr": "Vélo, danse, foot, natation…"
+    },
+    "category": "SPORT",
+    "xp": 25,
+    "coins": 12,
+    "icon": "⚽"
+  },
+  {
+    "key": "creative_activity",
+    "title": {
+      "fr": "Faire une activité créative"
+    },
+    "description": {
+      "fr": "Dessin, bricolage, pâte à modeler…"
+    },
+    "category": "CREATIVITY",
+    "xp": 20,
+    "coins": 10,
+    "icon": "🎨"
+  },
+  {
+    "key": "music_practice",
+    "title": {
+      "fr": "S’entraîner à la musique"
+    },
+    "description": {
+      "fr": "Quelques notes chaque jour."
+    },
+    "category": "CREATIVITY",
+    "xp": 20,
+    "coins": 10,
+    "icon": "🎵"
+  },
+  {
+    "key": "nature_walk",
+    "title": {
+      "fr": "Balade nature"
+    },
+    "description": {
+      "fr": "Observer les arbres, les insectes, les nuages."
+    },
+    "category": "ADVENTURE",
+    "xp": 20,
+    "coins": 10,
+    "icon": "🥾"
+  },
+  {
+    "key": "discover_new",
+    "title": {
+      "fr": "Découvrir quelque chose de nouveau"
+    },
+    "description": {
+      "fr": "Un nouveau goût, un nouveau lieu, une nouvelle idée."
+    },
+    "category": "ADVENTURE",
+    "xp": 20,
+    "coins": 10,
+    "icon": "🔭"
+  }
+]

@@ -1,0 +1,995 @@
+[
+  {
+    "key": "apple",
+    "name": {
+      "fr": "Pomme"
+    },
+    "description": {
+      "fr": "Croquante et pleine d’énergie."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🍎",
+    "price": 5,
+    "effect": {
+      "happiness": 5,
+      "energy": 10
+    }
+  },
+  {
+    "key": "strawberry",
+    "name": {
+      "fr": "Fraise"
+    },
+    "description": {
+      "fr": "Petite, rouge et très sucrée."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🍓",
+    "price": 6,
+    "effect": {
+      "happiness": 8,
+      "energy": 5
+    }
+  },
+  {
+    "key": "milk",
+    "name": {
+      "fr": "Lait"
+    },
+    "description": {
+      "fr": "Un grand verre de lait frais."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🥛",
+    "price": 5,
+    "effect": {
+      "energy": 12
+    }
+  },
+  {
+    "key": "banana",
+    "name": {
+      "fr": "Banane"
+    },
+    "description": {
+      "fr": "Parfaite avant une aventure."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🍌",
+    "price": 6,
+    "effect": {
+      "energy": 15
+    }
+  },
+  {
+    "key": "carrot",
+    "name": {
+      "fr": "Carotte"
+    },
+    "description": {
+      "fr": "Bonne pour voir dans le noir (presque)."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🥕",
+    "price": 4,
+    "effect": {
+      "energy": 8,
+      "curiosity": 3
+    }
+  },
+  {
+    "key": "bread",
+    "name": {
+      "fr": "Pain"
+    },
+    "description": {
+      "fr": "Un petit pain tout chaud."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🍞",
+    "price": 5,
+    "effect": {
+      "energy": 12
+    }
+  },
+  {
+    "key": "grapes",
+    "name": {
+      "fr": "Raisins"
+    },
+    "description": {
+      "fr": "Petits grains sucrés et juteux."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🍇",
+    "price": 7,
+    "effect": {
+      "happiness": 6,
+      "curiosity": 6
+    }
+  },
+  {
+    "key": "mushroom",
+    "name": {
+      "fr": "Champignon"
+    },
+    "description": {
+      "fr": "Cueilli dans la Forêt lumineuse."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🍄",
+    "effect": {
+      "energy": 4,
+      "curiosity": 8
+    }
+  },
+  {
+    "key": "honey",
+    "name": {
+      "fr": "Miel"
+    },
+    "description": {
+      "fr": "Doux et doré, offert par les abeilles."
+    },
+    "category": "FOOD",
+    "rarity": "RARE",
+    "emoji": "🍯",
+    "price": 12,
+    "effect": {
+      "happiness": 12
+    }
+  },
+  {
+    "key": "chocolate",
+    "name": {
+      "fr": "Chocolat"
+    },
+    "description": {
+      "fr": "Un petit carré de bonheur."
+    },
+    "category": "FOOD",
+    "rarity": "RARE",
+    "emoji": "🍫",
+    "price": 15,
+    "effect": {
+      "happiness": 15
+    }
+  },
+  {
+    "key": "star_fruit",
+    "name": {
+      "fr": "Fruit étoilé"
+    },
+    "description": {
+      "fr": "Il brille doucement dans le noir."
+    },
+    "category": "FOOD",
+    "rarity": "EPIC",
+    "emoji": "⭐",
+    "effect": {
+      "happiness": 15,
+      "energy": 10,
+      "curiosity": 15
+    }
+  },
+  {
+    "key": "magic_milkshake",
+    "name": {
+      "fr": "Milkshake magique"
+    },
+    "description": {
+      "fr": "Il pétille et change de couleur !"
+    },
+    "category": "FOOD",
+    "rarity": "RARE",
+    "emoji": "🥤",
+    "effect": {
+      "happiness": 25,
+      "energy": 20
+    }
+  },
+  {
+    "key": "caramel_apple",
+    "name": {
+      "fr": "Pomme caramel"
+    },
+    "description": {
+      "fr": "Collante et délicieuse."
+    },
+    "category": "FOOD",
+    "rarity": "RARE",
+    "emoji": "🍭",
+    "effect": {
+      "happiness": 25,
+      "energy": 10
+    }
+  },
+  {
+    "key": "banana_smoothie",
+    "name": {
+      "fr": "Smoothie banane"
+    },
+    "description": {
+      "fr": "Un plein d’énergie onctueux."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🍹",
+    "effect": {
+      "energy": 30,
+      "happiness": 5
+    }
+  },
+  {
+    "key": "golden_toast",
+    "name": {
+      "fr": "Tartine dorée"
+    },
+    "description": {
+      "fr": "Du pain et du miel, tout simplement."
+    },
+    "category": "FOOD",
+    "rarity": "COMMON",
+    "emoji": "🥪",
+    "effect": {
+      "energy": 25,
+      "happiness": 10
+    }
+  },
+  {
+    "key": "forest_soup",
+    "name": {
+      "fr": "Soupe de la forêt"
+    },
+    "description": {
+      "fr": "Elle sent bon les sous-bois."
+    },
+    "category": "FOOD",
+    "rarity": "RARE",
+    "emoji": "🍲",
+    "effect": {
+      "energy": 20,
+      "curiosity": 15
+    }
+  },
+  {
+    "key": "grape_pie",
+    "name": {
+      "fr": "Tarte aux raisins"
+    },
+    "description": {
+      "fr": "Toute violette et toute chaude."
+    },
+    "category": "FOOD",
+    "rarity": "RARE",
+    "emoji": "🥧",
+    "effect": {
+      "happiness": 20,
+      "energy": 15
+    }
+  },
+  {
+    "key": "choco_banana",
+    "name": {
+      "fr": "Banane chocolatée"
+    },
+    "description": {
+      "fr": "Le goûter préféré des créatures."
+    },
+    "category": "FOOD",
+    "rarity": "RARE",
+    "emoji": "🍫",
+    "effect": {
+      "happiness": 30,
+      "energy": 10
+    }
+  },
+  {
+    "key": "fruit_salad",
+    "name": {
+      "fr": "Salade de fruits"
+    },
+    "description": {
+      "fr": "Un arc-en-ciel dans un bol."
+    },
+    "category": "FOOD",
+    "rarity": "RARE",
+    "emoji": "🥗",
+    "effect": {
+      "happiness": 20,
+      "energy": 20
+    }
+  },
+  {
+    "key": "carrot_cake",
+    "name": {
+      "fr": "Gâteau à la carotte"
+    },
+    "description": {
+      "fr": "Moelleux et parfumé."
+    },
+    "category": "FOOD",
+    "rarity": "EPIC",
+    "emoji": "🍰",
+    "effect": {
+      "happiness": 25,
+      "energy": 25,
+      "curiosity": 10
+    }
+  },
+  {
+    "key": "star_cake",
+    "name": {
+      "fr": "Gâteau étoilé"
+    },
+    "description": {
+      "fr": "Une recette de légende."
+    },
+    "category": "FOOD",
+    "rarity": "LEGENDARY",
+    "emoji": "🎂",
+    "effect": {
+      "happiness": 40,
+      "energy": 40,
+      "curiosity": 20
+    }
+  },
+  {
+    "key": "red_cap",
+    "name": {
+      "fr": "Casquette"
+    },
+    "description": {
+      "fr": "Une casquette rouge très stylée."
+    },
+    "category": "ACCESSORY",
+    "rarity": "COMMON",
+    "emoji": "🧢",
+    "price": 30,
+    "slot": "HEAD"
+  },
+  {
+    "key": "flower_crown",
+    "name": {
+      "fr": "Couronne de fleurs"
+    },
+    "description": {
+      "fr": "Tressée avec des fleurs des champs."
+    },
+    "category": "ACCESSORY",
+    "rarity": "RARE",
+    "emoji": "🌸",
+    "price": 70,
+    "slot": "HEAD"
+  },
+  {
+    "key": "wizard_hat",
+    "name": {
+      "fr": "Chapeau magique"
+    },
+    "description": {
+      "fr": "On dit qu’il donne des idées."
+    },
+    "category": "ACCESSORY",
+    "rarity": "EPIC",
+    "emoji": "🎩",
+    "slot": "HEAD"
+  },
+  {
+    "key": "golden_crown",
+    "name": {
+      "fr": "Couronne d’or"
+    },
+    "description": {
+      "fr": "Réservée aux plus grands explorateurs."
+    },
+    "category": "ACCESSORY",
+    "rarity": "LEGENDARY",
+    "emoji": "👑",
+    "slot": "HEAD"
+  },
+  {
+    "key": "round_glasses",
+    "name": {
+      "fr": "Lunettes rondes"
+    },
+    "description": {
+      "fr": "Pour lire les petites lettres."
+    },
+    "category": "ACCESSORY",
+    "rarity": "COMMON",
+    "emoji": "👓",
+    "price": 25,
+    "slot": "FACE"
+  },
+  {
+    "key": "sunglasses",
+    "name": {
+      "fr": "Lunettes de soleil"
+    },
+    "description": {
+      "fr": "Indispensables à la plage."
+    },
+    "category": "ACCESSORY",
+    "rarity": "RARE",
+    "emoji": "🕶️",
+    "price": 60,
+    "slot": "FACE"
+  },
+  {
+    "key": "red_scarf",
+    "name": {
+      "fr": "Écharpe"
+    },
+    "description": {
+      "fr": "Chaude et toute douce."
+    },
+    "category": "ACCESSORY",
+    "rarity": "COMMON",
+    "emoji": "🧣",
+    "price": 25,
+    "slot": "NECK"
+  },
+  {
+    "key": "bow_tie",
+    "name": {
+      "fr": "Noeud"
+    },
+    "description": {
+      "fr": "Très élégant pour les grandes occasions."
+    },
+    "category": "ACCESSORY",
+    "rarity": "COMMON",
+    "emoji": "🎀",
+    "price": 20,
+    "slot": "NECK"
+  },
+  {
+    "key": "star_medal",
+    "name": {
+      "fr": "Médaille étoile"
+    },
+    "description": {
+      "fr": "Pour fêter les beaux efforts."
+    },
+    "category": "ACCESSORY",
+    "rarity": "RARE",
+    "emoji": "🏅",
+    "slot": "NECK"
+  },
+  {
+    "key": "backpack",
+    "name": {
+      "fr": "Sac d’aventurier"
+    },
+    "description": {
+      "fr": "Pour ne rien oublier en exploration."
+    },
+    "category": "ACCESSORY",
+    "rarity": "RARE",
+    "emoji": "🎒",
+    "price": 80,
+    "slot": "BACK"
+  },
+  {
+    "key": "hero_cape",
+    "name": {
+      "fr": "Cape de héros"
+    },
+    "description": {
+      "fr": "Elle flotte au vent."
+    },
+    "category": "ACCESSORY",
+    "rarity": "EPIC",
+    "emoji": "🦸",
+    "slot": "BACK"
+  },
+  {
+    "key": "fairy_wings",
+    "name": {
+      "fr": "Ailes de fée"
+    },
+    "description": {
+      "fr": "Légères comme un nuage."
+    },
+    "category": "ACCESSORY",
+    "rarity": "LEGENDARY",
+    "emoji": "🧚",
+    "slot": "BACK"
+  },
+  {
+    "key": "ball",
+    "name": {
+      "fr": "Ballon"
+    },
+    "description": {
+      "fr": "Pour jouer à la balle."
+    },
+    "category": "OBJECT",
+    "rarity": "COMMON",
+    "emoji": "⚽",
+    "price": 15
+  },
+  {
+    "key": "kite",
+    "name": {
+      "fr": "Cerf-volant"
+    },
+    "description": {
+      "fr": "Il danse avec le vent."
+    },
+    "category": "OBJECT",
+    "rarity": "RARE",
+    "emoji": "🪁",
+    "price": 40
+  },
+  {
+    "key": "teddy",
+    "name": {
+      "fr": "Doudou"
+    },
+    "description": {
+      "fr": "Pour les câlins."
+    },
+    "category": "OBJECT",
+    "rarity": "COMMON",
+    "emoji": "🧸",
+    "price": 20
+  },
+  {
+    "key": "magnifier",
+    "name": {
+      "fr": "Loupe"
+    },
+    "description": {
+      "fr": "Tout devient intéressant de près."
+    },
+    "category": "OBJECT",
+    "rarity": "RARE",
+    "emoji": "🔍"
+  },
+  {
+    "key": "map_fragment",
+    "name": {
+      "fr": "Fragment de carte"
+    },
+    "description": {
+      "fr": "Un morceau de carte au trésor…"
+    },
+    "category": "OBJECT",
+    "rarity": "RARE",
+    "emoji": "🗺️"
+  },
+  {
+    "key": "wood",
+    "name": {
+      "fr": "Bois"
+    },
+    "description": {
+      "fr": "Utile pour construire."
+    },
+    "category": "MATERIAL",
+    "rarity": "COMMON",
+    "emoji": "🌲"
+  },
+  {
+    "key": "stone",
+    "name": {
+      "fr": "Pierre"
+    },
+    "description": {
+      "fr": "Une jolie pierre lisse."
+    },
+    "category": "MATERIAL",
+    "rarity": "COMMON",
+    "emoji": "🥌"
+  },
+  {
+    "key": "flower",
+    "name": {
+      "fr": "Fleur"
+    },
+    "description": {
+      "fr": "Elle sent très bon."
+    },
+    "category": "MATERIAL",
+    "rarity": "COMMON",
+    "emoji": "🌼"
+  },
+  {
+    "key": "feather",
+    "name": {
+      "fr": "Plume"
+    },
+    "description": {
+      "fr": "Une plume légère et douce."
+    },
+    "category": "MATERIAL",
+    "rarity": "COMMON",
+    "emoji": "🕊️"
+  },
+  {
+    "key": "shell",
+    "name": {
+      "fr": "Coquillage"
+    },
+    "description": {
+      "fr": "On y entend la mer."
+    },
+    "category": "MATERIAL",
+    "rarity": "COMMON",
+    "emoji": "🐚"
+  },
+  {
+    "key": "crystal",
+    "name": {
+      "fr": "Cristal"
+    },
+    "description": {
+      "fr": "Il scintille de mille feux."
+    },
+    "category": "MATERIAL",
+    "rarity": "RARE",
+    "emoji": "💎"
+  },
+  {
+    "key": "stardust",
+    "name": {
+      "fr": "Poussière d’étoile"
+    },
+    "description": {
+      "fr": "Tombée d’une étoile filante."
+    },
+    "category": "MATERIAL",
+    "rarity": "EPIC",
+    "emoji": "✨"
+  },
+  {
+    "key": "lantern",
+    "name": {
+      "fr": "Lanterne"
+    },
+    "description": {
+      "fr": "Une douce lumière pour la chambre."
+    },
+    "category": "DECORATION",
+    "rarity": "COMMON",
+    "emoji": "🏮",
+    "price": 35
+  },
+  {
+    "key": "potted_plant",
+    "name": {
+      "fr": "Plante en pot"
+    },
+    "description": {
+      "fr": "Elle pousse quand on lui parle."
+    },
+    "category": "DECORATION",
+    "rarity": "COMMON",
+    "emoji": "🌿",
+    "price": 30
+  },
+  {
+    "key": "flag_garland",
+    "name": {
+      "fr": "Guirlande de fanions"
+    },
+    "description": {
+      "fr": "C’est la fête !"
+    },
+    "category": "DECORATION",
+    "rarity": "RARE",
+    "emoji": "🎏",
+    "price": 60
+  },
+  {
+    "key": "star_lamp",
+    "name": {
+      "fr": "Lampe étoile"
+    },
+    "description": {
+      "fr": "Elle projette des étoiles au plafond."
+    },
+    "category": "DECORATION",
+    "rarity": "EPIC",
+    "emoji": "🌠"
+  },
+  {
+    "key": "egg_dragon",
+    "name": {
+      "fr": "Oeuf spécial (dragon)"
+    },
+    "description": {
+      "fr": "Un oeuf mystérieux… On dirait qu’il bouge !"
+    },
+    "category": "SPECIAL",
+    "rarity": "EPIC",
+    "emoji": "🥚",
+    "hatchesSpecies": "dragon"
+  },
+  {
+    "key": "egg_fox",
+    "name": {
+      "fr": "Oeuf spécial (renard)"
+    },
+    "description": {
+      "fr": "Un oeuf mystérieux… On dirait qu’il bouge !"
+    },
+    "category": "SPECIAL",
+    "rarity": "EPIC",
+    "emoji": "🥚",
+    "hatchesSpecies": "fox"
+  },
+  {
+    "key": "egg_dino",
+    "name": {
+      "fr": "Oeuf spécial (dino)"
+    },
+    "description": {
+      "fr": "Un oeuf mystérieux… On dirait qu’il bouge !"
+    },
+    "category": "SPECIAL",
+    "rarity": "EPIC",
+    "emoji": "🥚",
+    "hatchesSpecies": "dino"
+  },
+  {
+    "key": "egg_robot",
+    "name": {
+      "fr": "Oeuf spécial (robot)"
+    },
+    "description": {
+      "fr": "Un oeuf mystérieux… On dirait qu’il bouge !"
+    },
+    "category": "SPECIAL",
+    "rarity": "EPIC",
+    "emoji": "🥚",
+    "hatchesSpecies": "robot"
+  },
+  {
+    "key": "egg_spirit",
+    "name": {
+      "fr": "Oeuf spécial (esprit)"
+    },
+    "description": {
+      "fr": "Un oeuf mystérieux… On dirait qu’il bouge !"
+    },
+    "category": "SPECIAL",
+    "rarity": "EPIC",
+    "emoji": "🥚",
+    "hatchesSpecies": "spirit"
+  },
+  {
+    "key": "chest_common",
+    "name": {
+      "fr": "Coffre en bois"
+    },
+    "description": {
+      "fr": "Un petit coffre plein de surprises."
+    },
+    "category": "CHEST",
+    "rarity": "COMMON",
+    "emoji": "📦",
+    "loot": {
+      "rolls": 2,
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 4,
+          "min": 10,
+          "max": 25
+        },
+        {
+          "kind": "item",
+          "item": "apple",
+          "weight": 3,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "kind": "item",
+          "item": "strawberry",
+          "weight": 3,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "milk",
+          "weight": 3,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "wood",
+          "weight": 2,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "kind": "item",
+          "item": "bow_tie",
+          "weight": 1
+        }
+      ]
+    }
+  },
+  {
+    "key": "chest_rare",
+    "name": {
+      "fr": "Coffre argenté"
+    },
+    "description": {
+      "fr": "Il brille un peu… qu’y a-t-il dedans ?"
+    },
+    "category": "CHEST",
+    "rarity": "RARE",
+    "emoji": "🎁",
+    "loot": {
+      "rolls": 3,
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 4,
+          "min": 25,
+          "max": 50
+        },
+        {
+          "kind": "item",
+          "item": "honey",
+          "weight": 3,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "kind": "item",
+          "item": "chocolate",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "crystal",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "sunglasses",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "flower_crown",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "star_medal",
+          "weight": 1
+        }
+      ]
+    }
+  },
+  {
+    "key": "chest_epic",
+    "name": {
+      "fr": "Coffre magique"
+    },
+    "description": {
+      "fr": "Il vibre doucement entre tes mains."
+    },
+    "category": "CHEST",
+    "rarity": "EPIC",
+    "emoji": "🧰",
+    "loot": {
+      "rolls": 3,
+      "guaranteed": [
+        {
+          "item": "stardust",
+          "quantity": 1
+        }
+      ],
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 3,
+          "min": 50,
+          "max": 100
+        },
+        {
+          "kind": "item",
+          "item": "star_fruit",
+          "weight": 3
+        },
+        {
+          "kind": "item",
+          "item": "wizard_hat",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "hero_cape",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "star_lamp",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "egg_spirit",
+          "weight": 1
+        }
+      ]
+    }
+  },
+  {
+    "key": "chest_legendary",
+    "name": {
+      "fr": "Coffre légendaire"
+    },
+    "description": {
+      "fr": "Un coffre dont parlent les légendes."
+    },
+    "category": "CHEST",
+    "rarity": "LEGENDARY",
+    "emoji": "🏆",
+    "loot": {
+      "rolls": 3,
+      "guaranteed": [
+        {
+          "item": "star_fruit",
+          "quantity": 2
+        }
+      ],
+      "entries": [
+        {
+          "kind": "coins",
+          "weight": 3,
+          "min": 100,
+          "max": 200
+        },
+        {
+          "kind": "item",
+          "item": "golden_crown",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "fairy_wings",
+          "weight": 2
+        },
+        {
+          "kind": "item",
+          "item": "egg_dragon",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "egg_fox",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "egg_dino",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "egg_robot",
+          "weight": 1
+        }
+      ]
+    }
+  }
+]

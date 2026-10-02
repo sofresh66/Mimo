@@ -1,0 +1,14 @@
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/.turbo
+**/.venv
+**/__pycache__
+**/test-results
+**/playwright-report
+infra/local/.data
+.env
+.env.*
+!.env.example
+.git

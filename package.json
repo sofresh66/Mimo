@@ -1,0 +1,33 @@
+{
+  "name": "mimo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Mimo — le Tamagotchi familial bienveillant",
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "turbo run dev --filter=!@mimo/local-infra",
+    "build": "turbo run build",
+    "start": "turbo run start --filter=@mimo/api --filter=@mimo/web",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "pnpm --filter @mimo/web test:e2e",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:migrate": "pnpm --filter @mimo/api db:migrate",
+    "db:deploy": "pnpm --filter @mimo/api db:deploy",
+    "db:seed": "pnpm --filter @mimo/api db:seed",
+    "db:reset": "pnpm --filter @mimo/api db:reset",
+    "db:studio": "pnpm --filter @mimo/api db:studio",
+    "infra:local": "pnpm --filter @mimo/local-infra start"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9",
+    "turbo": "^2.11.6",
+    "typescript": "5.9.3"
+  }
+}

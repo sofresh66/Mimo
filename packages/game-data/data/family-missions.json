@@ -1,0 +1,54 @@
+[
+  {
+    "key": "weekly_missions",
+    "title": {
+      "fr": "Réalisez ensemble 10 missions cette semaine"
+    },
+    "description": {
+      "fr": "Chaque mission validée compte pour toute la famille."
+    },
+    "goalType": "MISSIONS_COMPLETED",
+    "target": 10,
+    "rewardPoints": 150,
+    "icon": "🤝"
+  },
+  {
+    "key": "weekly_explorations",
+    "title": {
+      "fr": "Partez 8 fois en exploration"
+    },
+    "description": {
+      "fr": "Les compagnons rapportent des souvenirs au village."
+    },
+    "goalType": "EXPLORATIONS_COMPLETED",
+    "target": 8,
+    "rewardPoints": 100,
+    "icon": "🧭"
+  },
+  {
+    "key": "weekly_games",
+    "title": {
+      "fr": "Jouez 12 parties de mini-jeux"
+    },
+    "description": {
+      "fr": "Mémoire, calcul, logique : tout compte."
+    },
+    "goalType": "GAMES_PLAYED",
+    "target": 12,
+    "rewardPoints": 80,
+    "icon": "🎲"
+  },
+  {
+    "key": "weekly_meals",
+    "title": {
+      "fr": "Préparez 15 repas pour vos compagnons"
+    },
+    "description": {
+      "fr": "Un compagnon bien nourri est un compagnon heureux."
+    },
+    "goalType": "CREATURES_FED",
+    "target": 15,
+    "rewardPoints": 80,
+    "icon": "🍎"
+  }
+]

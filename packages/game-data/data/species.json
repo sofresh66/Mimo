@@ -1,0 +1,62 @@
+[
+  {
+    "key": "dragon",
+    "name": { "fr": "Dragon", "en": "Dragon", "es": "Dragón" },
+    "description": {
+      "fr": "Un petit dragon au grand cœur, toujours prêt pour une nouvelle découverte.",
+      "en": "A little dragon with a big heart, always ready for a new discovery."
+    },
+    "emoji": "🐉",
+    "affinity": "ADVENTURE",
+    "palette": { "body": "#5ccf8f", "belly": "#fff1c1", "accent": "#ff8a5c" },
+    "starter": true
+  },
+  {
+    "key": "fox",
+    "name": { "fr": "Renard", "en": "Fox", "es": "Zorro" },
+    "description": {
+      "fr": "Un renard malicieux et curieux qui adore les histoires.",
+      "en": "A clever, curious fox who loves stories."
+    },
+    "emoji": "🦊",
+    "affinity": "READING",
+    "palette": { "body": "#ff9a4d", "belly": "#fff6ea", "accent": "#7a4a2b" },
+    "starter": true
+  },
+  {
+    "key": "dino",
+    "name": { "fr": "Dinosaure", "en": "Dinosaur", "es": "Dinosaurio" },
+    "description": {
+      "fr": "Un dino plein d'énergie qui ne tient pas en place.",
+      "en": "An energetic dino who can never sit still."
+    },
+    "emoji": "🦖",
+    "affinity": "SPORT",
+    "palette": { "body": "#7cb7ff", "belly": "#e6f3ff", "accent": "#ffcd4d" },
+    "starter": true
+  },
+  {
+    "key": "robot",
+    "name": { "fr": "Robot", "en": "Robot", "es": "Robot" },
+    "description": {
+      "fr": "Un robot rigolo qui adore résoudre des problèmes.",
+      "en": "A funny robot who loves solving problems."
+    },
+    "emoji": "🤖",
+    "affinity": "LOGIC",
+    "palette": { "body": "#b8c4d6", "belly": "#eef3fa", "accent": "#26c6da" },
+    "starter": true
+  },
+  {
+    "key": "spirit",
+    "name": { "fr": "Esprit mystique", "en": "Mystic spirit", "es": "Espíritu místico" },
+    "description": {
+      "fr": "Une créature mystérieuse faite de lumière douce et de rêves.",
+      "en": "A mysterious creature made of soft light and dreams."
+    },
+    "emoji": "✨",
+    "affinity": "CREATIVITY",
+    "palette": { "body": "#c59bff", "belly": "#f6edff", "accent": "#ffd6f5" },
+    "starter": true
+  }
+]
