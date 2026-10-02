@@ -5,7 +5,11 @@ import { resolve } from 'node:path';
 // Variables partagées du monorepo (fichier .env à la racine).
 loadEnv({ path: resolve(__dirname, '../../.env'), quiet: true });
 
-const apiUrl = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+const apiUrl =
+  process.env.API_INTERNAL_URL ??
+  (process.env.NODE_ENV === 'production'
+    ? 'https://mimo-m1xm.onrender.com'
+    : 'http://localhost:4000');
 
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
