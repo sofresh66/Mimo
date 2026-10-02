@@ -2,6 +2,7 @@ import type { INestApplication } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
+import { assertLocalDatabase } from '@mimo/config';
 import { defaultCatalog } from '@mimo/game-data';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
@@ -12,6 +13,10 @@ export const prisma = new PrismaClient();
 
 /** Vide les données de jeu (le contenu des définitions est conservé). */
 export async function resetDatabase(): Promise<void> {
+  assertLocalDatabase('reset de la base de tests', {
+    DATABASE_URL: process.env.DATABASE_URL,
+    DIRECT_URL: process.env.DIRECT_URL,
+  });
   await prisma.$executeRawUnsafe('TRUNCATE "User", "Family", "AuditLog" RESTART IDENTITY CASCADE');
   if ((await prisma.creatureSpecies.count()) === 0) await syncContent(prisma, defaultCatalog);
 }

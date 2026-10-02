@@ -20,6 +20,7 @@ import {
   validateCatalog,
   type CategoryXp,
 } from '@mimo/game-data';
+import { assertLocalDatabase } from '@mimo/config';
 import { syncContent } from '../src/content/content-sync';
 import { periodKey } from '../src/missions/period';
 
@@ -49,7 +50,12 @@ interface CreatureSeed {
 }
 
 async function main(): Promise<void> {
-  if (process.env.NODE_ENV === 'production' && process.env.SEED_ALLOW_PRODUCTION !== 'true') {
+  // Garde-fou principal : l'URL de la base doit être locale (NODE_ENV ne suffit pas).
+  assertLocalDatabase('db:seed', {
+    DATABASE_URL: process.env.DATABASE_URL,
+    DIRECT_URL: process.env.DIRECT_URL,
+  });
+  if (process.env.NODE_ENV === 'production') {
     throw new Error('Le seed de démonstration est interdit en production.');
   }
   const problems = validateCatalog(defaultCatalog);

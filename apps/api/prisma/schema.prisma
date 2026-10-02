@@ -170,6 +170,8 @@ model User {
   reviewedCompletions MissionCompletion[] @relation("CompletionReviewer")
   createdRewards      Reward[]            @relation("RewardCreator")
   auditLogs           AuditLog[]
+  sentInvitations     ParentInvitation[]  @relation("InvitationCreator")
+  acceptedInvitations ParentInvitation[]  @relation("InvitationAcceptor")
 
   @@index([familyId])
 }
@@ -205,15 +207,37 @@ model Family {
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
-  parents         User[]
-  children        ChildProfile[]
-  missions        Mission[]
-  rewards         Reward[]
-  village         Village?
-  familyProgress  FamilyMissionProgress[]
-  creaturedex     CreaturedexEntry[]
-  events          GameEvent[]
-  auditLogs       AuditLog[]
+  parents        User[]
+  children       ChildProfile[]
+  missions       Mission[]
+  rewards        Reward[]
+  village        Village?
+  familyProgress FamilyMissionProgress[]
+  creaturedex    CreaturedexEntry[]
+  events         GameEvent[]
+  auditLogs      AuditLog[]
+  invitations    ParentInvitation[]
+}
+
+/// Invitation d'un parent supplémentaire dans une famille (lien partageable).
+/// Seul le hash SHA-256 du jeton est stocké ; le jeton n'est montré qu'une fois, à la création.
+/// Une invitation est utilisable une seule fois, jusqu'à `expiresAt`, sauf si elle est révoquée.
+model ParentInvitation {
+  id           String    @id @default(cuid())
+  familyId     String
+  tokenHash    String    @unique
+  createdById  String?
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  acceptedById String?
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  family     Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdBy  User?  @relation("InvitationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  acceptedBy User?  @relation("InvitationAcceptor", fields: [acceptedById], references: [id], onDelete: SetNull)
+
+  @@index([familyId, createdAt])
 }
 
 /// Profil enfant : aucune adresse e-mail, aucun nom de famille, aucune donnée de contact.

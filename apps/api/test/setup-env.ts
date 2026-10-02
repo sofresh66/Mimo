@@ -2,6 +2,7 @@
  * Environnement des tests : base de données dédiée, pas de Redis (implémentations
  * en mémoire), pas de moteur Python (repli local), explorations accélérées.
  */
+import { assertLocalDatabase } from '@mimo/config';
 import { config, parse } from 'dotenv';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -12,6 +13,8 @@ const devEnv = existsSync(envFile) ? parse(readFileSync(envFile)) : {};
 
 const testDb = process.env.TEST_DATABASE_URL;
 if (!testDb) throw new Error('TEST_DATABASE_URL est requis pour les tests (voir .env.example)');
+// Les tests vident la base : elle doit être locale.
+assertLocalDatabase('tests API', { TEST_DATABASE_URL: testDb });
 if (testDb === devEnv.DATABASE_URL || testDb === devEnv.DIRECT_URL) {
   throw new Error(
     'TEST_DATABASE_URL doit être différent de DATABASE_URL et DIRECT_URL : les tests vident la base.',

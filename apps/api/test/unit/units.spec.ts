@@ -1,3 +1,4 @@
+import { redactUrl } from '../../src/common/all-exceptions.filter';
 import { loadConfig } from '../../src/config/env';
 import { generateChallenge, scoreMemory, scoreSubmission } from '../../src/minigames/generators';
 import { periodKey } from '../../src/missions/period';
@@ -77,5 +78,16 @@ describe('configuration', () => {
   });
   it('Redis optionnel', () => {
     expect(loadConfig(base).redisUrl).toBeNull();
+  });
+});
+
+describe('journalisation', () => {
+  it('masque les jetons d’invitation dans les URL', () => {
+    const token = 'A'.repeat(43);
+    expect(redactUrl(`/api/invitations/${token}`)).toBe('/api/invitations/:token');
+    expect(redactUrl(`/api/invitations/${token}/accept?x=1`)).toBe(
+      '/api/invitations/:token/accept?x=1',
+    );
+    expect(redactUrl('/api/family/invitations')).toBe('/api/family/invitations');
   });
 });

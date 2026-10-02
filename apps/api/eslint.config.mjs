@@ -11,4 +11,10 @@ export default [
     files: ['prisma/**/*.ts'],
     rules: { 'no-console': 'off' },
   },
+  {
+    // Scripts CLI en CommonJS exécutés directement par Node.
+    files: ['scripts/**/*.cjs'],
+    languageOptions: { sourceType: 'commonjs' },
+    rules: { 'no-console': 'off', '@typescript-eslint/no-require-imports': 'off' },
+  },
 ];

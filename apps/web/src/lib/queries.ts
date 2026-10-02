@@ -53,6 +53,7 @@ export const keys = {
     rewards: ['parent', 'rewards'] as const,
     giftable: ['parent', 'giftable'] as const,
     settings: ['parent', 'settings'] as const,
+    invitations: ['parent', 'invitations'] as const,
     village: ['parent', 'village'] as const,
   },
 };

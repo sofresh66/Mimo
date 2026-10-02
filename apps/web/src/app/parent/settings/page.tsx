@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 import { Field, SelectField } from '@/components/forms';
+import { ParentsPanel } from '@/components/ParentsPanel';
 import { useToast } from '@/components/Toast';
 import { LOCALES, useI18n, type Locale, type MessageKey } from '@/i18n';
 import { http } from '@/lib/api';
@@ -30,6 +31,7 @@ export default function ParentSettingsPage() {
   if (isPending || !settings) return <Spinner size={36} />;
   return (
     <div className="grid gap-5 lg:grid-cols-2">
+      <ParentsPanel settings={settings} />
       <FamilyPanel settings={settings} />
       <SecurityPanel />
       <ParentPanel title={t('parentSettings.language')}>
@@ -58,14 +60,6 @@ export default function ParentSettingsPage() {
       </ParentPanel>
       <ParentPanel title={t('parentSettings.privacy')}>
         <p className="text-sm leading-relaxed text-slate-600">{t('parentSettings.privacyText')}</p>
-        <p className="mt-3 text-sm font-medium">{t('parentSettings.parents')}</p>
-        <ul className="text-sm text-slate-600">
-          {settings.parents.map((p) => (
-            <li key={p.id}>
-              {p.displayName} — {p.email}
-            </li>
-          ))}
-        </ul>
       </ParentPanel>
     </div>
   );

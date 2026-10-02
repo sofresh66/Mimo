@@ -6,12 +6,13 @@ PostgreSQL, schéma Prisma : `apps/api/prisma/schema.prisma`. Migrations : `apps
 
 ### Comptes
 
-| Table          | Contenu                                                                                                             |
-| -------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `User`         | Parent : e-mail, hash Argon2id du mot de passe et du PIN parent, nom affiché aux enfants, compteur d'échecs PIN     |
-| `AuthSession`  | Session d'appareil : hash du refresh token, **mode** (DEVICE/PARENT/CHILD), enfant actif, expiration du mode parent |
-| `Family`       | Nom, contrôle parental du compagnon                                                                                 |
-| `ChildProfile` | Prénom/pseudo, avatar, couleur, hash du PIN, verrouillage, décorations, dernière connexion                          |
+| Table              | Contenu                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `User`             | Parent : e-mail, hash Argon2id du mot de passe et du PIN parent, nom affiché aux enfants, compteur d'échecs PIN     |
+| `AuthSession`      | Session d'appareil : hash du refresh token, **mode** (DEVICE/PARENT/CHILD), enfant actif, expiration du mode parent |
+| `Family`           | Nom, contrôle parental du compagnon                                                                                 |
+| `ParentInvitation` | Invitation d'un parent supplémentaire : hash du jeton, expiration, acceptation (usage unique), révocation           |
+| `ChildProfile`     | Prénom/pseudo, avatar, couleur, hash du PIN, verrouillage, décorations, dernière connexion                          |
 
 ### Définitions de contenu (clé fonctionnelle = `id`, synchronisées depuis `packages/game-data`)
 

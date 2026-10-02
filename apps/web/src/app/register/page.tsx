@@ -3,18 +3,30 @@
 import { Button } from '@mimo/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, type FormEvent } from 'react';
 import { AuthShell } from '@/components/AuthShell';
 import { Field } from '@/components/forms';
 import { useI18n } from '@/i18n';
 import { http } from '@/lib/api';
 import { useErrorMessage } from '@/lib/errors';
+import { safeNextPath, withNext } from '@/lib/navigation';
 import { resetSessionCache } from '@/lib/session';
 
 export default function RegisterPage() {
+  // useSearchParams exige une frontière Suspense pour le rendu statique.
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
   const { t } = useI18n();
   const router = useRouter();
+  // Parent invité : après inscription, retour au lien d'invitation au lieu de créer une famille.
+  const next = safeNextPath(useSearchParams().get('next'));
   const client = useQueryClient();
   const errorMessage = useErrorMessage();
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +44,7 @@ export default function RegisterPage() {
         displayName: form.get('displayName'),
       });
       await resetSessionCache(client);
-      router.push('/setup');
+      router.push(next ?? '/setup');
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -73,7 +85,7 @@ export default function RegisterPage() {
       <p className="mt-4 text-center text-sm text-slate-600">
         {t('auth.hasAccount')}{' '}
         <Link
-          href="/login"
+          href={withNext('/login', next)}
           className="font-semibold text-primary underline-offset-2 hover:underline"
         >
           {t('welcome.login')}

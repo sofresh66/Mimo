@@ -25,14 +25,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
     const body = this.toBody(exception);
+    const url = redactUrl(req.url);
 
     if (body.statusCode >= 500) {
       this.logger.error(
-        `${req.method} ${req.url} → ${body.statusCode}`,
+        `${req.method} ${url} → ${body.statusCode}`,
         exception instanceof Error ? exception.stack : String(exception),
       );
     } else {
-      this.logger.debug(`${req.method} ${req.url} → ${body.statusCode} ${body.code}`);
+      this.logger.debug(`${req.method} ${url} → ${body.statusCode} ${body.code}`);
     }
     res.status(body.statusCode).json(body);
   }
@@ -83,6 +84,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message: 'Une erreur inattendue est survenue',
     };
   }
+}
+
+/** Masque les secrets présents dans l'URL (jetons d'invitation) avant journalisation. */
+export function redactUrl(url: string): string {
+  return url.replace(/\/invitations\/[^/?#]+/g, '/invitations/:token');
 }
 
 function httpCode(status: number): string {

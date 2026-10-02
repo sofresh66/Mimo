@@ -31,6 +31,20 @@ Suppression d'un profil enfant = effacement définitif de toutes ses données (c
   un PIN correct ; alerte temps réel aux parents connectés ; rate limiting par IP (`AUTH_RATE_LIMIT`, 10/min).
 - Refresh token : rotation **atomique** (deux usages simultanés du même jeton : un seul réussit).
 
+## Plusieurs parents par famille
+
+- Chaque parent a **son propre compte** (e-mail, mot de passe, sessions) et **son propre PIN parent** ;
+  aucun secret n'est partagé. Le rattachement passe par `User.familyId` (une famille par compte).
+- Invitation par lien `/join-parent/<jeton>` : jeton de 256 bits, **seul son hash SHA-256 est stocké**,
+  affiché une seule fois au parent qui invite, **usage unique**, expiration 72 h, **révocable**.
+  Au plus 4 parents par famille et 5 invitations en attente.
+- L'aperçu public d'un lien ne révèle que le nom de la famille et le nom affiché de l'invitant ;
+  une invitation inconnue, expirée, révoquée ou utilisée renvoie la même erreur.
+- L'acceptation exige le mode parent (mot de passe saisi à la connexion ou à l'inscription), refuse un compte
+  déjà membre d'une famille, et est une **transition gardée** (deux acceptations simultanées : une seule réussit).
+- Le paramètre `?next=` des pages de connexion/inscription n'accepte que des chemins internes simples
+  (pas de redirection ouverte). Création, révocation et acceptation sont journalisées dans l'audit.
+
 ## Autorisations
 
 - Garde global : sans décorateur, une route est **réservée au mode parent** (refus par défaut).
@@ -68,6 +82,23 @@ Suppression d'un profil enfant = effacement définitif de toutes ses données (c
 Actions prédéfinies uniquement, aucun texte libre de l'enfant n'est transmis. Contenus écrits à la main et
 générés de façon déterministe. Toute future IA devra passer par `ContentProvider`, avec filtrage, respect du
 contrôle parental et sans envoi de données personnelles.
+
+## Protection des environnements (anti-production)
+
+Le seed, les tests et les commandes qui peuvent vider une base sont **bloqués sur toute base distante**.
+La vérification porte sur l'URL PostgreSQL elle-même (hôte et paramètre `host=`), pas sur `NODE_ENV`.
+Seuls `localhost`, `127.0.0.1` et `::1` sont acceptés (`packages/config/src/db-guard.ts`).
+
+| Opération                          | Garde-fou                                                                                                                          |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:seed`                     | `prisma/seed.ts` vérifie `DATABASE_URL` et `DIRECT_URL` avant toute connexion                                                      |
+| `pnpm db:migrate`, `pnpm db:reset` | `scripts/assert-local-db.cjs` s'exécute avant Prisma                                                                               |
+| Tests API (Jest)                   | `TEST_DATABASE_URL` vérifiée au chargement, avant les migrations et avant chaque `TRUNCATE`                                        |
+| E2E (Playwright)                   | le `globalSetup` vérifie l'URL du seed **et** la base réellement utilisée par le serveur testé (`/api/health` → `database: local`) |
+
+En cas de base distante : `REFUS DE SÉCURITÉ : cette commande ne peut pas être exécutée sur une base distante.`
+Les identifiants de production ne doivent figurer que dans l'hébergeur (Render), jamais dans `.env`.
+`pnpm db:deploy` et la synchronisation du contenu (non destructives) restent possibles en production.
 
 ## Production
 

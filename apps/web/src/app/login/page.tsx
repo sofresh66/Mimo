@@ -3,18 +3,30 @@
 import { Button, buttonClassName } from '@mimo/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, type FormEvent } from 'react';
 import { AuthShell } from '@/components/AuthShell';
 import { Field } from '@/components/forms';
 import { useI18n } from '@/i18n';
 import { http } from '@/lib/api';
 import { useErrorMessage } from '@/lib/errors';
+import { safeNextPath, withNext } from '@/lib/navigation';
 import { resetSessionCache } from '@/lib/session';
 
 export default function LoginPage() {
+  // useSearchParams exige une frontière Suspense pour le rendu statique.
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const { t } = useI18n();
   const router = useRouter();
+  // Retour vers la page d'origine (ex. invitation) après connexion.
+  const next = safeNextPath(useSearchParams().get('next'));
   const client = useQueryClient();
   const errorMessage = useErrorMessage();
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +40,7 @@ export default function LoginPage() {
     try {
       await http.post('/auth/login', { email: form.get('email'), password: form.get('password') });
       await resetSessionCache(client);
-      router.push('/');
+      router.push(next ?? '/');
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -58,7 +70,10 @@ export default function LoginPage() {
       </form>
       <div className="mt-6 border-t border-slate-100 pt-5 text-center">
         <p className="mb-3 text-sm text-slate-600">{t('auth.noAccount')}</p>
-        <Link href="/register" className={buttonClassName({ variant: 'secondary', block: true })}>
+        <Link
+          href={withNext('/register', next)}
+          className={buttonClassName({ variant: 'secondary', block: true })}
+        >
           {t('auth.createFamily')}
         </Link>
       </div>

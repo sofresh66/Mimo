@@ -511,6 +511,28 @@ export interface FamilySettings {
   parents: Array<{ id: string; displayName: string; email: string }>;
 }
 
+/** Invitation d'un parent en attente (le jeton n'est jamais renvoyé après sa création). */
+export interface ParentInvitationView {
+  id: string;
+  createdAt: IsoDate;
+  expiresAt: IsoDate;
+  createdBy: string | null;
+}
+
+/** Réponse à la création : le jeton n'apparaît qu'ici, pour construire le lien à partager. */
+export interface CreatedParentInvitation extends ParentInvitationView {
+  token: string;
+}
+
+/** Aperçu public d'une invitation (page « Rejoindre la famille »). */
+export interface ParentInvitationPreview {
+  familyName: string;
+  invitedBy: string | null;
+  expiresAt: IsoDate;
+  /** Vrai si le visiteur connecté fait déjà partie de cette famille. */
+  alreadyMember: boolean;
+}
+
 export interface MissionSuggestion {
   templateId: string;
   title: string;

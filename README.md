@@ -185,7 +185,9 @@ Procédure complète (HTTPS, secrets, migrations, sauvegardes) : [docs/DEPLOYMEN
 **Comptes et sécurité** — compte parent (e-mail + Argon2id), JWT court en cookie HttpOnly + refresh token
 rotatif, famille, profils enfants (prénom/pseudo, avatar, couleur, PIN), écran « Qui joue ? », PIN parent pour
 l'appareil familial (expiration), verrouillage après 5 essais, rate limiting, journal d'audit, déconnexion de tous
-les appareils, changement de mot de passe/PIN, suppression définitive d'un profil.
+les appareils, changement de mot de passe/PIN, suppression définitive d'un profil. **Plusieurs parents par
+famille** : invitation par lien sécurisé (usage unique, 72 h, révocable), chacun avec son propre compte,
+mot de passe et PIN parent.
 
 **Compagnon** — adoption parmi 5 espèces (dragon, renard, dinosaure, robot, esprit mystique), créatures dessinées
 en SVG animé, 5 stades (oeuf → bébé → jeune → adulte → évolution spéciale), 50 formes avec branches selon les
@@ -229,7 +231,7 @@ complet, anglais partiel avec repli).
   conteneurisée n'a pas été exécutée ici ; le développement a été validé avec PostgreSQL embarqué et Redis désactivé
   (BullMQ et l'adaptateur Socket.IO Redis n'ont donc pas été exercés en conditions réelles).
 - Traductions anglaise/espagnole à compléter (architecture i18n prête).
-- Passkeys pour les parents, invitation d'un second parent dans la famille.
+- Passkeys pour les parents ; retrait d'un parent de la famille (non prévu dans cette version).
 - Back-office de contenu (les tables de définition et `CatalogService.reload()` sont prêts).
 - Notifications push (Web Push) pour les retours d'exploration et validations.
 - Illustrations/animations Lottie professionnelles (les créatures SVG sont des placeholders soignés).

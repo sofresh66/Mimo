@@ -20,6 +20,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@mimo/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@mimo/game-data':
         specifier: workspace:*
         version: link:../../packages/game-data
@@ -93,9 +96,6 @@ importers:
         specifier: ^4.8.4
         version: 4.8.4
     devDependencies:
-      '@mimo/config':
-        specifier: workspace:*
-        version: link:../../packages/config
       '@nestjs/cli':
         specifier: ^11.0.24
         version: 11.0.24(@types/node@24.19.0)(prettier@3.9.9)
@@ -231,6 +231,9 @@ importers:
       '@eslint/js':
         specifier: ^9.39.0
         version: 9.39.5
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.0
       eslint:
         specifier: ^9.39.5
         version: 9.39.5(jiti@2.7.0)
@@ -246,6 +249,9 @@ importers:
       typescript-eslint:
         specifier: ^8.71.0
         version: 8.71.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
+      vitest:
+        specifier: ^3.2.7
+        version: 3.2.7(@types/node@24.19.0)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.51.2)
 
   packages/game-data:
     devDependencies:
