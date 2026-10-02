@@ -57,7 +57,8 @@ function ParentShell({
   const { t } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
-  const { lock, reload } = useSessionActions();
+  const { lock, logout, reload } = useSessionActions();
+  const [loggingOut, setLoggingOut] = useState(false);
   const client = useQueryClient();
   const toast = useToast();
   const minutes = useMinutesLeft(expiresAt);
@@ -110,9 +111,22 @@ function ParentShell({
               await lock();
               router.push('/');
             }}
-            className="min-h-10 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-700 focus-visible:outline-4 focus-visible:outline-primary/50"
+            className="min-h-10 rounded-xl bg-slate-900 px-3 text-sm font-semibold text-white hover:bg-slate-700 focus-visible:outline-4 focus-visible:outline-primary/50"
           >
             🔒 {t('parent.nav.lock')}
+          </button>
+          <button
+            type="button"
+            disabled={loggingOut}
+            onClick={async () => {
+              // Déconnexion réelle : session révoquée et cookies effacés côté serveur.
+              setLoggingOut(true);
+              await logout();
+              router.replace('/login');
+            }}
+            className="min-h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-100 focus-visible:outline-4 focus-visible:outline-primary/50 disabled:opacity-60"
+          >
+            {t('parent.nav.logout')}
           </button>
         </div>
         <nav

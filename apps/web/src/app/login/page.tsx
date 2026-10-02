@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@mimo/ui';
+import { Button, buttonClassName } from '@mimo/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -56,15 +56,12 @@ export default function LoginPage() {
           {t('auth.submitLogin')}
         </Button>
       </form>
-      <p className="mt-5 text-center text-sm text-slate-600">
-        {t('auth.noAccount')}{' '}
-        <Link
-          href="/register"
-          className="font-semibold text-primary underline-offset-2 hover:underline"
-        >
-          {t('welcome.register')}
+      <div className="mt-6 border-t border-slate-100 pt-5 text-center">
+        <p className="mb-3 text-sm text-slate-600">{t('auth.noAccount')}</p>
+        <Link href="/register" className={buttonClassName({ variant: 'secondary', block: true })}>
+          {t('auth.createFamily')}
         </Link>
-      </p>
+      </div>
       {process.env.NODE_ENV !== 'production' && (
         <p className="mt-3 text-center text-xs text-slate-400">{t('auth.demoHint')}</p>
       )}

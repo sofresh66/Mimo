@@ -81,4 +81,25 @@ test.describe('Parcours parent', () => {
     await row.getByRole('button', { name: /Valider/ }).click();
     await expect(page.getByText('Mission validée pour Emilia !')).toBeVisible();
   });
+
+  test('déconnexion depuis l’espace parent puis accès à la création d’une famille', async ({
+    page,
+  }) => {
+    await loginAsDemo(page);
+    await page.getByRole('button', { name: /Espace parent/ }).click();
+    await expect(page).toHaveURL(/\/parent/);
+
+    await page.getByRole('button', { name: 'Se déconnecter' }).click();
+    await expect(page).toHaveURL(/\/login/);
+    await expect(page.getByRole('heading', { name: 'Connexion parent' })).toBeVisible();
+    // La session est révoquée côté serveur : l'API ne reconnaît plus l'appareil.
+    expect((await page.request.get('/api/auth/me')).status()).toBe(401);
+    await page.goto('/');
+    await expect(page.getByRole('link', { name: 'Se connecter' })).toBeVisible();
+
+    await page.goto('/login');
+    await page.getByRole('link', { name: 'Créer une famille' }).click();
+    await expect(page).toHaveURL(/\/register/);
+    await expect(page.getByRole('heading', { name: 'Créer un compte parent' })).toBeVisible();
+  });
 });
