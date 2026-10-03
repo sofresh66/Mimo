@@ -2,44 +2,9 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import type { ChildMissionView, MissionValidatedPayload, PendingCompletionView } from '@mimo/types';
 import type { AddressInfo } from 'node:net';
 import { io, type Socket } from 'socket.io-client';
-import request from 'supertest';
 import { ExplorationsService } from '../../src/explorations/explorations.service';
 import { RealtimeGateway } from '../../src/realtime/realtime.gateway';
-import { createApp, prisma } from '../helpers';
-
-type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
-
-/** « Appareil » qui conserve ses cookies (HTTP + ouverture d'un socket authentifié). */
-class Device {
-  private cookies = new Map<string, string>();
-  constructor(private readonly app: NestExpressApplication) {}
-
-  async call(method: Method, url: string, body?: object) {
-    const res = await request(this.app.getHttpServer())
-      [method](url)
-      .set('Cookie', this.header())
-      .send(body);
-    for (const c of ([] as string[]).concat(res.headers['set-cookie'] ?? [])) {
-      const [pair] = c.split(';');
-      const index = (pair ?? '').indexOf('=');
-      const name = (pair ?? '').slice(0, index);
-      const value = (pair ?? '').slice(index + 1);
-      if (!name) continue;
-      if (value) this.cookies.set(name, value);
-      else this.cookies.delete(name);
-    }
-    return res;
-  }
-  get = (url: string) => this.call('get', url);
-  post = (url: string, body: object = {}) => this.call('post', url, body);
-  put = (url: string, body: object = {}) => this.call('put', url, body);
-  patch = (url: string, body: object = {}) => this.call('patch', url, body);
-  del = (url: string) => this.call('delete', url);
-
-  header(): string {
-    return [...this.cookies.entries()].map(([k, v]) => `${k}=${v}`).join('; ');
-  }
-}
+import { createApp, Device, prisma, type Method } from '../helpers';
 
 const PASSWORD = 'motdepasse-solide';
 let seq = 0;

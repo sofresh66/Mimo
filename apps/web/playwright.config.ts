@@ -27,7 +27,7 @@ export default defineConfig({
     {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /responsive|parent|adult/,
+      testMatch: /responsive|parent|adult|session/,
     },
   ],
   webServer: {
