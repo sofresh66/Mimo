@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { loginAsDemo, typePin } from './helpers';
+import { loginAsDemo, openParentSpace, typePin } from './helpers';
 
 test('un parent invite son conjoint qui crée son compte et rejoint la famille', async ({
   page,
@@ -7,7 +7,7 @@ test('un parent invite son conjoint qui crée son compte et rejoint la famille',
 }) => {
   // Parent déjà membre : génère un lien d'invitation.
   await loginAsDemo(page);
-  await page.getByRole('button', { name: /Espace parent/ }).click();
+  await openParentSpace(page);
   await page.goto('/parent/settings');
   await expect(page.getByRole('heading', { name: 'Parents de la famille' })).toBeVisible();
   await page.getByRole('button', { name: /Inviter un parent/ }).click();
@@ -38,6 +38,10 @@ test('un parent invite son conjoint qui crée son compte et rejoint la famille',
   await expect(spouse.getByText(`Connecté en tant que ${email}`)).toBeVisible();
   await spouse.getByLabel('Votre code PIN parent (4 chiffres)').fill('8642');
   await spouse.getByRole('button', { name: 'Rejoindre la famille' }).click();
+
+  // Aucune fenêtre d'accès libre : son propre PIN est demandé tout de suite.
+  await expect(spouse.getByRole('dialog').filter({ hasText: 'Code PIN parent' })).toBeVisible();
+  await typePin(spouse, '8642');
 
   // Même famille : mêmes enfants dans l'espace parent.
   await expect(spouse).toHaveURL(/\/parent$/);

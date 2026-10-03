@@ -69,11 +69,17 @@ export class AuthService {
   }
 
   /**
-   * Une connexion par mot de passe ouvre directement l'espace parent… sauf pour un adulte
-   * joueur : sa session est toujours en mode PLAYER, liée à son propre profil de jeu.
+   * Mode d'une session ouverte par e-mail + mot de passe :
+   * - adulte joueur → PLAYER, lié à son propre profil de jeu ;
+   * - parent dont la famille est configurée (PIN défini) → DEVICE (« Qui joue ? ») : l'appareil
+   *   peut être familial, l'espace parent exige TOUJOURS le PIN, y compris à la première
+   *   connexion, après une reconnexion ou sur un nouvel appareil ;
+   * - compte sans famille (inscription, acceptation d'une invitation) ou parent sans PIN → PARENT,
+   *   le temps de créer la famille et de choisir son PIN (aucun enfant à protéger encore).
    */
   private async openSession(user: User, client: ClientInfo): Promise<IssuedTokens> {
     const player = user.familyRole === 'ADULT_PLAYER' ? await this.adultProfile(user) : null;
+    const pinProtected = Boolean(user.familyId && user.parentPinHash);
     const refresh = this.tokens.generateRefreshToken();
     const session = await this.prisma.authSession.create({
       data: {
@@ -81,7 +87,9 @@ export class AuthService {
         refreshTokenHash: refresh.hash,
         ...(player
           ? { mode: 'PLAYER', childId: player.id, parentModeExpiresAt: null }
-          : { mode: 'PARENT', parentModeExpiresAt: this.tokens.parentModeExpiry() }),
+          : pinProtected
+            ? { mode: 'DEVICE', parentModeExpiresAt: null }
+            : { mode: 'PARENT', parentModeExpiresAt: this.tokens.parentModeExpiry() }),
         userAgent: client.userAgent?.slice(0, 255) ?? null,
         expiresAt: this.tokens.refreshExpiry(),
       },

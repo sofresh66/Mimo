@@ -63,6 +63,9 @@ describe('Invitation d’un second parent', () => {
       .send({ parentPin: '5555' })
       .expect(200);
     expect(accepted.body.familyName).toBe('Famille Test');
+    // La famille a des enfants : l'espace parent exige maintenant le PIN du nouveau parent.
+    expect((await maman.get('/api/parent/dashboard')).status).toBe(403);
+    await maman.post('/api/auth/unlock/parent').send({ pin: '5555' }).expect(200);
 
     // Mêmes enfants, mêmes paramètres familiaux.
     const dash = await maman.get('/api/parent/dashboard').expect(200);
@@ -87,6 +90,7 @@ describe('Invitation d’un second parent', () => {
     const { token } = (await f.parent.post('/api/family/invitations').expect(201)).body;
     const { agent: maman, email } = await newParent();
     await maman.post(`/api/invitations/${token}/accept`).send({ parentPin: '5555' }).expect(200);
+    await maman.post('/api/auth/unlock/parent').send({ pin: '5555' }).expect(200);
 
     // Mission créée par le premier parent, demandée par l'enfant, validée par le second.
     const mission = await f.parent

@@ -125,6 +125,9 @@ describe('Persistance de session (refresh silencieux)', () => {
     const { device, email } = await family();
     const other = new Device(app);
     await other.post('/api/auth/login', { email, password: PASSWORD });
+    // Action parent : le PIN parent est exigé, même juste après la connexion.
+    expect((await other.post('/api/auth/logout-all')).status).toBe(403);
+    expect((await other.post('/api/auth/unlock/parent', { pin: '2468' })).status).toBe(200);
     expect((await other.post('/api/auth/logout-all')).status).toBe(200);
     // Le jeton d'accès encore valide est refusé immédiatement (session vérifiée en base).
     expect((await device.get('/api/auth/me')).body.code).toBe('SESSION_REVOKED');

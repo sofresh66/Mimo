@@ -4,7 +4,7 @@ import { Spinner, cx } from '@mimo/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useToast } from '@/components/Toast';
 import { useI18n, type MessageKey } from '@/i18n';
 import { keys } from '@/lib/queries';
@@ -24,11 +24,18 @@ export default function ParentLayout({ children }: { children: ReactNode }) {
   const { me, loading } = useSession();
   const router = useRouter();
 
+  // Vrai si l'espace parent a été ouvert (PIN) pendant cette visite : un verrouillage ou une
+  // expiration ramène simplement à « Qui joue ? », sans réafficher le pavé PIN.
+  const wasUnlocked = useRef(false);
   useEffect(() => {
     if (loading) return;
+    if (me?.mode === 'PARENT') wasUnlocked.current = true;
     if (!me) router.replace('/login');
     else if (!me.family) router.replace('/setup');
-    else if (me.mode !== 'PARENT') router.replace('/');
+    // Accès direct sans déverrouillage : retour à « Qui joue ? », pavé PIN ouvert.
+    else if (me.mode !== 'PARENT') {
+      router.replace(me.mode === 'PLAYER' ? '/play' : wasUnlocked.current ? '/' : '/?parent=1');
+    }
   }, [loading, me, router]);
 
   if (!me || me.mode !== 'PARENT' || !me.family) {

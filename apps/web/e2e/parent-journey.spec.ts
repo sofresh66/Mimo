@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { KIDS, childId, loginAsDemo, parentApi, typePin } from './helpers';
+import { KIDS, childId, loginAsDemo, openParentSpace, parentApi, typePin } from './helpers';
 
 test.describe('Parcours parent', () => {
   test('inscription → famille → enfant → mission → validation', async ({ page }) => {
@@ -26,8 +26,8 @@ test.describe('Parcours parent', () => {
     await page.getByRole('button', { name: 'C’est parti !' }).click();
 
     await expect(page.getByText('Qui joue ?')).toBeVisible();
-    await page.getByRole('button', { name: /Espace parent/ }).click();
-    await expect(page).toHaveURL(/\/parent/);
+    // Même juste après la création de la famille, le PIN parent est exigé.
+    await openParentSpace(page, '2468');
 
     // Mission depuis un modèle.
     await page.getByRole('link', { name: /Missions/ }).click();
@@ -72,7 +72,7 @@ test.describe('Parcours parent', () => {
     await device.post(`/api/me/missions/${todo?.id}/done`, { data: {} });
 
     await loginAsDemo(page);
-    await page.getByRole('button', { name: /Espace parent/ }).click();
+    await openParentSpace(page);
     await expect(page.getByRole('heading', { name: /À valider/ })).toBeVisible();
     const row = page
       .locator('li', { hasText: todo?.title ?? '' })
@@ -86,7 +86,7 @@ test.describe('Parcours parent', () => {
     page,
   }) => {
     await loginAsDemo(page);
-    await page.getByRole('button', { name: /Espace parent/ }).click();
+    await openParentSpace(page);
     await expect(page).toHaveURL(/\/parent/);
 
     await page.getByRole('button', { name: 'Se déconnecter' }).click();

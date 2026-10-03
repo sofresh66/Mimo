@@ -236,7 +236,15 @@ export class InvitationsService {
       if (joined.count === 0) {
         throw Errors.conflict('ALREADY_IN_FAMILY', 'Ce compte appartient déjà à une autre famille');
       }
-      if (!profile) return null;
+      if (!profile) {
+        // Nouveau parent : la famille a des enfants, l'espace parent exige désormais son PIN.
+        // La session courante quitte le mode parent (aucune fenêtre d'accès libre).
+        await tx.authSession.update({
+          where: { id: auth.sessionId },
+          data: { mode: 'DEVICE', childId: null, parentModeExpiresAt: null },
+        });
+        return auth.sessionId;
+      }
 
       // Profil de jeu propre à l'adulte (aucune créature : il l'adopte comme un enfant).
       const player = await tx.playerProfile.create({

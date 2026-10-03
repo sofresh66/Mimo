@@ -20,6 +20,13 @@ export async function loginAsDemo(page: Page): Promise<void> {
   await expect(page.getByText('Qui joue ?')).toBeVisible();
 }
 
+/** « Qui joue ? » → « Espace parent » → PIN parent (toujours exigé). */
+export async function openParentSpace(page: Page, pin: string = DEMO.parentPin): Promise<void> {
+  await page.getByRole('button', { name: /Espace parent/ }).click();
+  await typePin(page, pin);
+  await expect(page).toHaveURL(/\/parent/);
+}
+
 /** Saisit un PIN sur le pavé numérique (clics sur les touches). */
 export async function typePin(page: Page, pin: string): Promise<void> {
   const pad = page.getByRole('dialog');
@@ -50,13 +57,18 @@ export async function dismissAbsence(page: Page): Promise<void> {
   await expect(dialog).toBeHidden();
 }
 
-/** Second « appareil » : un parent connecté via l'API (pour valider pendant que l'enfant joue). */
+/**
+ * Second « appareil » : un parent connecté via l'API (pour valider pendant que l'enfant joue).
+ * Comme dans l'application, l'espace parent exige le PIN après la connexion.
+ */
 export async function parentApi(baseURL: string): Promise<APIRequestContext> {
   const api = await playwrightRequest.newContext({ baseURL });
   const res = await api.post('/api/auth/login', {
     data: { email: DEMO.email, password: DEMO.password },
   });
   expect(res.ok()).toBeTruthy();
+  const unlocked = await api.post('/api/auth/unlock/parent', { data: { pin: DEMO.parentPin } });
+  expect(unlocked.ok()).toBeTruthy();
   return api;
 }
 

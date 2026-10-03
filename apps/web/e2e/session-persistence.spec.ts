@@ -170,6 +170,9 @@ test.describe('Session persistante', () => {
     await expect(device.page.getByText('Qui joue ?')).toBeVisible();
     const other = await freshContext(browser, page);
     await other.page.request.post('/api/auth/login', { data: { email, password: PASSWORD } });
+    // Action parent : le PIN parent est exigé après la connexion.
+    expect((await other.page.request.post('/api/auth/logout-all')).status()).toBe(403);
+    await other.page.request.post('/api/auth/unlock/parent', { data: { pin: PARENT_PIN } });
     expect((await other.page.request.post('/api/auth/logout-all')).ok()).toBeTruthy();
     await other.context.close();
 

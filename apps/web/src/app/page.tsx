@@ -4,8 +4,8 @@ import type { PlayerProfile } from '@mimo/types';
 import { Avatar, Creature, Modal, PinPad, Spinner, buttonClassName } from '@mimo/ui';
 import { motion } from 'motion/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useI18n } from '@/i18n';
 import { useErrorMessage } from '@/lib/errors';
 import { useProfiles } from '@/lib/queries';
@@ -42,7 +42,12 @@ export default function WelcomePage() {
   }
   if (!me) return <Landing />;
   if (!me.family || player) return null;
-  return <WhoPlays familyName={me.family.name} parentMode={me.mode === 'PARENT'} />;
+  // useSearchParams exige une frontière Suspense pour le rendu statique.
+  return (
+    <Suspense>
+      <WhoPlays familyName={me.family.name} parentMode={me.mode === 'PARENT'} />
+    </Suspense>
+  );
 }
 
 function Landing() {
@@ -107,18 +112,31 @@ function WhoPlays({ familyName, parentMode }: { familyName: string; parentMode: 
   const { data: all, isPending } = useProfiles();
   // Seuls les enfants se sélectionnent ici (un adulte joueur se connecte avec son compte).
   const profiles = all?.filter((p) => p.type === 'CHILD');
-  const { unlockChild, unlockParent } = useSessionActions();
-  const [target, setTarget] = useState<Target | null>(null);
+  const { unlockChild, unlockParent, lock } = useSessionActions();
+  // Arrivée depuis une page parent sans déverrouillage (/?parent=1) : pavé PIN déjà ouvert.
+  const askParentPin = useSearchParams().get('parent') === '1';
+  const [target, setTarget] = useState<Target | null>(() =>
+    askParentPin ? { kind: 'parent' } : null,
+  );
+  // Défense en profondeur : « Qui joue ? » n'est jamais une porte ouverte vers l'espace parent.
+  // Une session parent déjà active À L'ARRIVÉE sur cet écran (fin de configuration, retour à
+  // l'accueil) est verrouillée côté serveur. Un déverrouillage par PIN fait ici n'est pas annulé.
+  const lockOnArrival = useRef(parentMode);
+  useEffect(() => {
+    if (!lockOnArrival.current) return;
+    lockOnArrival.current = false;
+    void lock();
+  }, [lock]);
+  useEffect(() => {
+    if (askParentPin) router.replace('/', { scroll: false });
+  }, [askParentPin, router]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
   const open = (next: Target) => {
     playSound('pop');
-    if (next.kind === 'parent' && parentMode) {
-      router.push('/parent');
-      return;
-    }
+    // L'espace parent exige TOUJOURS le PIN depuis cet écran (le serveur l'exige aussi).
     setError(null);
     setTarget(next);
   };

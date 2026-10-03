@@ -154,7 +154,8 @@ function ConfirmParentJoin({
   needsPin: boolean;
 }) {
   const { t } = useI18n();
-  const { accept, error, busy } = useAccept(token, '/parent');
+  // L'espace parent exige le PIN (choisi à l'instant) : arrivée directe sur le pavé PIN.
+  const { accept, error, busy } = useAccept(token, '/?parent=1');
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
