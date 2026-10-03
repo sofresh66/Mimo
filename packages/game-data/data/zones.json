@@ -72,6 +72,11 @@
           "kind": "item",
           "item": "glow_plant",
           "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "paper_forest",
+          "weight": 1
         }
       ]
     }
@@ -134,6 +139,11 @@
         {
           "kind": "item",
           "item": "bg_beach",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "paper_beach",
           "weight": 1
         }
       ]

@@ -6,6 +6,7 @@ import {
   legacyRoomLayout,
   parseRoomLayout,
   validateRoomLayout,
+  type CatalogIndex,
   type ItemDefinition,
   type RoomPlacement,
   type SceneDefinition,
@@ -79,9 +80,7 @@ export class RoomService {
   }
 
   private ownsBackground(def: ItemDefinition, owned: ReadonlyMap<string, number>): boolean {
-    return (
-      def.scene?.unlock.some((u) => u.kind === 'default') === true || (owned.get(def.key) ?? 0) > 0
-    );
+    return ownsUnlockable(def, owned);
   }
 
   roomView(profile: RoomProfile, owned: ReadonlyMap<string, number>): RoomView {
@@ -124,11 +123,7 @@ export class RoomService {
       scene: sceneView(bg.scene),
       owned: this.ownsBackground(bg, owned),
       current: bg.key === room.background.id,
-      unlock: (bg.scene?.unlock ?? []).map((u): SceneUnlockView => {
-        if (u.kind !== 'exploration') return u;
-        const zone = index.zones.get(u.zone);
-        return { ...u, zoneName: zone ? t(zone.name) : u.zone };
-      }),
+      unlock: unlockViews(bg, index),
     }));
     const placeables = index.catalog.items
       .filter((i) => i.decor && (owned.get(i.key) ?? 0) > 0)
@@ -226,6 +221,22 @@ const FALLBACK_BACKGROUND: ItemDefinition = {
     unlock: [{ kind: 'default' }],
   },
 };
+
+/** Indices d'obtention d'un décor ou d'un papier à lettres. */
+export function unlockViews(def: ItemDefinition, index: CatalogIndex): SceneUnlockView[] {
+  return (def.scene?.unlock ?? []).map((u): SceneUnlockView => {
+    if (u.kind !== 'exploration') return u;
+    const zone = index.zones.get(u.zone);
+    return { ...u, zoneName: zone ? t(zone.name) : u.zone };
+  });
+}
+
+/** Décor ou papier disponible : objet par défaut, ou possédé dans l'inventaire. */
+export function ownsUnlockable(def: ItemDefinition, owned: ReadonlyMap<string, number>): boolean {
+  return (
+    def.scene?.unlock.some((u) => u.kind === 'default') === true || (owned.get(def.key) ?? 0) > 0
+  );
+}
 
 export function sceneView(scene: SceneDefinition | undefined): SceneView {
   return {

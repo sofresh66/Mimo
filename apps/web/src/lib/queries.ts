@@ -12,6 +12,10 @@ import type {
   FamilySettings,
   InventoryView,
   ItemView,
+  LetterBox,
+  LetterComposeView,
+  LetterPage,
+  MailSummary,
   MiniGameInfo,
   MissionTemplateView,
   MissionView,
@@ -26,7 +30,7 @@ import type {
   VillageView,
   ZoneView,
 } from '@mimo/types';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { http } from './api';
 
 /** Clés de cache centralisées (utilisées aussi pour l'invalidation temps réel). */
@@ -49,6 +53,10 @@ export const keys = {
   room: ['room'] as const,
   friends: ['friends'] as const,
   friendsJournal: ['friends', 'journal'] as const,
+  /** Boîte aux lettres : préfixe commun (invalidation de tous les onglets). */
+  letters: ['letters'] as const,
+  letterBox: (box: LetterBox) => ['letters', box] as const,
+  letterCompose: ['letters', 'compose'] as const,
   parent: {
     dashboard: ['parent', 'dashboard'] as const,
     missions: ['parent', 'missions'] as const,
@@ -61,6 +69,12 @@ export const keys = {
     settings: ['parent', 'settings'] as const,
     invitations: ['parent', 'invitations'] as const,
     village: ['parent', 'village'] as const,
+    letters: ['parent', 'letters'] as const,
+    letterBox: (box: LetterBox) => ['parent', 'letters', box] as const,
+    letterSummary: ['parent', 'letters', 'summary'] as const,
+    letterCompose: ['parent', 'letters', 'compose'] as const,
+    childLetters: (id: string, box: 'received' | 'sent') =>
+      ['parent', 'child-letters', id, box] as const,
   },
 };
 
@@ -163,4 +177,37 @@ export const useParentVillage = () =>
   useQuery({
     queryKey: keys.parent.village,
     queryFn: () => http.get<VillageView>('/parent/village'),
+  });
+
+// ─── Courrier familial ───────────────────────────────────────────────────────
+
+/** Pages de lettres (20 par page, curseur serveur). `base` : « /me/letters » ou « /parent/letters ». */
+export const useLetterPages = (
+  queryKey: readonly unknown[],
+  base: string,
+  params: Record<string, string>,
+  enabled = true,
+) =>
+  useInfiniteQuery({
+    queryKey,
+    enabled,
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam, signal }) => {
+      const query = new URLSearchParams(params);
+      if (pageParam) query.set('cursor', pageParam);
+      return http.get<LetterPage>(`${base}?${query.toString()}`, signal);
+    },
+    getNextPageParam: (last) => last.nextCursor,
+  });
+export const useLetterCompose = (parent: boolean, enabled = true) =>
+  useQuery({
+    queryKey: parent ? keys.parent.letterCompose : keys.letterCompose,
+    queryFn: () =>
+      http.get<LetterComposeView>(parent ? '/parent/letters/compose' : '/me/letters/compose'),
+    enabled,
+  });
+export const useParentMailSummary = () =>
+  useQuery({
+    queryKey: keys.parent.letterSummary,
+    queryFn: () => http.get<MailSummary>('/parent/letters/summary'),
   });

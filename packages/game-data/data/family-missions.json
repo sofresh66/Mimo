@@ -38,7 +38,8 @@
     "goalType": "GAMES_PLAYED",
     "target": 12,
     "rewardPoints": 80,
-    "icon": "🎲"
+    "icon": "🎲",
+    "rewardItem": "paper_rainbow"
   },
   {
     "key": "weekly_meals",

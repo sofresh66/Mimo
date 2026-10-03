@@ -52,6 +52,8 @@ enum ItemCategory {
   CHEST
   /// Décor de fond de l'espace de la créature (objet unique).
   BACKGROUND
+  /// Papier à lettres (objet unique) ; ses couleurs sont décrites par `scene`.
+  STATIONERY
 }
 
 enum AccessorySlot {
@@ -197,6 +199,8 @@ model User {
   auditLogs           AuditLog[]
   sentInvitations     ParentInvitation[]  @relation("InvitationCreator")
   acceptedInvitations ParentInvitation[]  @relation("InvitationAcceptor")
+  sentLetters         Letter[]            @relation("LetterSenderUser")
+  receivedLetters     Letter[]            @relation("LetterRecipientUser")
   /// Profil de jeu d'un adulte joueur (aucun pour un parent).
   playerProfile       PlayerProfile?
 
@@ -247,6 +251,7 @@ model Family {
   invitations    ParentInvitation[]
   relations      CreatureRelation[]
   visits         CreatureVisit[]
+  letters        Letter[]
 }
 
 /// Invitation d'un parent supplémentaire dans une famille (lien partageable).
@@ -321,6 +326,8 @@ model PlayerProfile {
   sessions         AuthSession[]
   dexDiscoveries   CreaturedexEntry[]
   hostedVisits     CreatureVisit[]
+  sentLetters      Letter[]            @relation("LetterSenderProfile")
+  receivedLetters  Letter[]            @relation("LetterRecipientProfile")
 
   @@index([familyId])
   @@map("ChildProfile")
@@ -394,6 +401,7 @@ model ItemDefinition {
   equippedFace   Creature[]       @relation("EquippedFace")
   equippedNeck   Creature[]       @relation("EquippedNeck")
   equippedBack   Creature[]       @relation("EquippedBack")
+  letters        Letter[]
 
   @@index([category])
 }
@@ -744,6 +752,51 @@ model Reward {
   createdBy User?           @relation("RewardCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([childId, status])
+}
+
+// ─── Courrier familial ───────────────────────────────────────────────────────
+
+/// Lettre entre deux membres d'une même famille. Chaque côté est soit un profil de jeu
+/// (enfant ou adulte joueur), soit un compte parent (qui n'a pas de profil de jeu).
+/// Les noms sont figés à l'envoi : à la suppression d'un profil (SetNull), la lettre reste un
+/// souvenir pour l'autre membre. Le contenu est privé : jamais journalisé ni diffusé en temps réel.
+/// Invariants garantis en base (CHECK, non exprimables en Prisma) : au plus un expéditeur et un
+/// destinataire de chaque type, pas de lettre à soi-même, longueur du contenu bornée.
+model Letter {
+  id                 String    @id @default(cuid())
+  familyId           String
+  senderProfileId    String?
+  senderUserId       String?
+  recipientProfileId String?
+  recipientUserId    String?
+  senderName         String
+  senderAvatar       String
+  /// Compagnon de l'expéditeur au moment de l'envoi (« Haylie & Luna »).
+  senderCreatureName String?
+  recipientName      String
+  content            String
+  stationeryId       String
+  /// Identifiant fourni par le client : un nouvel essai réseau ne crée pas de doublon.
+  requestId          String?
+  readAt             DateTime?
+  /// « Garder précieusement » (choix du destinataire).
+  cherishedAt        DateTime?
+  createdAt          DateTime  @default(now())
+
+  family           Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  senderProfile    PlayerProfile? @relation("LetterSenderProfile", fields: [senderProfileId], references: [id], onDelete: SetNull)
+  senderUser       User?          @relation("LetterSenderUser", fields: [senderUserId], references: [id], onDelete: SetNull)
+  recipientProfile PlayerProfile? @relation("LetterRecipientProfile", fields: [recipientProfileId], references: [id], onDelete: SetNull)
+  recipientUser    User?          @relation("LetterRecipientUser", fields: [recipientUserId], references: [id], onDelete: SetNull)
+  stationery       ItemDefinition @relation(fields: [stationeryId], references: [id])
+
+  @@unique([familyId, requestId])
+  @@index([recipientProfileId, createdAt])
+  @@index([recipientProfileId, readAt])
+  @@index([recipientProfileId, cherishedAt])
+  @@index([senderProfileId, createdAt])
+  @@index([recipientUserId, createdAt])
+  @@index([senderUserId, createdAt])
 }
 
 // ─── Monde familial ──────────────────────────────────────────────────────────

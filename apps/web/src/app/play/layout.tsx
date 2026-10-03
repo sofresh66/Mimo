@@ -217,6 +217,20 @@ function useRealtimeBridge(unseenExploration: ExplorationView | null) {
   useRealtimeEvent('family-mission:completed', ({ title, rewardPoints }) =>
     celebrate({ kind: 'family', title, points: rewardPoints }),
   );
+  // Nouvelle lettre (déjà en base) : un seul toast par lettre, le compteur vient du serveur.
+  const announcedLetters = useRef(new Set<string>());
+  useRealtimeEvent('mail:received', ({ letterId, senderName, creatureName }) => {
+    refresh(keys.home, keys.letters);
+    if (announcedLetters.current.has(letterId)) return;
+    announcedLetters.current.add(letterId);
+    playSound('pop');
+    toast(
+      creatureName
+        ? t('mail.receivedWithCreature', { name: senderName, creature: creatureName })
+        : t('mail.received', { name: senderName }),
+      'info',
+    );
+  });
   // La créature d'un autre membre de la famille vient d'interagir avec la nôtre.
   useRealtimeEvent('social:event', (event) => {
     playSound('pop');

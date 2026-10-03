@@ -290,6 +290,10 @@
   ],
   "levelRewards": [
     {
+      "level": 2,
+      "item": "paper_friendship"
+    },
+    {
       "level": 3,
       "item": "bg_garden"
     },

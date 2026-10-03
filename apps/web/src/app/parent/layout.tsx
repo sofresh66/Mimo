@@ -17,6 +17,7 @@ const NAV: Array<{ href: string; label: MessageKey; icon: string }> = [
   { href: '/parent/children', label: 'parent.nav.children', icon: '👧' },
   { href: '/parent/rewards', label: 'parent.nav.rewards', icon: '🎁' },
   { href: '/parent/history', label: 'parent.nav.history', icon: '🕒' },
+  { href: '/parent/letters', label: 'mail.parentLink', icon: '💌' },
   { href: '/parent/settings', label: 'parent.nav.settings', icon: '⚙️' },
 ];
 
@@ -91,6 +92,10 @@ function ParentShell({
       'error',
     ),
   );
+  useRealtimeEvent('mail:received', ({ senderName }) => {
+    toast(t('mail.received', { name: senderName }), 'info');
+    void client.invalidateQueries({ queryKey: keys.parent.letters });
+  });
   useRealtimeEvent('missions:changed', () => {
     void client.invalidateQueries({ queryKey: keys.parent.pending });
     void client.invalidateQueries({ queryKey: keys.parent.dashboard });

@@ -189,6 +189,94 @@ export interface ChildHome {
   visit: VisitView | null;
   /** Interactions survenues depuis la dernière consultation (« Pendant ton absence… »). */
   socialUnseen: SocialEventView[];
+  /** Boîte aux lettres : courriers non lus (compteur calculé par le serveur). */
+  mail: MailSummary;
+}
+
+// ─── Courrier familial ───────────────────────────────────────────────────────
+
+/** Onglets de la boîte aux lettres. */
+export type LetterBox = 'received' | 'sent' | 'cherished';
+export const LETTER_BOXES: readonly LetterBox[] = ['received', 'sent', 'cherished'];
+
+/** Membre de la famille : profil de jeu (enfant, adulte joueur) ou compte parent. */
+export type LetterPartyKind = 'profile' | 'parent';
+
+export interface LetterParty {
+  kind: LetterPartyKind;
+  /** Null si le profil a été supprimé depuis (le nom reste celui de l'envoi). */
+  id: string | null;
+  name: string;
+  avatar: string;
+}
+
+export interface StationeryView {
+  id: string;
+  name: string;
+  emoji: string;
+  scene: SceneView;
+}
+
+export interface LetterView {
+  id: string;
+  from: LetterParty;
+  to: LetterParty;
+  /** Compagnon de l'expéditeur au moment de l'envoi (« Haylie & Luna »). */
+  creatureName: string | null;
+  content: string;
+  stationery: StationeryView;
+  createdAt: string;
+  readAt: string | null;
+  cherishedAt: string | null;
+  /** Vrai si la lettre a été écrite par le lecteur (onglet « Envoyées »). */
+  mine: boolean;
+}
+
+export interface LetterPage {
+  letters: LetterView[];
+  /** Curseur de la page suivante (null : plus rien à charger). */
+  nextCursor: string | null;
+}
+
+export interface LetterRecipientView {
+  kind: LetterPartyKind;
+  id: string;
+  name: string;
+  avatar: string;
+  color: string;
+}
+
+export interface StationeryChoiceView {
+  item: StationeryView;
+  owned: boolean;
+  unlock: SceneUnlockView[];
+}
+
+/** Données nécessaires pour écrire une lettre. */
+export interface LetterComposeView {
+  recipients: LetterRecipientView[];
+  stationery: StationeryChoiceView[];
+}
+
+export interface SendLetterInput {
+  to: { kind: LetterPartyKind; id: string };
+  content: string;
+  stationeryId: string;
+  /** Identifiant unique généré par le client (nouvel essai réseau sans doublon). */
+  requestId: string;
+}
+
+export interface MailSummary {
+  unread: number;
+  /** Expéditeur du plus récent courrier non lu (« Tu as reçu une lettre de Mamie ! »). */
+  latestFrom: { name: string; creatureName: string | null } | null;
+}
+
+/** Événement temps réel léger : jamais le contenu de la lettre. */
+export interface MailReceivedPayload {
+  letterId: string;
+  senderName: string;
+  creatureName: string | null;
 }
 
 // ─── Espace de la créature ────────────────────────────────────────────────────
@@ -714,6 +802,8 @@ export interface ServerToClientEvents {
   'security:pin-locked': (payload: { target: 'parent' | 'child'; name: string | null }) => void;
   /** Interaction entre la créature du joueur et celle d'un autre membre de la famille. */
   'social:event': (payload: SocialEventView) => void;
+  /** Nouvelle lettre reçue (déjà enregistrée en base ; aucun contenu transmis). */
+  'mail:received': (payload: MailReceivedPayload) => void;
 }
 
 export type ClientToServerEvents = Record<string, never>;

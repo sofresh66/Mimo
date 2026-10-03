@@ -1337,5 +1337,196 @@
         }
       ]
     }
+  },
+  {
+    "key": "paper_mimo",
+    "name": {
+      "fr": "Papier Mimo"
+    },
+    "description": {
+      "fr": "Un joli papier tout simple pour écrire à ta famille."
+    },
+    "category": "STATIONERY",
+    "rarity": "COMMON",
+    "emoji": "💌",
+    "unique": true,
+    "scene": {
+      "sky": ["#fffaf2", "#fff4e6"],
+      "ground": "#f3c98b",
+      "particles": ["💛"],
+      "unlock": [
+        {
+          "kind": "default"
+        }
+      ]
+    }
+  },
+  {
+    "key": "paper_forest",
+    "name": {
+      "fr": "Forêt enchantée"
+    },
+    "description": {
+      "fr": "Un papier parfumé de mousse et de lucioles."
+    },
+    "category": "STATIONERY",
+    "rarity": "RARE",
+    "emoji": "🍃",
+    "unique": true,
+    "scene": {
+      "sky": ["#eef9ec", "#d8f0d4"],
+      "ground": "#7cc47a",
+      "particles": ["🌲", "🍄", "✨"],
+      "unlock": [
+        {
+          "kind": "exploration",
+          "zone": "glowing_forest"
+        },
+        {
+          "kind": "mission"
+        }
+      ]
+    }
+  },
+  {
+    "key": "paper_beach",
+    "name": {
+      "fr": "Plage"
+    },
+    "description": {
+      "fr": "Un papier qui sent le sable chaud et les coquillages."
+    },
+    "category": "STATIONERY",
+    "rarity": "RARE",
+    "emoji": "🐚",
+    "unique": true,
+    "scene": {
+      "sky": ["#fff8e1", "#e0f4fb"],
+      "ground": "#7ccbe0",
+      "particles": ["🐚", "🌊", "⭐"],
+      "unlock": [
+        {
+          "kind": "exploration",
+          "zone": "shell_beach"
+        }
+      ]
+    }
+  },
+  {
+    "key": "paper_night",
+    "name": {
+      "fr": "Nuit étoilée"
+    },
+    "description": {
+      "fr": "Pour les lettres du soir, sous les étoiles."
+    },
+    "category": "STATIONERY",
+    "rarity": "RARE",
+    "emoji": "🌙",
+    "unique": true,
+    "scene": {
+      "sky": ["#e8e9ff", "#f6f0ff"],
+      "ground": "#8f8be0",
+      "particles": ["🌙", "⭐", "✨"],
+      "unlock": [
+        {
+          "kind": "level",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "key": "paper_friendship",
+    "name": {
+      "fr": "Amitié"
+    },
+    "description": {
+      "fr": "Un papier tout doux pour dire « je tiens à toi »."
+    },
+    "category": "STATIONERY",
+    "rarity": "RARE",
+    "emoji": "🤝",
+    "unique": true,
+    "scene": {
+      "sky": ["#fff0f4", "#fff8fb"],
+      "ground": "#f39bb5",
+      "particles": ["💕", "🌸", "🤝"],
+      "unlock": [
+        {
+          "kind": "friendship",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "key": "paper_rainbow",
+    "name": {
+      "fr": "Arc-en-ciel"
+    },
+    "description": {
+      "fr": "Toutes les couleurs pour une lettre pleine de joie."
+    },
+    "category": "STATIONERY",
+    "rarity": "EPIC",
+    "emoji": "🌈",
+    "unique": true,
+    "scene": {
+      "sky": ["#fff3f3", "#f1f8ff"],
+      "ground": "#c79bf0",
+      "particles": ["🌈", "☁️", "💖"],
+      "unlock": [
+        {
+          "kind": "familyMission"
+        }
+      ]
+    }
+  },
+  {
+    "key": "paper_birthday",
+    "name": {
+      "fr": "Anniversaire"
+    },
+    "description": {
+      "fr": "Un papier de fête, avec des ballons et du gâteau."
+    },
+    "category": "STATIONERY",
+    "rarity": "RARE",
+    "emoji": "🎂",
+    "unique": true,
+    "scene": {
+      "sky": ["#fff5e8", "#fffbf2"],
+      "ground": "#f5a25d",
+      "particles": ["🎈", "🎂", "🎉"],
+      "unlock": [
+        {
+          "kind": "mission"
+        }
+      ]
+    }
+  },
+  {
+    "key": "paper_christmas",
+    "name": {
+      "fr": "Noël"
+    },
+    "description": {
+      "fr": "Un papier qui scintille comme un sapin décoré."
+    },
+    "category": "STATIONERY",
+    "rarity": "RARE",
+    "emoji": "🎄",
+    "unique": true,
+    "scene": {
+      "sky": ["#f2fbf4", "#fff6f6"],
+      "ground": "#d9534f",
+      "particles": ["🎄", "❄️", "🎁"],
+      "unlock": [
+        {
+          "kind": "mission"
+        }
+      ]
+    }
   }
 ]

@@ -36,12 +36,12 @@ export function assignedTo(profile: { id: string; type: PlayerType }): Prisma.Mi
 
 /**
  * Objets qu'un parent peut attacher en récompense (les légendaires restent à découvrir).
- * Les décors restent des récompenses de progression : seuls ceux prévus comme récompense de
- * quête (source « mission ») peuvent être offerts ; les souvenirs uniques jamais.
+ * Les décors et papiers à lettres restent des récompenses de progression : seuls ceux prévus
+ * comme récompense de quête (source « mission ») peuvent être offerts ; les souvenirs jamais.
  */
 export function isGiftableItem(def: ItemDefinition | undefined): def is ItemDefinition {
   if (!def || def.rarity === 'LEGENDARY') return false;
-  if (def.category === 'BACKGROUND') {
+  if (def.category === 'BACKGROUND' || def.category === 'STATIONERY') {
     return def.scene?.unlock.some((u) => u.kind === 'mission') ?? false;
   }
   return (

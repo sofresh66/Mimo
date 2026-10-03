@@ -3,6 +3,20 @@ import type { Messages } from './fr';
 
 /** Traduction anglaise (partielle) : les clés absentes retombent sur le français. */
 const en: DeepPartial<Messages> = {
+  mail: {
+    title: 'Mailbox',
+    subtitle: 'Little letters for your family',
+    open: 'Open the mailbox',
+    received: 'You got a letter from {name}! 💌',
+    receivedWithCreature: '{name} & {creature} sent you a letter! 💌',
+    inbox: 'Received',
+    sent: 'Sent',
+    cherished: 'Keepsakes',
+    write: 'Write',
+    cherish: '⭐ Keep forever',
+    send: 'Send ✉️',
+    privacyChild: 'Your parents can read your letters.',
+  },
   common: {
     loading: 'Loading…',
     back: 'Back',

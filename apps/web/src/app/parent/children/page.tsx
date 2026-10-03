@@ -198,6 +198,9 @@ function ChildDialog({
         {dialog.kind === 'delete' && (
           <>
             <p className="text-sm text-slate-600">{t('parentChildren.deleteWarning')}</p>
+            <p className="text-sm text-slate-600" data-testid="delete-letters-note">
+              💌 {t('parentChildren.deleteLetters')}
+            </p>
             <Field
               label={t('parentChildren.deleteConfirmLabel')}
               value={confirmName}

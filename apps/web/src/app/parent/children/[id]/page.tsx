@@ -4,6 +4,7 @@ import type { MissionSuggestion } from '@mimo/types';
 import { Avatar, Button, CATEGORY_META, CreatureCard, Modal, ParentPanel, Spinner } from '@mimo/ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { ChildLetters } from '@/components/Mail';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { MissionForm, draftFromTemplate, type MissionDraft } from '@/components/MissionForm';
@@ -88,6 +89,9 @@ export default function ChildDetailPage() {
           <ParentPanel title={t('parent.nav.history')}>
             <Timeline events={data.history} />
           </ParentPanel>
+
+          {/* Supervision du courrier : profils enfants uniquement (les adultes restent privés). */}
+          {o.type === 'CHILD' && <ChildLetters childId={id} name={o.displayName} />}
         </div>
 
         <div className="flex flex-col gap-5">

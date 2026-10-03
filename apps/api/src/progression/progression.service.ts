@@ -131,8 +131,8 @@ export class ProgressionService {
             },
           });
         }
-        // Décors débloqués par la progression (offerts en cadeau, une seule fois).
-        for (const bg of this.catalog.index.backgrounds()) {
+        // Décors et papiers à lettres débloqués par la progression (cadeau, une seule fois).
+        for (const bg of this.catalog.index.unlockables()) {
           if (bg.scene?.unlock.some((u) => u.kind === 'level' && u.level === level)) {
             await grantItemReward(tx, bg, {
               ...base,

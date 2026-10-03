@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCelebrations } from '@/components/Celebrations';
 import { CreatureScene } from '@/components/CreatureScene';
+import { MailboxButton } from '@/components/Mail';
 import { RoomEditor } from '@/components/RoomEditor';
 import { useToast } from '@/components/Toast';
 import { useI18n, type MessageKey } from '@/i18n';
@@ -83,6 +84,11 @@ function HomeView({ home }: { home: ChildHome }) {
 
   if (!creature) return null;
   const isEgg = creature.stage === 'EGG';
+  // « Tu as reçu une lettre de Mamie ! 💌 » : dit par le compagnon, près de la boîte aux lettres.
+  const mailText = (from: { name: string; creatureName: string | null }) =>
+    from.creatureName
+      ? t('mail.receivedWithCreature', { name: from.name, creature: from.creatureName })
+      : t('mail.received', { name: from.name });
 
   const actions: Array<{
     key: string;
@@ -216,18 +222,23 @@ function HomeView({ home }: { home: ChildHome }) {
               visit={home.visit}
               label={t('room.sceneLabel', { name: creature.name })}
               overlay={
-                <button
-                  type="button"
-                  onClick={() => setDecorating(true)}
-                  className="rounded-full bg-white/90 px-3 py-1.5 font-display text-sm font-bold text-ink shadow-sm transition hover:bg-white focus-visible:outline-4 focus-visible:outline-primary/50"
-                >
-                  🎨 {t('room.decorate')}
-                </button>
+                <>
+                  <span className="mr-auto">
+                    <MailboxButton unread={home.mail.unread} />
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setDecorating(true)}
+                    className="rounded-full bg-white/90 px-3 py-1.5 font-display text-sm font-bold text-ink shadow-sm transition hover:bg-white focus-visible:outline-4 focus-visible:outline-primary/50"
+                  >
+                    🎨 {t('room.decorate')}
+                  </button>
+                </>
               }
             />
           </div>
           <motion.p
-            key={creature.mood}
+            key={home.mail.latestFrom ? 'mail' : creature.mood}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             className="mt-1 rounded-2xl bg-white px-4 py-2 text-center font-semibold text-ink/80 shadow-sm"
@@ -236,7 +247,9 @@ function HomeView({ home }: { home: ChildHome }) {
               ? t('child.exploringNow', { name: creature.name, zone: home.exploration.zone.name })
               : isEgg
                 ? t('adopt.hatchHint')
-                : t(`moods.${creature.mood}`, { name: creature.name })}
+                : home.mail.latestFrom
+                  ? mailText(home.mail.latestFrom)
+                  : t(`moods.${creature.mood}`, { name: creature.name })}
           </motion.p>
           {creature.isExploring && home.exploration && (
             <Countdown endsAt={home.exploration.endsAt} />

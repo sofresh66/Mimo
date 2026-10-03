@@ -212,7 +212,11 @@ export class FamilyService {
     });
   }
 
-  /** Suppression définitive d'un profil et de toutes ses données (droit à l'effacement). */
+  /**
+   * Suppression définitive d'un profil et de toutes ses données de jeu (droit à l'effacement).
+   * Exception voulue : les lettres familiales déjà échangées restent des souvenirs pour les
+   * autres membres (profil détaché, nom figé à l'envoi) ; l'interface parent le signale.
+   */
   async deleteChild(
     auth: AuthContext,
     familyId: string,

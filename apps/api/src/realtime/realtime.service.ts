@@ -9,6 +9,8 @@ type EventArgs<E extends EventName> = Parameters<ServerToClientEvents[E]>;
 export const rooms = {
   child: (childId: string) => `child:${childId}`,
   parents: (familyId: string) => `parents:${familyId}`,
+  /** Un parent précis, uniquement avec l'espace parent déverrouillé (courrier personnel). */
+  parentUser: (userId: string) => `parent-user:${userId}`,
   family: (familyId: string) => `family:${familyId}`,
   session: (sessionId: string) => `session:${sessionId}`,
   user: (userId: string) => `user:${userId}`,
@@ -29,6 +31,10 @@ export class RealtimeService {
 
   toParents<E extends EventName>(familyId: string, event: E, ...args: EventArgs<E>): void {
     this.server?.to(rooms.parents(familyId)).emit(event, ...args);
+  }
+
+  toParentUser<E extends EventName>(userId: string, event: E, ...args: EventArgs<E>): void {
+    this.server?.to(rooms.parentUser(userId)).emit(event, ...args);
   }
 
   /**

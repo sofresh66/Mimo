@@ -16,6 +16,7 @@ import { appearanceOf, creatureView, currentStats, itemView } from '../content/v
 import { EventsService } from '../events/events.service';
 import { ExplorationsService } from '../explorations/explorations.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { LettersService } from '../letters/letters.service';
 import { PrismaService, type Tx } from '../prisma/prisma.service';
 import { ProgressionService } from '../progression/progression.service';
 import { RoomService } from '../room/room.service';
@@ -40,6 +41,7 @@ export class CreaturesService {
     private readonly explorations: ExplorationsService,
     private readonly room: RoomService,
     private readonly social: SocialService,
+    private readonly letters: LettersService,
   ) {}
 
   async home(childId: string): Promise<ChildHome> {
@@ -63,9 +65,10 @@ export class CreaturesService {
     ]);
     const index = this.catalog.index;
     const room = this.room.roomView(child, owned);
-    const [visit, socialUnseen] = await Promise.all([
+    const [visit, socialUnseen, mail] = await Promise.all([
       this.social.activeVisit(childId, room.layout),
       this.social.unseen(childId, child.socialSeenAt),
+      this.letters.summary({ kind: 'profile', familyId: child.familyId, profileId: childId }),
     ]);
     return {
       child: {
@@ -86,6 +89,7 @@ export class CreaturesService {
       room,
       visit,
       socialUnseen,
+      mail,
     };
   }
 

@@ -10,6 +10,8 @@ import { ExplorationsController } from '../explorations/explorations.controller'
 import { ExplorationsService } from '../explorations/explorations.service';
 import { InventoryController } from '../inventory/inventory.controller';
 import { InventoryService } from '../inventory/inventory.service';
+import { ParentLettersController, PlayerLettersController } from '../letters/letters.controller';
+import { LettersService } from '../letters/letters.service';
 import { MinigamesController } from '../minigames/minigames.controller';
 import { MinigamesService } from '../minigames/minigames.service';
 import { ChildMissionsController, ParentMissionsController } from '../missions/missions.controller';
@@ -22,7 +24,7 @@ import { SocialController } from '../social/social.controller';
 import { SocialService } from '../social/social.service';
 import { MaintenanceService } from './maintenance.service';
 
-/** Domaine de jeu : créatures, inventaire, missions, récompenses, exploration, mini-jeux… */
+/** Domaine de jeu : créatures, inventaire, missions, récompenses, exploration, courrier… */
 @Module({
   controllers: [
     CreaturesController,
@@ -38,6 +40,8 @@ import { MaintenanceService } from './maintenance.service';
     ChildVillageController,
     RoomController,
     SocialController,
+    PlayerLettersController,
+    ParentLettersController,
   ],
   providers: [
     CreaturesService,
@@ -52,6 +56,7 @@ import { MaintenanceService } from './maintenance.service';
     MaintenanceService,
     RoomService,
     SocialService,
+    LettersService,
   ],
 })
 export class GameModule {}

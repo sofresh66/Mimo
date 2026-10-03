@@ -1,5 +1,6 @@
 export * from './evolution';
 export * from './friendship';
+export * from './letters';
 export * from './levels';
 export * from './loot';
 export * from './recipes';

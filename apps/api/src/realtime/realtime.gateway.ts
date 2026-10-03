@@ -84,7 +84,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection {
         !!session.parentModeExpiresAt &&
         session.parentModeExpiresAt > new Date();
       if (parentActive && payload.mode === 'PARENT' && role === 'PARENT') {
-        await socket.join(rooms.parents(familyId));
+        await socket.join([rooms.parents(familyId), rooms.parentUser(session.userId)]);
         // À l'expiration de l'espace parent, la socket est fermée (le client se reconnecte sans ces droits).
         const remaining = (session.parentModeExpiresAt?.getTime() ?? Date.now()) - Date.now();
         const timer = setTimeout(() => socket.disconnect(true), Math.max(0, remaining));

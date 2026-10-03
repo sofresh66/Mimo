@@ -76,6 +76,25 @@ export class CatalogIndex {
     return this.catalog.items.filter((i) => i.category === 'BACKGROUND');
   }
 
+  /** Papiers à lettres (catégorie STATIONERY), dans l'ordre du catalogue. */
+  stationery(): ItemDefinition[] {
+    return this.catalog.items.filter((i) => i.category === 'STATIONERY');
+  }
+
+  /** Objets à débloquer par la progression (décors et papiers à lettres). */
+  unlockables(): ItemDefinition[] {
+    return this.catalog.items.filter(
+      (i) => i.category === 'BACKGROUND' || i.category === 'STATIONERY',
+    );
+  }
+
+  /** Papier à lettres par défaut, toujours disponible sans être dans l'inventaire. */
+  defaultStationery(): ItemDefinition {
+    const found = this.stationery().find((b) => b.scene?.unlock.some((u) => u.kind === 'default'));
+    if (!found) throw new Error('Aucun papier à lettres par défaut');
+    return found;
+  }
+
   /** Décor par défaut, toujours disponible sans être dans l'inventaire. */
   defaultBackground(): ItemDefinition {
     const found = this.backgrounds().find((b) => b.scene?.unlock.some((u) => u.kind === 'default'));
@@ -149,7 +168,7 @@ export function validateCatalog(catalog: GameCatalog): string[] {
     if (item.hatchesSpecies && !idx.species.has(item.hatchesSpecies))
       errors.push(`item ${item.key}: espèce inconnue ${item.hatchesSpecies}`);
     checkLoot(`item ${item.key}`, item.loot);
-    if (item.category === 'BACKGROUND') {
+    if (item.category === 'BACKGROUND' || item.category === 'STATIONERY') {
       if (!item.scene) errors.push(`item ${item.key}: décor sans scène`);
       if (!item.unique) errors.push(`item ${item.key}: un décor doit être unique`);
       if (item.price !== undefined) errors.push(`item ${item.key}: un décor ne se vend pas`);
@@ -164,8 +183,12 @@ export function validateCatalog(catalog: GameCatalog): string[] {
     if (item.decor && item.decor.tags.length === 0)
       errors.push(`item ${item.key}: objet plaçable sans étiquette`);
   }
-  const defaults = catalog.items.filter((i) => i.scene?.unlock.some((u) => u.kind === 'default'));
-  if (defaults.length !== 1) errors.push('il faut exactement un décor par défaut');
+  for (const category of ['BACKGROUND', 'STATIONERY'] as const) {
+    const defaults = catalog.items.filter(
+      (i) => i.category === category && i.scene?.unlock.some((u) => u.kind === 'default'),
+    );
+    if (defaults.length !== 1) errors.push(`il faut exactement un ${category} par défaut`);
+  }
   for (const event of catalog.social.events) {
     checkLoot(`social ${event.key}`, event.loot);
     if (event.minLevel < 0 || event.minLevel > 4)

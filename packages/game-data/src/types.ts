@@ -35,6 +35,7 @@ export const ITEM_CATEGORIES = [
   'SPECIAL',
   'CHEST',
   'BACKGROUND',
+  'STATIONERY',
 ] as const;
 export type ItemCategory = (typeof ITEM_CATEGORIES)[number];
 
@@ -137,7 +138,11 @@ export interface ItemDefinition {
   unique?: boolean;
   /** Objet plaçable dans l'espace de la créature (absent = non plaçable). */
   decor?: DecorDefinition;
-  /** Décor de fond de l'espace de la créature (catégorie BACKGROUND). */
+  /**
+   * Thème visuel et sources d'obtention : décor de fond (catégorie BACKGROUND) ou papier à
+   * lettres (catégorie STATIONERY : `sky` = dégradé du papier, `ground` = bordure,
+   * `particles` = petits motifs).
+   */
   scene?: SceneDefinition;
 }
 
