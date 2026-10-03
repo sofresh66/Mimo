@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
 import type { GameCatalog } from '@mimo/game-data';
 
 type Json = Prisma.InputJsonValue;
@@ -58,6 +58,9 @@ export async function syncContent(prisma: PrismaClient, catalog: GameCatalog): P
           slot: item.slot ?? null,
           loot: item.loot ? json(item.loot) : undefined,
           hatchesSpeciesId: item.hatchesSpecies ?? null,
+          unique: item.unique ?? false,
+          decor: item.decor ? json(item.decor) : Prisma.DbNull,
+          scene: item.scene ? json(item.scene) : Prisma.DbNull,
         };
         await tx.itemDefinition.upsert({
           where: { id: item.key },
@@ -137,6 +140,7 @@ export async function syncContent(prisma: PrismaClient, catalog: GameCatalog): P
           target: fm.target,
           rewardPoints: fm.rewardPoints,
           icon: fm.icon,
+          rewardItemId: fm.rewardItem ?? null,
         };
         await tx.familyMission.upsert({
           where: { id: fm.key },

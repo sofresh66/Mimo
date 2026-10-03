@@ -50,6 +50,8 @@ enum ItemCategory {
   DECORATION
   SPECIAL
   CHEST
+  /// Décor de fond de l'espace de la créature (objet unique).
+  BACKGROUND
 }
 
 enum AccessorySlot {
@@ -122,6 +124,8 @@ enum RewardSource {
   MISSION
   FAMILY_MISSION
   LEVEL_UP
+  /// Récompense d'un niveau d'amitié entre deux créatures.
+  FRIENDSHIP
 }
 
 enum GameSessionStatus {
@@ -159,6 +163,11 @@ enum GameEventType {
   BUILDING_UNLOCKED
   FAMILY_MISSION_COMPLETED
   COMPANION_USED
+  /// Interaction entre deux créatures (le détail est dans `payload.kind` / `payload.eventKey`).
+  SOCIAL_INTERACTION
+  FRIENDSHIP_UP
+  BACKGROUND_UNLOCKED
+  ROOM_DECORATED
 }
 
 // ─── Comptes et familles ─────────────────────────────────────────────────────
@@ -236,6 +245,8 @@ model Family {
   events         GameEvent[]
   auditLogs      AuditLog[]
   invitations    ParentInvitation[]
+  relations      CreatureRelation[]
+  visits         CreatureVisit[]
 }
 
 /// Invitation d'un parent supplémentaire dans une famille (lien partageable).
@@ -281,6 +292,14 @@ model PlayerProfile {
   pinLockedUntil    DateTime?
   /// Décorations installées dans la chambre de la créature (clés d'objets).
   roomDecorations   String[]   @default([])
+  /// Décor de fond choisi (null = décor par défaut).
+  roomBackground    String?
+  /// Disposition des objets placés (null = dérivée de `roomDecorations`, anciennes sauvegardes).
+  roomLayout        Json?
+  /// Dernière génération d'interactions entre créatures (null = jamais).
+  socialTickAt      DateTime?
+  /// Dernière consultation des interactions (« Pendant ton absence… »).
+  socialSeenAt      DateTime?
   lastSeenAt        DateTime?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
@@ -301,6 +320,7 @@ model PlayerProfile {
   events           GameEvent[]
   sessions         AuthSession[]
   dexDiscoveries   CreaturedexEntry[]
+  hostedVisits     CreatureVisit[]
 
   @@index([familyId])
   @@map("ChildProfile")
@@ -354,6 +374,12 @@ model ItemDefinition {
   emoji            String
   price            Int?
   effect           Json?
+  /// Objet unique (décors, souvenirs) : jamais en double dans un inventaire.
+  unique           Boolean        @default(false)
+  /// Objet plaçable : étiquettes et taille (`DecorDefinition`).
+  decor            Json?
+  /// Décor de fond : scène et sources d'obtention (`SceneDefinition`).
+  scene            Json?
   slot             AccessorySlot?
   loot             Json?
   hatchesSpeciesId String?
@@ -438,6 +464,8 @@ model FamilyMission {
   target       Int
   rewardPoints Int
   icon         String
+  /// Objet offert à chaque joueur de la famille quand la mission est accomplie.
+  rewardItemId String?
   isActive     Boolean        @default(true)
   updatedAt    DateTime       @updatedAt
 
@@ -475,17 +503,71 @@ model Creature {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  child        PlayerProfile     @relation(fields: [childId], references: [id], onDelete: Cascade)
-  species      CreatureSpecies   @relation(fields: [speciesId], references: [id])
-  form         CreatureEvolution @relation(fields: [formId], references: [id])
-  headItem     ItemDefinition?   @relation("EquippedHead", fields: [headItemId], references: [id])
-  faceItem     ItemDefinition?   @relation("EquippedFace", fields: [faceItemId], references: [id])
-  neckItem     ItemDefinition?   @relation("EquippedNeck", fields: [neckItemId], references: [id])
-  backItem     ItemDefinition?   @relation("EquippedBack", fields: [backItemId], references: [id])
+  child        PlayerProfile      @relation(fields: [childId], references: [id], onDelete: Cascade)
+  species      CreatureSpecies    @relation(fields: [speciesId], references: [id])
+  form         CreatureEvolution  @relation(fields: [formId], references: [id])
+  headItem     ItemDefinition?    @relation("EquippedHead", fields: [headItemId], references: [id])
+  faceItem     ItemDefinition?    @relation("EquippedFace", fields: [faceItemId], references: [id])
+  neckItem     ItemDefinition?    @relation("EquippedNeck", fields: [neckItemId], references: [id])
+  backItem     ItemDefinition?    @relation("EquippedBack", fields: [backItemId], references: [id])
   xpEvents     XPEvent[]
   explorations Exploration[]
+  relationsA   CreatureRelation[] @relation("RelationA")
+  relationsB   CreatureRelation[] @relation("RelationB")
+  visits       CreatureVisit[]
 
   @@index([childId, isActive])
+}
+
+/// Relation d'amitié entre deux créatures d'une même famille (couple ordonné : A < B).
+model CreatureRelation {
+  id                String    @id @default(cuid())
+  familyId          String
+  creatureAId       String
+  creatureBId       String
+  points            Int       @default(0)
+  /// Plus haut niveau atteint : plancher non punitif (jamais perdu).
+  bestLevel         Int       @default(0)
+  interactions      Int       @default(0)
+  /// Une chamaillerie attend sa réconciliation.
+  needsReconcile    Boolean   @default(false)
+  lastSquabbleAt    DateTime?
+  lastInteractionAt DateTime?
+  /// Jour (AAAA-MM-JJ) et nombre de parties « Jouer ensemble » à l'initiative des joueurs.
+  playDay           String?
+  playCount         Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  creatureA Creature @relation("RelationA", fields: [creatureAId], references: [id], onDelete: Cascade)
+  creatureB Creature @relation("RelationB", fields: [creatureBId], references: [id], onDelete: Cascade)
+
+  @@unique([creatureAId, creatureBId])
+  @@index([familyId])
+  @@index([creatureBId])
+}
+
+/// Visite temporaire d'une créature dans l'espace d'un autre joueur (jamais de transfert).
+model CreatureVisit {
+  id                String   @id @default(cuid())
+  familyId          String
+  hostProfileId     String
+  visitorCreatureId String
+  /// Interaction à l'origine de la visite (clé de `social-events.json`).
+  eventKey          String
+  /// Objet placé auquel le visiteur réagit, le cas échéant.
+  itemId            String?
+  startsAt          DateTime
+  endsAt            DateTime
+  createdAt         DateTime @default(now())
+
+  family          Family        @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  host            PlayerProfile @relation(fields: [hostProfileId], references: [id], onDelete: Cascade)
+  visitorCreature Creature      @relation(fields: [visitorCreatureId], references: [id], onDelete: Cascade)
+
+  @@index([hostProfileId, endsAt])
+  @@index([endsAt])
 }
 
 /// Découvertes de la Créaturopédie, partagées par toute la famille (coopératif).

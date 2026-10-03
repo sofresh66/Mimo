@@ -2,9 +2,11 @@
 
 import type { ChildHome, FeedResult } from '@mimo/types';
 import {
+  Button,
   CATEGORY_META,
   Card,
   Creature,
+  Modal,
   ProgressBar,
   STAT_COLORS,
   Spinner,
@@ -16,12 +18,15 @@ import { motion } from 'motion/react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCelebrations } from '@/components/Celebrations';
+import { CreatureScene } from '@/components/CreatureScene';
+import { RoomEditor } from '@/components/RoomEditor';
 import { useToast } from '@/components/Toast';
 import { useI18n, type MessageKey } from '@/i18n';
 import { http } from '@/lib/api';
 import { equipmentEmojis, formatDuration } from '@/lib/creature';
 import { useErrorMessage } from '@/lib/errors';
 import { keys, useHome } from '@/lib/queries';
+import { lootText, socialText } from '@/lib/social';
 import { playSound } from '@/lib/sound';
 
 export default function ChildHomePage() {
@@ -49,6 +54,14 @@ function HomeView({ home }: { home: ChildHome }) {
     key: 0,
   });
   const react = (type: CreatureReaction) => setReaction((r) => ({ type, key: r.key + 1 }));
+  // Lien direct « Décorer » depuis l'inventaire (/play#decorate). HomeView n'est rendu qu'une
+  // fois l'accueil chargé côté client : lire l'URL ici ne crée pas d'écart d'hydratation.
+  const [decorating, setDecorating] = useState(() => window.location.hash === '#decorate');
+  useEffect(() => {
+    if (window.location.hash === '#decorate') {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
 
   const play = useMutation({
     mutationFn: () => http.post<FeedResult>('/me/creature/play'),
@@ -133,35 +146,59 @@ function HomeView({ home }: { home: ChildHome }) {
       badge: home.pendingRewards,
       color: '#ff5d8f',
     },
+    {
+      key: 'friends',
+      label: 'child.friends',
+      emoji: '❤️',
+      href: '/play/friends',
+      color: '#ff7aa2',
+    },
   ];
+
+  const creatureButton = (
+    <button
+      type="button"
+      className="rounded-full focus-visible:outline-4 focus-visible:outline-primary/50"
+      onClick={() => {
+        playSound('pop');
+        react('happy');
+      }}
+      aria-label={`${creature.name}, ${creature.formName}`}
+    >
+      <Creature
+        appearance={creature.appearance}
+        equipment={equipmentEmojis(creature.equipment)}
+        mood={creature.mood}
+        reaction={reaction.type}
+        reactionKey={reaction.key}
+        size={200}
+        label={`${creature.name}, ${creature.formName}`}
+      />
+    </button>
+  );
+
+  if (decorating) {
+    return (
+      <div className="flex flex-col gap-3">
+        <h1 className="font-display text-2xl font-bold">🎨 {t('room.decorate')}</h1>
+        <RoomEditor
+          creature={creatureButton}
+          creatureName={creature.name}
+          onClose={() => setDecorating(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className="font-display text-2xl font-bold">
         {t('child.hello', { name: home.child.displayName })}
       </h1>
+      <AbsenceDialog home={home} />
 
       <Card className="relative overflow-hidden p-0">
-        <div
-          className="relative flex flex-col items-center px-4 pb-4 pt-6"
-          style={{
-            background: `linear-gradient(180deg, ${creature.appearance.palette.belly}aa 0%, #ffffff 75%)`,
-          }}
-        >
-          {home.roomDecorations.map((d, i) => (
-            <span
-              key={d.id}
-              aria-hidden="true"
-              className="absolute text-4xl"
-              style={{
-                left: i === 1 ? 'auto' : `${8 + i * 30}%`,
-                right: i === 1 ? '8%' : undefined,
-                top: i === 2 ? '55%' : '14%',
-              }}
-            >
-              {d.emoji}
-            </span>
-          ))}
+        <div className="relative flex flex-col items-center px-3 pb-4 pt-4">
           <p className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-ink/50">
             {t(`stages.${creature.stage}`)}
           </p>
@@ -171,25 +208,24 @@ function HomeView({ home }: { home: ChildHome }) {
           <p className="text-ink/70">
             {creature.formName} · {t('common.level', { level: creature.level })}
           </p>
-          <button
-            type="button"
-            className="mt-2 rounded-full focus-visible:outline-4 focus-visible:outline-primary/50"
-            onClick={() => {
-              playSound('pop');
-              react('happy');
-            }}
-            aria-label={`${creature.name}, ${creature.formName}`}
-          >
-            <Creature
-              appearance={creature.appearance}
-              equipment={equipmentEmojis(creature.equipment)}
-              mood={creature.mood}
-              reaction={reaction.type}
-              reactionKey={reaction.key}
-              size={230}
-              label={`${creature.name}, ${creature.formName}`}
+          <div className="mt-2 w-full">
+            <CreatureScene
+              scene={home.room.background.scene}
+              layout={home.room.layout}
+              creature={creatureButton}
+              visit={home.visit}
+              label={t('room.sceneLabel', { name: creature.name })}
+              overlay={
+                <button
+                  type="button"
+                  onClick={() => setDecorating(true)}
+                  className="rounded-full bg-white/90 px-3 py-1.5 font-display text-sm font-bold text-ink shadow-sm transition hover:bg-white focus-visible:outline-4 focus-visible:outline-primary/50"
+                >
+                  🎨 {t('room.decorate')}
+                </button>
+              }
             />
-          </button>
+          </div>
           <motion.p
             key={creature.mood}
             initial={{ opacity: 0, y: 6 }}
@@ -243,7 +279,7 @@ function HomeView({ home }: { home: ChildHome }) {
         </div>
       </Card>
 
-      <ul className="grid grid-cols-3 gap-3">
+      <ul className="grid grid-cols-3 gap-3 sm:grid-cols-5">
         {actions.map((a, i) => {
           const content = (
             <>
@@ -313,6 +349,57 @@ function HomeView({ home }: { home: ChildHome }) {
         </Card>
       )}
     </div>
+  );
+}
+
+/** « Pendant ton absence… » : interactions entre créatures survenues depuis la dernière visite. */
+function AbsenceDialog({ home }: { home: ChildHome }) {
+  const { t } = useI18n();
+  const client = useQueryClient();
+  const [open, setOpen] = useState(home.socialUnseen.length > 0);
+  const events = home.socialUnseen;
+  const close = () => {
+    setOpen(false);
+    client.setQueryData<ChildHome>(keys.home, (old) => (old ? { ...old, socialUnseen: [] } : old));
+    void http
+      .post('/me/friends/seen')
+      .then(() => client.invalidateQueries({ queryKey: keys.friendsJournal }))
+      .catch(() => undefined);
+  };
+  if (events.length === 0) return null;
+  return (
+    <Modal
+      open={open}
+      onClose={close}
+      title={t('friends.absenceTitle')}
+      size="sm"
+      footer={
+        <Button block onClick={close}>
+          {t('friends.absenceOk')}
+        </Button>
+      }
+    >
+      <ul className="flex flex-col gap-2" data-testid="absence-events">
+        {events.map((e) => {
+          const loot = lootText(e);
+          return (
+            <li key={e.id} className="flex items-start gap-2 rounded-2xl bg-cream p-2.5">
+              <span className="text-2xl" aria-hidden="true">
+                {e.icon}
+              </span>
+              <span className="text-sm font-semibold text-ink">
+                {socialText(e, (key, vars) => t(key as MessageKey, vars))}
+                {loot && (
+                  <span className="block font-normal text-ink/70">
+                    {t('friends.found', { loot })}
+                  </span>
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </Modal>
   );
 }
 

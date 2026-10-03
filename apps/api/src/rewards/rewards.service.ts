@@ -188,7 +188,9 @@ export class RewardsService {
         } else {
           loot = { coins: 0, items: [{ item: reward.itemId, quantity: reward.amount }] };
         }
-        await this.inventory.grantLoot(tx, reward.familyId, childId, loot, { rewardId: reward.id });
+        loot = await this.inventory.grantLoot(tx, reward.familyId, childId, loot, {
+          rewardId: reward.id,
+        });
       }
       await this.events.record(
         {

@@ -2,8 +2,9 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { QUEUES, QueueService } from '../jobs/queue.service';
 import { MinigamesService } from '../minigames/minigames.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { SocialService } from '../social/social.service';
 
-/** Tâches programmées de nettoyage (parties abandonnées, sessions expirées). */
+/** Tâches programmées de nettoyage (parties abandonnées, sessions expirées, journal social). */
 @Injectable()
 export class MaintenanceService implements OnModuleInit {
   private readonly logger = new Logger(MaintenanceService.name);
@@ -12,6 +13,7 @@ export class MaintenanceService implements OnModuleInit {
     private readonly queue: QueueService,
     private readonly prisma: PrismaService,
     private readonly games: MinigamesService,
+    private readonly social: SocialService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -29,7 +31,12 @@ export class MaintenanceService implements OnModuleInit {
         ],
       },
     });
+    const social = await this.social.prune();
     if (games || sessions)
       this.logger.log(`Nettoyage : ${games} parties expirées, ${sessions} sessions supprimées`);
+    if (social.visits || social.events)
+      this.logger.log(
+        `Nettoyage social : ${social.visits} visites, ${social.events} événements anciens`,
+      );
   }
 }

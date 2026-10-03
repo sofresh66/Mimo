@@ -72,6 +72,39 @@ accessoires, coffres, rares oeufs spéciaux. Un oeuf ne peut pas explorer.
 - Missions familiales hebdomadaires coopératives (10 missions, 8 explorations, 12 parties, 15 repas) qui
   rapportent des points au village. Aucune contribution individuelle n'est affichée.
 
+## Amis entre créatures
+
+Les créatures d'une même famille (enfants et adultes joueurs) se lient d'amitié :
+Inconnus → Connaissances → Copains → Amis → Meilleurs amis (`FRIENDSHIP_LEVELS`).
+
+- **Monde vivant** : à l'ouverture de l'accueil, les interactions survenues pendant l'absence
+  sont générées (une toutes les 4 h, 3 au plus) : visites, jeux, goûters partagés, cadeaux,
+  explorations à deux, réactions aux objets placés. Fenêtre « Pendant ton absence… ».
+- **Jouer ensemble** : 3 fois par jour et par couple de créatures (page « ❤️ Amis »).
+- **Jamais punitif** : une chamaillerie (rare, une par semaine au plus) retire quelques points
+  mais ne fait jamais redescendre de niveau, et elle est toujours suivie d'une réconciliation
+  qui rend davantage.
+- **Cadeaux générés par le jeu** : ils ne sont jamais retirés à l'autre joueur (aucun échange
+  entre enfants).
+- **Paliers** : Amis → décor « Jardin magique », Meilleurs amis → « Souvenir d'amitié »
+  (pour les deux joueurs).
+- **Extensible** : une interaction = une entrée de `social-events.json` + son texte.
+- **Pas de classement** : les amis sont triés par prénom, jamais par popularité.
+
+## Espace de la créature
+
+L'accueil est une scène à couches : décor → décorations arrière → créatures → décorations
+avant → interface. Hors édition, les décorations ne captent jamais le toucher (la créature
+reste cliquable).
+
+- **Décors** (objets `BACKGROUND` uniques, jamais vendus) : Chambre Mimo par défaut, les autres
+  par la progression (niveaux 5, 8, 12), l'exploration, les quêtes parent (décors marqués
+  « mission » seulement) ou l'amitié.
+- **Décorations** : tout objet `decor` (décorations, jouets) se place, se déplace (doigt,
+  souris, flèches), se retourne, passe devant/derrière et se range sans être perdu. Au plus
+  12 objets ; jamais plus d'exemplaires placés que possédés.
+- **Unicité** : un objet unique déjà possédé et obtenu à nouveau est converti en pièces.
+
 ## Mini-jeux
 
 Mémoire (8 paires, score selon le nombre de coups, jamais sous 40 % s'il est terminé), calcul mental (10 questions,

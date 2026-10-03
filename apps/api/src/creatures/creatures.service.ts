@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { applyDelta, startOfUtcDay } from '@mimo/game-data';
 import type {
   ChildHome,
@@ -18,6 +18,8 @@ import { ExplorationsService } from '../explorations/explorations.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { PrismaService, type Tx } from '../prisma/prisma.service';
 import { ProgressionService } from '../progression/progression.service';
+import { RoomService } from '../room/room.service';
+import { SocialService } from '../social/social.service';
 
 /** Jouer avec son compagnon : effets et petite XP plafonnée par jour. */
 export const PLAY_EFFECT = { happiness: 10, energy: -6, curiosity: 3 };
@@ -27,6 +29,8 @@ export const PLAY_MIN_ENERGY = 6;
 
 @Injectable()
 export class CreaturesService {
+  private readonly logger = new Logger(CreaturesService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly catalog: CatalogService,
@@ -34,11 +38,18 @@ export class CreaturesService {
     private readonly progression: ProgressionService,
     private readonly inventory: InventoryService,
     private readonly explorations: ExplorationsService,
+    private readonly room: RoomService,
+    private readonly social: SocialService,
   ) {}
 
   async home(childId: string): Promise<ChildHome> {
     await this.explorations.completeDueForChild(childId);
-    const [child, creature, inventory, pendingRewards, current, unseen] = await Promise.all([
+    // Interactions entre créatures survenues pendant l'absence (idempotent). Une erreur ici ne
+    // doit jamais empêcher l'enfant d'ouvrir son accueil.
+    await this.social.catchUp(childId).catch((error: unknown) => {
+      this.logger.error(`Interactions sociales non générées : ${String(error)}`);
+    });
+    const [child, creature, inventory, pendingRewards, current, unseen, owned] = await Promise.all([
       this.prisma.playerProfile.update({
         where: { id: childId },
         data: { lastSeenAt: new Date() },
@@ -48,8 +59,14 @@ export class CreaturesService {
       this.prisma.reward.count({ where: { childId, status: 'PENDING' } }),
       this.explorations.current(childId),
       this.explorations.unseen(childId),
+      this.room.ownedCounts(childId),
     ]);
     const index = this.catalog.index;
+    const room = this.room.roomView(child, owned);
+    const [visit, socialUnseen] = await Promise.all([
+      this.social.activeVisit(childId, room.layout),
+      this.social.unseen(childId, child.socialSeenAt),
+    ]);
     return {
       child: {
         id: child.id,
@@ -66,6 +83,9 @@ export class CreaturesService {
       roomDecorations: child.roomDecorations
         .filter((key) => index.items.has(key))
         .map((key) => itemView(index.item(key))),
+      room,
+      visit,
+      socialUnseen,
     };
   }
 

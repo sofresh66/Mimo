@@ -172,7 +172,16 @@ export class ExplorationsService implements OnModuleInit {
 
       const { familyId } = exploration.child;
       const childId = exploration.childId;
-      await this.inventory.grantLoot(tx, familyId, childId, loot, { zoneId: zone.key });
+      const granted = await this.inventory.grantLoot(tx, familyId, childId, loot, {
+        zoneId: zone.key,
+      });
+      // Butin affiché au retour = butin réellement attribué (décor déjà possédé → pièces).
+      if (granted.coins !== loot.coins || granted.items.length !== loot.items.length) {
+        await tx.exploration.update({
+          where: { id: exploration.id },
+          data: { rewards: { ...granted, xp: zone.xp.amount } as unknown as Prisma.InputJsonValue },
+        });
+      }
       const creature = await tx.creature.findUniqueOrThrow({
         where: { id: exploration.creatureId },
       });

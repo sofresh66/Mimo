@@ -1,0 +1,301 @@
+{
+  "events": [
+    {
+      "key": "visit_hello",
+      "kind": "VISIT",
+      "icon": "💌",
+      "minLevel": 0,
+      "weight": 6,
+      "delta": 3,
+      "visitMinutes": 180
+    },
+    {
+      "key": "play_chase",
+      "kind": "PLAY",
+      "icon": "🏃",
+      "minLevel": 0,
+      "weight": 5,
+      "delta": 4,
+      "visitMinutes": 120,
+      "playerInitiated": true
+    },
+    {
+      "key": "play_hide",
+      "kind": "PLAY",
+      "icon": "🙈",
+      "minLevel": 1,
+      "weight": 4,
+      "delta": 4,
+      "visitMinutes": 120,
+      "playerInitiated": true
+    },
+    {
+      "key": "play_berries",
+      "kind": "PLAY",
+      "icon": "🍓",
+      "minLevel": 1,
+      "weight": 3,
+      "delta": 5,
+      "visitMinutes": 120,
+      "loot": {
+        "rolls": 1,
+        "entries": [
+          {
+            "kind": "item",
+            "item": "strawberry",
+            "weight": 3,
+            "min": 2,
+            "max": 3
+          },
+          {
+            "kind": "item",
+            "item": "grapes",
+            "weight": 2,
+            "min": 1,
+            "max": 3
+          }
+        ]
+      }
+    },
+    {
+      "key": "play_ball",
+      "kind": "DECOR_REACTION",
+      "icon": "⚽",
+      "minLevel": 0,
+      "weight": 5,
+      "delta": 5,
+      "visitMinutes": 120,
+      "requiresTag": "toy",
+      "playerInitiated": true
+    },
+    {
+      "key": "admire_light",
+      "kind": "DECOR_REACTION",
+      "icon": "💡",
+      "minLevel": 0,
+      "weight": 4,
+      "delta": 3,
+      "visitMinutes": 120,
+      "requiresTag": "light"
+    },
+    {
+      "key": "nap_soft",
+      "kind": "DECOR_REACTION",
+      "icon": "😴",
+      "minLevel": 1,
+      "weight": 3,
+      "delta": 3,
+      "visitMinutes": 120,
+      "requiresTag": "soft"
+    },
+    {
+      "key": "smell_plant",
+      "kind": "DECOR_REACTION",
+      "icon": "🌿",
+      "minLevel": 0,
+      "weight": 3,
+      "delta": 3,
+      "visitMinutes": 120,
+      "requiresTag": "plant"
+    },
+    {
+      "key": "dance_music",
+      "kind": "DECOR_REACTION",
+      "icon": "🎶",
+      "minLevel": 1,
+      "weight": 3,
+      "delta": 4,
+      "visitMinutes": 120,
+      "requiresTag": "music"
+    },
+    {
+      "key": "look_art",
+      "kind": "DECOR_REACTION",
+      "icon": "🖼️",
+      "minLevel": 0,
+      "weight": 2,
+      "delta": 3,
+      "visitMinutes": 120,
+      "requiresTag": "art"
+    },
+    {
+      "key": "share_snack",
+      "kind": "SHARE_FOOD",
+      "icon": "🍎",
+      "minLevel": 2,
+      "weight": 4,
+      "delta": 5,
+      "visitMinutes": 90,
+      "loot": {
+        "rolls": 1,
+        "entries": [
+          {
+            "kind": "item",
+            "item": "apple",
+            "weight": 3,
+            "min": 1,
+            "max": 2
+          },
+          {
+            "kind": "item",
+            "item": "banana",
+            "weight": 2
+          },
+          {
+            "kind": "item",
+            "item": "honey",
+            "weight": 1
+          }
+        ]
+      }
+    },
+    {
+      "key": "gift_small",
+      "kind": "GIFT",
+      "icon": "🎁",
+      "minLevel": 2,
+      "weight": 3,
+      "delta": 6,
+      "loot": {
+        "rolls": 1,
+        "entries": [
+          {
+            "kind": "coins",
+            "weight": 3,
+            "min": 5,
+            "max": 15
+          },
+          {
+            "kind": "item",
+            "item": "flower",
+            "weight": 3,
+            "min": 1,
+            "max": 2
+          },
+          {
+            "kind": "item",
+            "item": "chocolate",
+            "weight": 1
+          }
+        ]
+      }
+    },
+    {
+      "key": "gift_decor",
+      "kind": "GIFT",
+      "icon": "🎀",
+      "minLevel": 3,
+      "weight": 1,
+      "delta": 8,
+      "loot": {
+        "rolls": 1,
+        "entries": [
+          {
+            "kind": "item",
+            "item": "potted_plant",
+            "weight": 3
+          },
+          {
+            "kind": "item",
+            "item": "cushion",
+            "weight": 3
+          },
+          {
+            "kind": "item",
+            "item": "lantern",
+            "weight": 2
+          },
+          {
+            "kind": "item",
+            "item": "music_box",
+            "weight": 1
+          }
+        ]
+      }
+    },
+    {
+      "key": "duo_exploration",
+      "kind": "DUO_EXPLORATION",
+      "icon": "🧭",
+      "minLevel": 3,
+      "weight": 2,
+      "delta": 7,
+      "loot": {
+        "rolls": 2,
+        "entries": [
+          {
+            "kind": "coins",
+            "weight": 3,
+            "min": 10,
+            "max": 25
+          },
+          {
+            "kind": "item",
+            "item": "wood",
+            "weight": 3,
+            "min": 1,
+            "max": 2
+          },
+          {
+            "kind": "item",
+            "item": "crystal",
+            "weight": 1
+          },
+          {
+            "kind": "item",
+            "item": "mushroom",
+            "weight": 2,
+            "min": 1,
+            "max": 2
+          }
+        ]
+      }
+    },
+    {
+      "key": "stargazing",
+      "kind": "PLAY",
+      "icon": "🌠",
+      "minLevel": 4,
+      "weight": 1,
+      "delta": 5,
+      "visitMinutes": 120,
+      "loot": {
+        "rolls": 1,
+        "entries": [
+          {
+            "kind": "item",
+            "item": "stardust",
+            "weight": 1
+          }
+        ]
+      }
+    },
+    {
+      "key": "squabble_toy",
+      "kind": "SQUABBLE",
+      "icon": "😤",
+      "minLevel": 1,
+      "weight": 2,
+      "delta": -4
+    },
+    {
+      "key": "reconcile_hug",
+      "kind": "RECONCILE",
+      "icon": "🤗",
+      "minLevel": 0,
+      "weight": 0,
+      "delta": 6,
+      "visitMinutes": 120
+    }
+  ],
+  "levelRewards": [
+    {
+      "level": 3,
+      "item": "bg_garden"
+    },
+    {
+      "level": 4,
+      "item": "friendship_photo"
+    }
+  ]
+}

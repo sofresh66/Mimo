@@ -16,7 +16,7 @@
     "db:migrate": "dotenv -e ../../.env -- node scripts/assert-local-db.cjs db:migrate && dotenv -e ../../.env -- prisma migrate dev",
     "db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
     "db:seed": "dotenv -e ../../.env -- ts-node --transpile-only prisma/seed.ts",
-    "db:sync-content": "dotenv -e ../../.env -- ts-node --transpile-only prisma/sync-content.ts",
+    "db:sync-content": "dotenv -e ../../.env -- ts-node --transpile-only src/content/sync-content.main.ts",
     "db:reset": "dotenv -e ../../.env -- node scripts/assert-local-db.cjs db:reset && dotenv -e ../../.env -- prisma migrate reset --force",
     "db:studio": "dotenv -e ../../.env -- prisma studio"
   },

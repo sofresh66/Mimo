@@ -33,6 +33,8 @@ export function itemView(def: ItemDefinition): ItemView {
     price: def.price ?? null,
     effect: def.effect ?? null,
     slot: def.slot ?? null,
+    unique: def.unique ?? false,
+    decor: def.decor ?? null,
   };
 }
 

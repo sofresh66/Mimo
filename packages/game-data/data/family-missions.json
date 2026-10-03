@@ -10,7 +10,8 @@
     "goalType": "MISSIONS_COMPLETED",
     "target": 10,
     "rewardPoints": 150,
-    "icon": "🤝"
+    "icon": "🤝",
+    "rewardItem": "glow_plant"
   },
   {
     "key": "weekly_explorations",
@@ -23,7 +24,8 @@
     "goalType": "EXPLORATIONS_COMPLETED",
     "target": 8,
     "rewardPoints": 100,
-    "icon": "🧭"
+    "icon": "🧭",
+    "rewardItem": "trophy"
   },
   {
     "key": "weekly_games",

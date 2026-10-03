@@ -5,6 +5,7 @@ import itemsJson from '../data/items.json';
 import miniGamesJson from '../data/minigames.json';
 import missionsJson from '../data/missions.json';
 import recipesJson from '../data/recipes.json';
+import socialJson from '../data/social-events.json';
 import speciesJson from '../data/species.json';
 import zonesJson from '../data/zones.json';
 import type {
@@ -16,12 +17,14 @@ import type {
   MiniGameDefinition,
   MissionTemplateDefinition,
   RecipeDefinition,
+  SocialCatalog,
+  SocialEventDefinition,
   SpeciesDefinition,
   ZoneDefinition,
 } from './types';
 
 /** Version du contenu : à incrémenter à chaque modification des fichiers `data/`. */
-export const CONTENT_VERSION = '2026.10.1';
+export const CONTENT_VERSION = '2026.10.2';
 
 /**
  * Catalogue par défaut, chargé depuis les fichiers JSON versionnés.
@@ -38,6 +41,7 @@ export const defaultCatalog: GameCatalog = {
   buildings: buildingsJson as BuildingDefinition[],
   familyMissions: familyMissionsJson as FamilyMissionDefinition[],
   miniGames: miniGamesJson as MiniGameDefinition[],
+  social: socialJson as SocialCatalog,
 };
 
 /** Index par clé pour des accès O(1). */
@@ -51,6 +55,7 @@ export class CatalogIndex {
   readonly buildings: Map<string, BuildingDefinition>;
   readonly familyMissions: Map<string, FamilyMissionDefinition>;
   readonly miniGames: Map<string, MiniGameDefinition>;
+  readonly socialEvents: Map<string, SocialEventDefinition>;
 
   constructor(readonly catalog: GameCatalog) {
     const byKey = <T extends { key: string }>(list: T[]) => new Map(list.map((e) => [e.key, e]));
@@ -63,6 +68,19 @@ export class CatalogIndex {
     this.buildings = byKey(catalog.buildings);
     this.familyMissions = byKey(catalog.familyMissions);
     this.miniGames = byKey(catalog.miniGames);
+    this.socialEvents = byKey(catalog.social.events);
+  }
+
+  /** Décors de fond (catégorie BACKGROUND), dans l'ordre du catalogue. */
+  backgrounds(): ItemDefinition[] {
+    return this.catalog.items.filter((i) => i.category === 'BACKGROUND');
+  }
+
+  /** Décor par défaut, toujours disponible sans être dans l'inventaire. */
+  defaultBackground(): ItemDefinition {
+    const found = this.backgrounds().find((b) => b.scene?.unlock.some((u) => u.kind === 'default'));
+    if (!found) throw new Error('Aucun décor par défaut');
+    return found;
   }
 
   formsOf(species: string): EvolutionFormDefinition[] {
@@ -100,6 +118,7 @@ export function validateCatalog(catalog: GameCatalog): string[] {
   checkUnique('zones', catalog.zones);
   checkUnique('missions', catalog.missionTemplates);
   checkUnique('buildings', catalog.buildings);
+  checkUnique('social', catalog.social.events);
 
   const checkItem = (ctx: string, key: string) => {
     if (!idx.items.has(key)) errors.push(`${ctx}: objet inconnu ${key}`);
@@ -130,6 +149,37 @@ export function validateCatalog(catalog: GameCatalog): string[] {
     if (item.hatchesSpecies && !idx.species.has(item.hatchesSpecies))
       errors.push(`item ${item.key}: espèce inconnue ${item.hatchesSpecies}`);
     checkLoot(`item ${item.key}`, item.loot);
+    if (item.category === 'BACKGROUND') {
+      if (!item.scene) errors.push(`item ${item.key}: décor sans scène`);
+      if (!item.unique) errors.push(`item ${item.key}: un décor doit être unique`);
+      if (item.price !== undefined) errors.push(`item ${item.key}: un décor ne se vend pas`);
+      if (item.decor) errors.push(`item ${item.key}: un décor ne se place pas`);
+      for (const u of item.scene?.unlock ?? []) {
+        if (u.kind === 'exploration' && !idx.zones.has(u.zone))
+          errors.push(`item ${item.key}: zone inconnue ${u.zone}`);
+      }
+    } else if (item.scene) {
+      errors.push(`item ${item.key}: scène réservée aux décors`);
+    }
+    if (item.decor && item.decor.tags.length === 0)
+      errors.push(`item ${item.key}: objet plaçable sans étiquette`);
+  }
+  const defaults = catalog.items.filter((i) => i.scene?.unlock.some((u) => u.kind === 'default'));
+  if (defaults.length !== 1) errors.push('il faut exactement un décor par défaut');
+  for (const event of catalog.social.events) {
+    checkLoot(`social ${event.key}`, event.loot);
+    if (event.minLevel < 0 || event.minLevel > 4)
+      errors.push(`social ${event.key}: niveau invalide`);
+    if (event.kind === 'SQUABBLE' && event.delta >= 0)
+      errors.push(`social ${event.key}: une chamaillerie retire des points`);
+    if (event.kind !== 'SQUABBLE' && event.delta <= 0)
+      errors.push(`social ${event.key}: une interaction positive ajoute des points`);
+  }
+  if (!catalog.social.events.some((e) => e.kind === 'RECONCILE'))
+    errors.push('social : une réconciliation est obligatoire');
+  for (const reward of catalog.social.levelRewards) checkItem('social levelRewards', reward.item);
+  for (const mission of catalog.familyMissions) {
+    if (mission.rewardItem) checkItem(`familyMission ${mission.key}`, mission.rewardItem);
   }
   for (const recipe of catalog.recipes) {
     recipe.ingredients.forEach((i) => checkItem(`recipe ${recipe.key}`, i));

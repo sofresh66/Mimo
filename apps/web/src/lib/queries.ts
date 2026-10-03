@@ -8,6 +8,7 @@ import type {
   CreatureView,
   DexView,
   ExplorationView,
+  FriendView,
   FamilySettings,
   InventoryView,
   ItemView,
@@ -19,6 +20,8 @@ import type {
   PlayerProfile,
   RecipeView,
   RewardView,
+  RoomEditorView,
+  SocialEventView,
   SpeciesView,
   VillageView,
   ZoneView,
@@ -43,6 +46,9 @@ export const keys = {
   games: ['games'] as const,
   rewards: ['rewards'] as const,
   companion: ['companion'] as const,
+  room: ['room'] as const,
+  friends: ['friends'] as const,
+  friendsJournal: ['friends', 'journal'] as const,
   parent: {
     dashboard: ['parent', 'dashboard'] as const,
     missions: ['parent', 'missions'] as const,
@@ -99,6 +105,19 @@ export const useExplorations = () =>
   });
 export const useDex = () =>
   useQuery({ queryKey: keys.dex, queryFn: () => http.get<DexView>('/me/dex') });
+export const useRoomEditor = (enabled = true) =>
+  useQuery({
+    queryKey: keys.room,
+    queryFn: () => http.get<RoomEditorView>('/me/room'),
+    enabled,
+  });
+export const useFriends = () =>
+  useQuery({ queryKey: keys.friends, queryFn: () => http.get<FriendView[]>('/me/friends') });
+export const useFriendsJournal = () =>
+  useQuery({
+    queryKey: keys.friendsJournal,
+    queryFn: () => http.get<SocialEventView[]>('/me/friends/journal'),
+  });
 export const useVillage = () =>
   useQuery({ queryKey: keys.village, queryFn: () => http.get<VillageView>('/me/village') });
 export const useGames = () =>

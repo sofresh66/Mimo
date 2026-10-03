@@ -10,6 +10,7 @@ import { CelebrationProvider, useCelebrations } from '@/components/Celebrations'
 import { useToast } from '@/components/Toast';
 import { useI18n, type MessageKey } from '@/i18n';
 import { http } from '@/lib/api';
+import { socialText } from '@/lib/social';
 import { keys, useHome } from '@/lib/queries';
 import { useRealtimeEvent, useRealtimeStatus } from '@/lib/realtime';
 import { useSession, useSessionActions } from '@/lib/session';
@@ -216,4 +217,13 @@ function useRealtimeBridge(unseenExploration: ExplorationView | null) {
   useRealtimeEvent('family-mission:completed', ({ title, rewardPoints }) =>
     celebrate({ kind: 'family', title, points: rewardPoints }),
   );
+  // La créature d'un autre membre de la famille vient d'interagir avec la nôtre.
+  useRealtimeEvent('social:event', (event) => {
+    playSound('pop');
+    toast(
+      socialText(event, (key, vars) => t(key as MessageKey, vars)),
+      'info',
+    );
+    refresh(keys.home, keys.friends, keys.friendsJournal);
+  });
 }

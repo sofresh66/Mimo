@@ -34,6 +34,7 @@ export const ITEM_CATEGORIES = [
   'DECORATION',
   'SPECIAL',
   'CHEST',
+  'BACKGROUND',
 ] as const;
 export type ItemCategory = (typeof ITEM_CATEGORIES)[number];
 
@@ -129,6 +130,102 @@ export interface ItemDefinition {
   loot?: LootTable;
   /** Oeuf spécial : espèce qui éclot (catégorie SPECIAL). */
   hatchesSpecies?: string;
+  /**
+   * Objet unique : jamais possédé en plusieurs exemplaires (décors, souvenirs). Un doublon
+   * obtenu est converti en pièces (`uniqueDuplicateCoins`).
+   */
+  unique?: boolean;
+  /** Objet plaçable dans l'espace de la créature (absent = non plaçable). */
+  decor?: DecorDefinition;
+  /** Décor de fond de l'espace de la créature (catégorie BACKGROUND). */
+  scene?: SceneDefinition;
+}
+
+/** Étiquettes qui permettent aux créatures en visite de réagir aux objets placés. */
+export const DECOR_TAGS = [
+  'toy',
+  'light',
+  'plant',
+  'soft',
+  'furniture',
+  'art',
+  'treasure',
+  'music',
+] as const;
+export type DecorTag = (typeof DECOR_TAGS)[number];
+
+export interface DecorDefinition {
+  tags: DecorTag[];
+  /** Taille d'affichage dans la scène. */
+  size: 'S' | 'M' | 'L';
+}
+
+/** Manière d'obtenir un décor (affichée comme indice tant qu'il est verrouillé). */
+export type SceneUnlock =
+  | { kind: 'default' }
+  | { kind: 'level'; level: number }
+  | { kind: 'exploration'; zone: string }
+  | { kind: 'friendship'; level: number }
+  | { kind: 'mission' }
+  | { kind: 'familyMission' };
+
+export interface SceneDefinition {
+  /** Dégradé du ciel (haut → bas). */
+  sky: [string, string];
+  /** Couleur du sol. */
+  ground: string;
+  /** Petits éléments d'ambiance (emoji) dessinés dans le décor. */
+  particles: string[];
+  /** Sources d'obtention (la première sert d'indice). */
+  unlock: SceneUnlock[];
+}
+
+/** Familles d'interactions entre créatures (le texte vient de la clé de l'événement). */
+export const SOCIAL_EVENT_KINDS = [
+  'VISIT',
+  'PLAY',
+  'SHARE_FOOD',
+  'GIFT',
+  'DUO_EXPLORATION',
+  'DECOR_REACTION',
+  'SQUABBLE',
+  'RECONCILE',
+] as const;
+export type SocialEventKind = (typeof SOCIAL_EVENT_KINDS)[number];
+
+/**
+ * Interaction entre deux créatures. Ajouter une entrée dans `social-events.json` (et son texte)
+ * suffit à enrichir le monde : aucun code à modifier.
+ */
+export interface SocialEventDefinition {
+  key: string;
+  kind: SocialEventKind;
+  icon: string;
+  /** Niveau d'amitié minimal (index de FRIENDSHIP_LEVELS). */
+  minLevel: number;
+  /** Poids du tirage (0 = jamais tiré au hasard, ex. réconciliation). */
+  weight: number;
+  /** Variation des points d'amitié (négative pour une chamaillerie). */
+  delta: number;
+  /** Durée pendant laquelle la créature visiteuse reste visible chez l'hôte. */
+  visitMinutes?: number;
+  /** Objet placé requis chez l'hôte (la créature réagit à cet objet). */
+  requiresTag?: DecorTag;
+  /** Butin offert à l'hôte (cadeau généré par le jeu, jamais retiré à l'autre joueur). */
+  loot?: LootTable;
+  /** Disponible quand le joueur propose lui-même de jouer ensemble. */
+  playerInitiated?: boolean;
+}
+
+/** Récompense obtenue par les DEUX joueurs quand leur amitié atteint un niveau. */
+export interface FriendshipReward {
+  level: number;
+  item: string;
+}
+
+export interface SocialCatalog {
+  events: SocialEventDefinition[];
+  levelRewards: FriendshipReward[];
 }
 
 export interface RecipeDefinition {
@@ -196,6 +293,8 @@ export interface FamilyMissionDefinition {
   target: number;
   rewardPoints: number;
   icon: string;
+  /** Objet offert à chaque joueur de la famille quand la mission est accomplie. */
+  rewardItem?: string;
 }
 
 export type MiniGameKey = 'memory' | 'math' | 'sequence';
@@ -228,4 +327,5 @@ export interface GameCatalog {
   buildings: BuildingDefinition[];
   familyMissions: FamilyMissionDefinition[];
   miniGames: MiniGameDefinition[];
+  social: SocialCatalog;
 }

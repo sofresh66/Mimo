@@ -18,7 +18,8 @@ export async function resetDatabase(): Promise<void> {
     DIRECT_URL: process.env.DIRECT_URL,
   });
   await prisma.$executeRawUnsafe('TRUNCATE "User", "Family", "AuditLog" RESTART IDENTITY CASCADE');
-  if ((await prisma.creatureSpecies.count()) === 0) await syncContent(prisma, defaultCatalog);
+  // Toujours resynchronisé (upserts idempotents) : le contenu versionné peut avoir évolué.
+  await syncContent(prisma, defaultCatalog);
 }
 
 export async function createApp(): Promise<NestExpressApplication> {

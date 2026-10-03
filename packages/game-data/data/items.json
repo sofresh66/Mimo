@@ -516,7 +516,11 @@
     "category": "OBJECT",
     "rarity": "COMMON",
     "emoji": "⚽",
-    "price": 15
+    "price": 15,
+    "decor": {
+      "tags": ["toy"],
+      "size": "S"
+    }
   },
   {
     "key": "kite",
@@ -529,7 +533,11 @@
     "category": "OBJECT",
     "rarity": "RARE",
     "emoji": "🪁",
-    "price": 40
+    "price": 40,
+    "decor": {
+      "tags": ["toy"],
+      "size": "M"
+    }
   },
   {
     "key": "teddy",
@@ -542,7 +550,11 @@
     "category": "OBJECT",
     "rarity": "COMMON",
     "emoji": "🧸",
-    "price": 20
+    "price": 20,
+    "decor": {
+      "tags": ["toy", "soft"],
+      "size": "M"
+    }
   },
   {
     "key": "magnifier",
@@ -663,7 +675,11 @@
     "category": "DECORATION",
     "rarity": "COMMON",
     "emoji": "🏮",
-    "price": 35
+    "price": 35,
+    "decor": {
+      "tags": ["light"],
+      "size": "M"
+    }
   },
   {
     "key": "potted_plant",
@@ -676,7 +692,11 @@
     "category": "DECORATION",
     "rarity": "COMMON",
     "emoji": "🌿",
-    "price": 30
+    "price": 30,
+    "decor": {
+      "tags": ["plant"],
+      "size": "M"
+    }
   },
   {
     "key": "flag_garland",
@@ -689,7 +709,11 @@
     "category": "DECORATION",
     "rarity": "RARE",
     "emoji": "🎏",
-    "price": 60
+    "price": 60,
+    "decor": {
+      "tags": ["art"],
+      "size": "L"
+    }
   },
   {
     "key": "star_lamp",
@@ -701,7 +725,11 @@
     },
     "category": "DECORATION",
     "rarity": "EPIC",
-    "emoji": "🌠"
+    "emoji": "🌠",
+    "decor": {
+      "tags": ["light"],
+      "size": "M"
+    }
   },
   {
     "key": "egg_dragon",
@@ -988,6 +1016,324 @@
           "kind": "item",
           "item": "egg_robot",
           "weight": 1
+        }
+      ]
+    }
+  },
+  {
+    "key": "cushion",
+    "name": {
+      "fr": "Coussin moelleux"
+    },
+    "description": {
+      "fr": "Parfait pour une petite sieste."
+    },
+    "category": "DECORATION",
+    "rarity": "COMMON",
+    "emoji": "🛋️",
+    "price": 25,
+    "decor": {
+      "tags": ["soft", "furniture"],
+      "size": "M"
+    }
+  },
+  {
+    "key": "painting",
+    "name": {
+      "fr": "Tableau"
+    },
+    "description": {
+      "fr": "Un joli paysage à accrocher."
+    },
+    "category": "DECORATION",
+    "rarity": "RARE",
+    "emoji": "🖼️",
+    "price": 50,
+    "decor": {
+      "tags": ["art"],
+      "size": "M"
+    }
+  },
+  {
+    "key": "toy_chest",
+    "name": {
+      "fr": "Coffre à jouets"
+    },
+    "description": {
+      "fr": "Plein de surprises à l’intérieur."
+    },
+    "category": "DECORATION",
+    "rarity": "RARE",
+    "emoji": "🧰",
+    "price": 45,
+    "decor": {
+      "tags": ["toy", "furniture"],
+      "size": "M"
+    }
+  },
+  {
+    "key": "music_box",
+    "name": {
+      "fr": "Boîte à musique"
+    },
+    "description": {
+      "fr": "Elle joue une douce mélodie."
+    },
+    "category": "DECORATION",
+    "rarity": "RARE",
+    "emoji": "🎶",
+    "price": 55,
+    "decor": {
+      "tags": ["music"],
+      "size": "S"
+    }
+  },
+  {
+    "key": "trophy",
+    "name": {
+      "fr": "Trophée"
+    },
+    "description": {
+      "fr": "Pour les grandes aventures réussies."
+    },
+    "category": "DECORATION",
+    "rarity": "EPIC",
+    "emoji": "🏆",
+    "decor": {
+      "tags": ["treasure"],
+      "size": "S"
+    }
+  },
+  {
+    "key": "glow_plant",
+    "name": {
+      "fr": "Plante lumineuse"
+    },
+    "description": {
+      "fr": "Ses feuilles brillent dans le noir."
+    },
+    "category": "DECORATION",
+    "rarity": "EPIC",
+    "emoji": "🪴",
+    "decor": {
+      "tags": ["plant", "light"],
+      "size": "M"
+    }
+  },
+  {
+    "key": "friendship_photo",
+    "name": {
+      "fr": "Souvenir d’amitié"
+    },
+    "description": {
+      "fr": "Une photo de deux meilleurs amis."
+    },
+    "category": "DECORATION",
+    "rarity": "EPIC",
+    "emoji": "📸",
+    "unique": true,
+    "decor": {
+      "tags": ["art", "treasure"],
+      "size": "S"
+    }
+  },
+  {
+    "key": "bg_room",
+    "name": {
+      "fr": "Chambre Mimo"
+    },
+    "description": {
+      "fr": "Le petit nid douillet de ton compagnon."
+    },
+    "category": "BACKGROUND",
+    "rarity": "COMMON",
+    "emoji": "🏠",
+    "unique": true,
+    "scene": {
+      "sky": ["#fff4e6", "#ffffff"],
+      "ground": "#f3e2c7",
+      "particles": [],
+      "unlock": [
+        {
+          "kind": "default"
+        }
+      ]
+    }
+  },
+  {
+    "key": "bg_forest",
+    "name": {
+      "fr": "Forêt enchantée"
+    },
+    "description": {
+      "fr": "Des arbres anciens et des lucioles."
+    },
+    "category": "BACKGROUND",
+    "rarity": "RARE",
+    "emoji": "🌲",
+    "unique": true,
+    "scene": {
+      "sky": ["#cdeccf", "#f2fbf1"],
+      "ground": "#9fd49a",
+      "particles": ["🌲", "🍄", "✨"],
+      "unlock": [
+        {
+          "kind": "exploration",
+          "zone": "glowing_forest"
+        },
+        {
+          "kind": "mission"
+        }
+      ]
+    }
+  },
+  {
+    "key": "bg_beach",
+    "name": {
+      "fr": "Plage"
+    },
+    "description": {
+      "fr": "Le bruit des vagues et du sable chaud."
+    },
+    "category": "BACKGROUND",
+    "rarity": "RARE",
+    "emoji": "🏖️",
+    "unique": true,
+    "scene": {
+      "sky": ["#bfe9ff", "#fff6dc"],
+      "ground": "#f5dfa8",
+      "particles": ["🐚", "🌊", "☀️"],
+      "unlock": [
+        {
+          "kind": "exploration",
+          "zone": "shell_beach"
+        }
+      ]
+    }
+  },
+  {
+    "key": "bg_night",
+    "name": {
+      "fr": "Nuit étoilée"
+    },
+    "description": {
+      "fr": "Un ciel rempli d’étoiles filantes."
+    },
+    "category": "BACKGROUND",
+    "rarity": "RARE",
+    "emoji": "🌌",
+    "unique": true,
+    "scene": {
+      "sky": ["#2b2d6e", "#6b5fb5"],
+      "ground": "#3a3470",
+      "particles": ["⭐", "🌙", "✨"],
+      "unlock": [
+        {
+          "kind": "level",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "key": "bg_mountain",
+    "name": {
+      "fr": "Montagne"
+    },
+    "description": {
+      "fr": "Le grand air au sommet des nuages."
+    },
+    "category": "BACKGROUND",
+    "rarity": "EPIC",
+    "emoji": "🏔️",
+    "unique": true,
+    "scene": {
+      "sky": ["#d6e8ff", "#f4f8ff"],
+      "ground": "#c9d3e0",
+      "particles": ["🏔️", "🦅", "☁️"],
+      "unlock": [
+        {
+          "kind": "exploration",
+          "zone": "cloud_mountain"
+        },
+        {
+          "kind": "level",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "key": "bg_garden",
+    "name": {
+      "fr": "Jardin magique"
+    },
+    "description": {
+      "fr": "Les fleurs y poussent quand on est entre amis."
+    },
+    "category": "BACKGROUND",
+    "rarity": "EPIC",
+    "emoji": "🌷",
+    "unique": true,
+    "scene": {
+      "sky": ["#ffe3f1", "#fffaf0"],
+      "ground": "#b7e3a1",
+      "particles": ["🌷", "🦋", "🌸"],
+      "unlock": [
+        {
+          "kind": "friendship",
+          "level": 3
+        },
+        {
+          "kind": "mission"
+        }
+      ]
+    }
+  },
+  {
+    "key": "bg_cave",
+    "name": {
+      "fr": "Grotte lumineuse"
+    },
+    "description": {
+      "fr": "Des cristaux qui brillent de mille feux."
+    },
+    "category": "BACKGROUND",
+    "rarity": "EPIC",
+    "emoji": "💎",
+    "unique": true,
+    "scene": {
+      "sky": ["#2c3e50", "#4b6b8a"],
+      "ground": "#3d4f63",
+      "particles": ["💎", "✨", "🔮"],
+      "unlock": [
+        {
+          "kind": "exploration",
+          "zone": "crystal_cave"
+        }
+      ]
+    }
+  },
+  {
+    "key": "bg_clouds",
+    "name": {
+      "fr": "Royaume des nuages"
+    },
+    "description": {
+      "fr": "Tout en haut, là où rêvent les Mimo."
+    },
+    "category": "BACKGROUND",
+    "rarity": "LEGENDARY",
+    "emoji": "☁️",
+    "unique": true,
+    "scene": {
+      "sky": ["#e9f3ff", "#ffffff"],
+      "ground": "#ffffff",
+      "particles": ["☁️", "🌈", "🕊️"],
+      "unlock": [
+        {
+          "kind": "level",
+          "level": 12
         }
       ]
     }

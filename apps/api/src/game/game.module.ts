@@ -16,6 +16,10 @@ import { ChildMissionsController, ParentMissionsController } from '../missions/m
 import { MissionsService } from '../missions/missions.service';
 import { ChildRewardsController, ParentRewardsController } from '../rewards/rewards.controller';
 import { RewardsService } from '../rewards/rewards.service';
+import { RoomController } from '../room/room.controller';
+import { RoomService } from '../room/room.service';
+import { SocialController } from '../social/social.controller';
+import { SocialService } from '../social/social.service';
 import { MaintenanceService } from './maintenance.service';
 
 /** Domaine de jeu : créatures, inventaire, missions, récompenses, exploration, mini-jeux… */
@@ -32,6 +36,8 @@ import { MaintenanceService } from './maintenance.service';
     CompanionController,
     DashboardController,
     ChildVillageController,
+    RoomController,
+    SocialController,
   ],
   providers: [
     CreaturesService,
@@ -44,6 +50,8 @@ import { MaintenanceService } from './maintenance.service';
     DashboardService,
     EngineClient,
     MaintenanceService,
+    RoomService,
+    SocialService,
   ],
 })
 export class GameModule {}

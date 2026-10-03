@@ -8,6 +8,7 @@ import { CatalogService } from '../content/catalog.service';
 import { CATEGORY_COLUMN, categoryXpOf } from '../content/views';
 import { EventsService } from '../events/events.service';
 import type { Tx } from '../prisma/prisma.service';
+import { grantItemReward } from '../rewards/grant';
 import { RealtimeService } from '../realtime/realtime.service';
 
 export interface GrantXpInput {
@@ -129,6 +130,16 @@ export class ProgressionService {
               message: `Niveau ${level} !`,
             },
           });
+        }
+        // Décors débloqués par la progression (offerts en cadeau, une seule fois).
+        for (const bg of this.catalog.index.backgrounds()) {
+          if (bg.scene?.unlock.some((u) => u.kind === 'level' && u.level === level)) {
+            await grantItemReward(tx, bg, {
+              ...base,
+              source: 'LEVEL_UP',
+              message: `Niveau ${level} : ${t(bg.name)} !`,
+            });
+          }
         }
       }
     }

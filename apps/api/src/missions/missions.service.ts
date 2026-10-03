@@ -24,7 +24,6 @@ import { VillageService } from '../village/village.service';
 import type { CreateMissionDto, UpdateMissionDto } from './dto';
 import { periodKey } from './period';
 
-/** Objets qu'un parent peut attacher en récompense (les légendaires restent à découvrir). */
 /**
  * Missions visibles par un profil : un enfant voit les missions familiales (sans destinataire)
  * et les siennes ; un adulte joueur ne voit QUE les missions qui lui sont attribuées.
@@ -35,11 +34,18 @@ export function assignedTo(profile: { id: string; type: PlayerType }): Prisma.Mi
     : { assignedChildId: profile.id };
 }
 
+/**
+ * Objets qu'un parent peut attacher en récompense (les légendaires restent à découvrir).
+ * Les décors restent des récompenses de progression : seuls ceux prévus comme récompense de
+ * quête (source « mission ») peuvent être offerts ; les souvenirs uniques jamais.
+ */
 export function isGiftableItem(def: ItemDefinition | undefined): def is ItemDefinition {
+  if (!def || def.rarity === 'LEGENDARY') return false;
+  if (def.category === 'BACKGROUND') {
+    return def.scene?.unlock.some((u) => u.kind === 'mission') ?? false;
+  }
   return (
-    !!def &&
-    ['CHEST', 'FOOD', 'ACCESSORY', 'DECORATION', 'OBJECT'].includes(def.category) &&
-    def.rarity !== 'LEGENDARY'
+    ['CHEST', 'FOOD', 'ACCESSORY', 'DECORATION', 'OBJECT'].includes(def.category) && !def.unique
   );
 }
 

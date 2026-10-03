@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import type { AccessorySlot } from '@prisma/client';
+import { Prisma, type AccessorySlot } from '@prisma/client';
 import {
   MATERIAL_DONATION_POINTS,
+  UNIQUE_DUPLICATE_COINS,
   VILLAGE_POINTS,
   applyDelta,
   createRng,
+  legacyRoomLayout,
   matchRecipe,
   rollLoot,
   type LootResult,
@@ -60,21 +62,75 @@ export class InventoryService {
     });
   }
 
+  /**
+   * Ajoute des objets. Un objet unique (décor, souvenir) n'est jamais possédé en double :
+   * l'insertion `ON CONFLICT DO NOTHING` est sûre face aux requêtes concurrentes, et un
+   * exemplaire déjà possédé est converti en pièces. Retourne les objets uniques obtenus.
+   */
   async addItems(
     tx: Tx,
     childId: string,
     items: Array<{ item: string; quantity: number }>,
-  ): Promise<void> {
-    if (items.length === 0) return;
+  ): Promise<{ unlocked: string[]; duplicates: string[]; compensation: number }> {
+    const unlocked: string[] = [];
+    const duplicates: string[] = [];
+    let compensation = 0;
+    if (items.length === 0) return { unlocked, duplicates, compensation };
     const inventory = await this.ensureInventory(tx, childId);
     for (const { item, quantity } of items) {
-      if (quantity <= 0 || !this.catalog.index.items.has(item)) continue;
+      const def = this.catalog.index.items.get(item);
+      if (quantity <= 0 || !def) continue;
+      if (def.unique) {
+        const created = await tx.inventoryItem.createMany({
+          data: [{ inventoryId: inventory.id, itemId: item, quantity: 1 }],
+          skipDuplicates: true,
+        });
+        if (created.count === 1) unlocked.push(item);
+        else duplicates.push(item);
+        // Exemplaires en trop (doublon ou quantité > 1) : compensés en pièces.
+        const extra = quantity - created.count;
+        compensation += extra * UNIQUE_DUPLICATE_COINS[def.rarity];
+        await this.addCoins(tx, childId, extra * UNIQUE_DUPLICATE_COINS[def.rarity]);
+        continue;
+      }
       await tx.inventoryItem.upsert({
         where: { inventoryId_itemId: { inventoryId: inventory.id, itemId: item } },
         create: { inventoryId: inventory.id, itemId: item, quantity },
         update: { quantity: { increment: quantity } },
       });
     }
+    const backgrounds = unlocked.filter(
+      (key) => this.catalog.index.items.get(key)?.category === 'BACKGROUND',
+    );
+    if (backgrounds.length > 0) {
+      const { familyId } = await tx.playerProfile.findUniqueOrThrow({
+        where: { id: childId },
+        select: { familyId: true },
+      });
+      for (const key of backgrounds) {
+        const def = this.catalog.index.item(key);
+        await this.events.record(
+          {
+            familyId,
+            childId,
+            type: 'BACKGROUND_UNLOCKED',
+            payload: { itemId: key, name: t(def.name), emoji: def.emoji },
+          },
+          tx,
+        );
+      }
+    }
+    return { unlocked, duplicates, compensation };
+  }
+
+  /** Vrai si le profil possède déjà cet objet ou l'a déjà reçu en cadeau (même non ouvert). */
+  async ownsOrPending(tx: Tx, childId: string, itemId: string): Promise<boolean> {
+    if (await this.owns(tx, childId, itemId)) return true;
+    const pending = await tx.reward.findFirst({
+      where: { childId, type: 'ITEM', itemId, status: 'PENDING' },
+      select: { id: true },
+    });
+    return Boolean(pending);
   }
 
   /** Retire des objets ; échoue proprement si la quantité est insuffisante. */
@@ -97,17 +153,27 @@ export class InventoryService {
     return Boolean(entry);
   }
 
-  /** Applique un butin (pièces + objets) et journalise les trouvailles notables. */
+  /**
+   * Applique un butin (pièces + objets) et journalise les trouvailles notables. Retourne le butin
+   * RÉELLEMENT attribué : un objet unique déjà possédé y apparaît converti en pièces.
+   */
   async grantLoot(
     tx: Tx,
     familyId: string,
     childId: string,
     loot: LootResult,
     context: Record<string, unknown>,
-  ): Promise<void> {
+  ): Promise<LootResult> {
     await this.addCoins(tx, childId, loot.coins);
-    await this.addItems(tx, childId, loot.items);
-    for (const { item, quantity } of loot.items) {
+    const { unlocked, compensation } = await this.addItems(tx, childId, loot.items);
+    const granted: LootResult = {
+      coins: loot.coins + compensation,
+      items: loot.items.flatMap(({ item, quantity }) => {
+        if (!this.catalog.index.items.get(item)?.unique) return [{ item, quantity }];
+        return unlocked.includes(item) ? [{ item, quantity: 1 }] : [];
+      }),
+    };
+    for (const { item, quantity } of granted.items) {
       const def = this.catalog.index.items.get(item);
       if (!def) continue;
       await this.events.record(
@@ -127,6 +193,7 @@ export class InventoryService {
         tx,
       );
     }
+    return granted;
   }
 
   // ─── Lecture ───────────────────────────────────────────────────────────────
@@ -308,8 +375,13 @@ export class InventoryService {
     const child = await this.prisma.playerProfile.findUniqueOrThrow({ where: { id: childId } });
     const loot = await this.prisma.$transaction(async (tx) => {
       await this.removeItem(tx, childId, itemId, 1);
-      const rolled = rollLoot(lootTable, createRng(randomInt(2 ** 31)));
-      await this.grantLoot(tx, child.familyId, childId, rolled, { from: itemId });
+      const rolled = await this.grantLoot(
+        tx,
+        child.familyId,
+        childId,
+        rollLoot(lootTable, createRng(randomInt(2 ** 31))),
+        { from: itemId },
+      );
       await this.events.record(
         {
           familyId: child.familyId,
@@ -344,17 +416,26 @@ export class InventoryService {
     return this.view(childId);
   }
 
+  /**
+   * Ancienne chambre (3 objets à positions fixes), conservée pour les clients déjà installés.
+   * Met aussi à jour la disposition de l'espace pour rester cohérente avec la nouvelle scène.
+   */
   async setRoom(childId: string, decorations: string[]): Promise<InventoryView> {
     const unique = [...new Set(decorations)].slice(0, MAX_ROOM_DECORATIONS);
     await this.prisma.$transaction(async (tx) => {
       for (const key of unique) {
         const def = this.catalog.index.items.get(key);
-        if (!def || def.category !== 'DECORATION')
-          throw Errors.badRequest('NOT_DECORATION', 'Objet invalide');
+        if (!def?.decor) throw Errors.badRequest('NOT_DECORATION', 'Objet invalide');
         if (!(await this.owns(tx, childId, key)))
           throw Errors.badRequest('NOT_OWNED', 'Tu ne possèdes pas cet objet');
       }
-      await tx.playerProfile.update({ where: { id: childId }, data: { roomDecorations: unique } });
+      await tx.playerProfile.update({
+        where: { id: childId },
+        data: {
+          roomDecorations: unique,
+          roomLayout: legacyRoomLayout(unique) as unknown as Prisma.InputJsonValue,
+        },
+      });
     });
     return this.view(childId);
   }

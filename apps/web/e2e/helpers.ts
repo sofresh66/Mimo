@@ -32,6 +32,22 @@ export async function playAs(page: Page, kid: { name: string; pin: string }): Pr
   await expect(
     page.getByRole('heading', { name: new RegExp(`Bonjour ${kid.name}`) }),
   ).toBeVisible();
+  await dismissAbsence(page);
+}
+
+/**
+ * Ferme « Pendant ton absence… » si des interactions entre créatures ont eu lieu depuis la
+ * dernière visite (cas normal à la première ouverture d'un profil qui a des amis).
+ */
+export async function dismissAbsence(page: Page): Promise<void> {
+  const dialog = page.getByRole('dialog', { name: 'Pendant ton absence…' });
+  try {
+    await dialog.waitFor({ state: 'visible', timeout: 2500 });
+  } catch {
+    return;
+  }
+  await dialog.getByRole('button', { name: 'Super !' }).click();
+  await expect(dialog).toBeHidden();
 }
 
 /** Second « appareil » : un parent connecté via l'API (pour valider pendant que l'enfant joue). */

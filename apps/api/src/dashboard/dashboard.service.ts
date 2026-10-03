@@ -34,6 +34,8 @@ export const PARENT_TIMELINE_TYPES: GameEventType[] = [
   'BUILDING_UNLOCKED',
   'FAMILY_MISSION_COMPLETED',
   'ITEM_BOUGHT',
+  'BACKGROUND_UNLOCKED',
+  'FRIENDSHIP_UP',
 ];
 
 @Injectable()

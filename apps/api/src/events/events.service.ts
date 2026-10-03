@@ -8,6 +8,8 @@ export interface RecordEvent {
   childId?: string | null;
   type: GameEventType;
   payload?: Record<string, unknown>;
+  /** Date de l'événement (ex. interaction survenue pendant l'absence du joueur). */
+  createdAt?: Date;
 }
 
 /**
@@ -25,6 +27,7 @@ export class EventsService {
         childId: event.childId ?? null,
         type: event.type,
         payload: (event.payload ?? {}) as Prisma.InputJsonValue,
+        ...(event.createdAt ? { createdAt: event.createdAt } : {}),
       },
     });
   }
@@ -37,6 +40,7 @@ export class EventsService {
         childId: e.childId ?? null,
         type: e.type,
         payload: (e.payload ?? {}) as Prisma.InputJsonValue,
+        ...(e.createdAt ? { createdAt: e.createdAt } : {}),
       })),
     });
   }

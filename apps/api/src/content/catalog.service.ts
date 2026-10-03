@@ -4,6 +4,7 @@ import {
   CatalogIndex,
   defaultCatalog,
   type BuildingDefinition,
+  type DecorDefinition,
   type EvolutionConditions,
   type EvolutionFormDefinition,
   type FamilyMissionDefinition,
@@ -15,6 +16,7 @@ import {
   type MissionTemplateDefinition,
   type Palette,
   type RecipeDefinition,
+  type SceneDefinition,
   type SpeciesDefinition,
   type ZoneDefinition,
 } from '@mimo/game-data';
@@ -95,6 +97,9 @@ export class CatalogService implements OnModuleInit {
         slot: i.slot ?? undefined,
         loot: (i.loot as unknown as LootTable | null) ?? undefined,
         hatchesSpecies: i.hatchesSpeciesId ?? undefined,
+        unique: i.unique || undefined,
+        decor: (i.decor as unknown as DecorDefinition | null) ?? undefined,
+        scene: (i.scene as unknown as SceneDefinition | null) ?? undefined,
       })),
       recipes: recipes.map((r): RecipeDefinition => ({
         key: r.id,
@@ -140,8 +145,11 @@ export class CatalogService implements OnModuleInit {
         target: fm.target,
         rewardPoints: fm.rewardPoints,
         icon: fm.icon,
+        rewardItem: fm.rewardItemId ?? undefined,
       })),
       miniGames: defaultCatalog.miniGames,
+      // Interactions entre créatures : définies dans le code versionné, comme les mini-jeux.
+      social: defaultCatalog.social,
     });
     this.logger.log(
       `Catalogue chargé : ${species.length} espèces, ${forms.length} formes, ${items.length} objets`,

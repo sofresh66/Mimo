@@ -62,6 +62,16 @@
           "kind": "item",
           "item": "honey",
           "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "bg_forest",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "glow_plant",
+          "weight": 1
         }
       ]
     }
@@ -119,6 +129,11 @@
         {
           "kind": "item",
           "item": "chest_common",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "bg_beach",
           "weight": 1
         }
       ]
@@ -188,6 +203,16 @@
           "kind": "item",
           "item": "chest_rare",
           "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "bg_mountain",
+          "weight": 1
+        },
+        {
+          "kind": "item",
+          "item": "trophy",
+          "weight": 1
         }
       ]
     }
@@ -251,6 +276,11 @@
           "kind": "item",
           "item": "egg_robot",
           "weight": 0.3
+        },
+        {
+          "kind": "item",
+          "item": "bg_cave",
+          "weight": 1
         }
       ]
     }

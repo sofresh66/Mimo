@@ -50,6 +50,18 @@ ni effacement silencieux des données de jeu).
 Migration `20261004120000_adult_players` : strictement additive (enums, colonnes avec défaut,
 index unique, clé étrangère `ON DELETE RESTRICT`, contrainte CHECK, `DROP NOT NULL` sur `pinHash`).
 
+### Relations, visites et espace
+
+- `CreatureRelation` : couple ordonné de créatures (A < B, CHECK `COLLATE "C"`), points 0–150,
+  `bestLevel` (plancher non punitif), limite quotidienne « Jouer ensemble ».
+- `CreatureVisit` : visite temporaire d'une créature chez un autre joueur (jamais de transfert).
+- `PlayerProfile` : `roomBackground`, `roomLayout` (JSON validé côté serveur), `socialTickAt`,
+  `socialSeenAt` — tous facultatifs : une ancienne sauvegarde est lue avec des valeurs par
+  défaut (ancienne chambre `roomDecorations` convertie à l'identique).
+- `ItemDefinition` : `unique`, `decor`, `scene` ; `FamilyMission.rewardItemId`.
+- Journal : `GameEvent` (`SOCIAL_INTERACTION`, `FRIENDSHIP_UP`, `BACKGROUND_UNLOCKED`,
+  `ROOM_DECORATED`) ; les interactions sont nettoyées au-delà de 50 par profil ou 60 jours.
+
 ## Contraintes et index notables
 
 - `MissionCompletion @@unique([missionId, childId, periodKey])` : une réalisation par période.

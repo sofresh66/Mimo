@@ -4,6 +4,7 @@
  */
 import type {
   AccessorySlot,
+  DecorTag,
   EvolutionStage,
   FamilyGoalType,
   FoodEffect,
@@ -13,12 +14,15 @@ import type {
   Mood,
   Palette,
   Rarity,
+  SocialEventKind,
   XpCategory,
   FormFeature,
 } from '@mimo/game-data';
 
 export type {
   AccessorySlot,
+  DecorTag,
+  SocialEventKind,
   EvolutionStage,
   FamilyGoalType,
   ItemCategory,
@@ -40,7 +44,7 @@ export type PlayerType = 'CHILD' | 'ADULT';
 export type MissionRecurrence = 'ONCE' | 'DAILY' | 'WEEKLY';
 export type MissionStatus = 'TODO' | 'PENDING' | 'APPROVED' | 'DECLINED';
 export type RewardType = 'XP' | 'COINS' | 'ITEM';
-export type RewardSource = 'PARENT' | 'MISSION' | 'FAMILY_MISSION' | 'LEVEL_UP';
+export type RewardSource = 'PARENT' | 'MISSION' | 'FAMILY_MISSION' | 'LEVEL_UP' | 'FRIENDSHIP';
 export type CompanionAction = 'story' | 'riddle' | 'math' | 'fact' | 'joke';
 export const COMPANION_ACTIONS: readonly CompanionAction[] = [
   'story',
@@ -96,6 +100,10 @@ export interface ItemView {
   price: number | null;
   effect: FoodEffect | null;
   slot: AccessorySlot | null;
+  /** Objet unique (décor, souvenir) : jamais en double. */
+  unique: boolean;
+  /** Objet plaçable dans l'espace de la créature. */
+  decor: { tags: DecorTag[]; size: 'S' | 'M' | 'L' } | null;
 }
 
 export type Equipment = Partial<Record<AccessorySlot, ItemView>>;
@@ -173,7 +181,129 @@ export interface ChildHome {
   missionsTodo: number;
   exploration: ExplorationView | null;
   unseenExploration: ExplorationView | null;
+  /** @deprecated Ancienne chambre (3 objets) : remplacée par `room`. */
   roomDecorations: ItemView[];
+  /** Espace de la créature : décor de fond et objets placés. */
+  room: RoomView;
+  /** Créature d'un autre membre de la famille actuellement en visite. */
+  visit: VisitView | null;
+  /** Interactions survenues depuis la dernière consultation (« Pendant ton absence… »). */
+  socialUnseen: SocialEventView[];
+}
+
+// ─── Espace de la créature ────────────────────────────────────────────────────
+
+export interface SceneView {
+  sky: [string, string];
+  ground: string;
+  particles: string[];
+}
+
+/** Façon d'obtenir un décor (indice affiché tant qu'il est verrouillé). */
+export type SceneUnlockView =
+  | { kind: 'default' }
+  | { kind: 'level'; level: number }
+  | { kind: 'exploration'; zone: string; zoneName: string }
+  | { kind: 'friendship'; level: number }
+  | { kind: 'mission' }
+  | { kind: 'familyMission' };
+
+export type RoomLayer = 'back' | 'front';
+
+export interface RoomPlacementInput {
+  id: string;
+  item: string;
+  /** Position en % de la scène (bornée côté serveur). */
+  x: number;
+  y: number;
+  layer: RoomLayer;
+  flip: boolean;
+}
+
+export interface RoomPlacementView extends Omit<RoomPlacementInput, 'item'> {
+  item: ItemView;
+}
+
+export interface RoomView {
+  background: { id: string; name: string; emoji: string; scene: SceneView };
+  layout: RoomPlacementView[];
+}
+
+export interface BackgroundView {
+  item: ItemView;
+  scene: SceneView;
+  owned: boolean;
+  current: boolean;
+  unlock: SceneUnlockView[];
+}
+
+/** Objet plaçable possédé : `owned` exemplaires, dont `placed` déjà dans la scène. */
+export interface PlaceableView {
+  item: ItemView;
+  owned: number;
+  placed: number;
+}
+
+export interface RoomEditorView {
+  room: RoomView;
+  backgrounds: BackgroundView[];
+  placeables: PlaceableView[];
+  maxItems: number;
+}
+
+// ─── Relations entre créatures ────────────────────────────────────────────────
+
+export type FriendshipLevelKey =
+  'STRANGERS' | 'ACQUAINTANCES' | 'BUDDIES' | 'FRIENDS' | 'BEST_FRIENDS';
+
+export interface FriendView {
+  creature: CreatureSummary;
+  owner: { id: string; displayName: string; avatar: string; color: string; type: PlayerType };
+  level: number;
+  levelKey: FriendshipLevelKey;
+  hearts: number;
+  points: number;
+  /** Points à gagner avant le niveau suivant (null au niveau maximum). */
+  toNextLevel: number | null;
+  /** Parties « Jouer ensemble » encore possibles aujourd'hui. */
+  playsLeft: number;
+}
+
+/** Interaction entre deux créatures, du point de vue du joueur qui la consulte. */
+export interface SocialEventView {
+  id: string;
+  kind: SocialEventKind | 'FRIENDSHIP_UP';
+  /** Clé de l'interaction (texte traduit côté interface). */
+  eventKey: string;
+  icon: string;
+  /** Vrai si c'est la créature de ce joueur qui a rendu visite. */
+  outgoing: boolean;
+  friend: { creatureName: string; ownerName: string };
+  item: { id: string; name: string; emoji: string } | null;
+  loot: {
+    coins: number;
+    items: Array<{ id: string; name: string; emoji: string; quantity: number }>;
+  };
+  delta: number;
+  level: number;
+  levelKey: FriendshipLevelKey;
+  createdAt: IsoDate;
+}
+
+export interface VisitView {
+  id: string;
+  visitor: CreatureSummary;
+  owner: { displayName: string; type: PlayerType };
+  eventKey: string;
+  icon: string;
+  /** Objet placé auquel le visiteur réagit, avec sa position dans la scène. */
+  item: { id: string; name: string; emoji: string; x: number; y: number } | null;
+  endsAt: IsoDate;
+}
+
+export interface PlayTogetherResult {
+  event: SocialEventView;
+  friend: FriendView;
 }
 
 // ─── Missions ────────────────────────────────────────────────────────────────
@@ -463,7 +593,11 @@ export type GameEventType =
   | 'MATERIAL_DONATED'
   | 'BUILDING_UNLOCKED'
   | 'FAMILY_MISSION_COMPLETED'
-  | 'COMPANION_USED';
+  | 'COMPANION_USED'
+  | 'SOCIAL_INTERACTION'
+  | 'FRIENDSHIP_UP'
+  | 'BACKGROUND_UNLOCKED'
+  | 'ROOM_DECORATED';
 
 export interface GameEventView {
   id: string;
@@ -578,6 +712,8 @@ export interface ServerToClientEvents {
   'family-mission:completed': (payload: { title: string; rewardPoints: number }) => void;
   /** Un PIN vient d'être verrouillé après trop d'essais (alerte pour les parents). */
   'security:pin-locked': (payload: { target: 'parent' | 'child'; name: string | null }) => void;
+  /** Interaction entre la créature du joueur et celle d'un autre membre de la famille. */
+  'social:event': (payload: SocialEventView) => void;
 }
 
 export type ClientToServerEvents = Record<string, never>;

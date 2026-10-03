@@ -14,6 +14,7 @@ import { creatureSummary } from '../content/views';
 import { EventsService } from '../events/events.service';
 import { PrismaService, type Tx } from '../prisma/prisma.service';
 import { RealtimeService } from '../realtime/realtime.service';
+import { grantItemReward } from '../rewards/grant';
 
 /**
  * Monde familial : village partagé et missions coopératives hebdomadaires.
@@ -107,6 +108,24 @@ export class VillageService {
         tx,
       );
       await this.addPoints(tx, familyId, mission.rewardPoints, effects, childId);
+      // Objet offert à chaque joueur de la famille (décoration commune à toute la famille).
+      const rewardDef = mission.rewardItem
+        ? this.catalog.index.items.get(mission.rewardItem)
+        : undefined;
+      if (rewardDef) {
+        const players = await tx.playerProfile.findMany({
+          where: { familyId },
+          select: { id: true },
+        });
+        for (const player of players) {
+          await grantItemReward(tx, rewardDef, {
+            familyId,
+            childId: player.id,
+            source: 'FAMILY_MISSION',
+            message: title,
+          });
+        }
+      }
       effects.add(() =>
         this.realtime.toFamily(familyId, 'family-mission:completed', {
           title,

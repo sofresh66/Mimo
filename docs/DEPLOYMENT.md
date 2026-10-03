@@ -30,14 +30,19 @@
 
 ## Option B — Services séparés (PaaS)
 
-| Service | Build                                                                 | Démarrage                                                                                 |
-| ------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| API     | `pnpm install && pnpm --filter @mimo/api... build`                    | `pnpm db:deploy && pnpm --filter @mimo/api db:sync-content && node apps/api/dist/main.js` |
-| Web     | `API_INTERNAL_URL=<url interne API> pnpm --filter @mimo/web... build` | `node apps/web/.next/standalone/apps/web/server.js`                                       |
-| Moteur  | `pip install -r apps/engine/requirements.txt`                         | `uvicorn app.main:app --host 0.0.0.0 --port 8000`                                         |
+| Service | Build                                                                 | Démarrage                                                                                                                             |
+| ------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| API     | `pnpm install && pnpm --filter @mimo/api... build`                    | `pnpm --filter @mimo/api exec prisma migrate deploy && node apps/api/dist/content/sync-content.main.js && node apps/api/dist/main.js` |
+| Web     | `API_INTERNAL_URL=<url interne API> pnpm --filter @mimo/web... build` | `node apps/web/.next/standalone/apps/web/server.js`                                                                                   |
+| Moteur  | `pip install -r apps/engine/requirements.txt`                         | `uvicorn app.main:app --host 0.0.0.0 --port 8000`                                                                                     |
 
 PostgreSQL et Redis managés. `API_INTERNAL_URL` est figée au build du web (réécritures Next.js).
 Le proxy doit transmettre les WebSockets (`/socket.io`).
+
+**Contenu de jeu** : la synchronisation (`dist/content/sync-content.main.js`, compilée avec l'API ;
+upserts idempotents, aucune suppression) doit s'exécuter à chaque démarrage, après la migration. Sans lui, les nouveaux objets (décors,
+décorations) n'existent pas en base : l'accueil reste fonctionnel (décor de secours) mais
+les nouveaux décors et récompenses ne peuvent pas être attribués.
 
 ## Mise à jour
 

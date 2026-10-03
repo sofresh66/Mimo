@@ -1,12 +1,6 @@
 'use client';
 
-import type {
-  HatchResult,
-  InventoryEntry,
-  InventoryView,
-  ItemCategory,
-  LootView,
-} from '@mimo/types';
+import type { HatchResult, InventoryEntry, ItemCategory, LootView } from '@mimo/types';
 import {
   Button,
   Card,
@@ -16,9 +10,11 @@ import {
   Modal,
   RarityBadge,
   Spinner,
+  buttonClassName,
   cx,
 } from '@mimo/ui';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 import { useCelebrations } from '@/components/Celebrations';
 import { Field } from '@/components/forms';
@@ -48,8 +44,11 @@ export default function InventoryPage() {
   const [filter, setFilter] = useState<ItemCategory | 'ALL'>('ALL');
   const [selected, setSelected] = useState<string | null>(null);
 
+  // Les décors de fond ont leur propre collection (mode « Décorer »).
   const entries =
-    inventory?.entries.filter((e) => filter === 'ALL' || e.item.category === filter) ?? [];
+    inventory?.entries.filter(
+      (e) => e.item.category !== 'BACKGROUND' && (filter === 'ALL' || e.item.category === filter),
+    ) ?? [];
   const selectedEntry = inventory?.entries.find((e) => e.item.id === selected) ?? null;
   const equippedIds = new Set(Object.values(inventory?.equipment ?? {}).map((i) => i?.id));
 
@@ -91,9 +90,7 @@ export default function InventoryPage() {
                 item={e.item}
                 quantity={e.quantity}
                 selected={selected === e.item.id}
-                equipped={
-                  equippedIds.has(e.item.id) || inventory.roomDecorations.includes(e.item.id)
-                }
+                equipped={equippedIds.has(e.item.id)}
                 onClick={() => {
                   playSound('pop');
                   setSelected(e.item.id === selected ? null : e.item.id);
@@ -107,7 +104,6 @@ export default function InventoryPage() {
       {selectedEntry && inventory && (
         <ItemDetail
           entry={selectedEntry}
-          inventory={inventory}
           equipped={equippedIds.has(selectedEntry.item.id)}
           onClose={() => setSelected(null)}
         />
@@ -120,12 +116,10 @@ export default function InventoryPage() {
 
 function ItemDetail({
   entry,
-  inventory,
   equipped,
   onClose,
 }: {
   entry: InventoryEntry;
-  inventory: InventoryView;
   equipped: boolean;
   onClose: () => void;
 }) {
@@ -136,7 +130,6 @@ function ItemDetail({
   const { celebrate } = useCelebrations();
   const [hatching, setHatching] = useState(false);
   const { item } = entry;
-  const inRoom = inventory.roomDecorations.includes(item.id);
 
   const refresh = () => {
     for (const key of [keys.inventory, keys.home, keys.creatures, keys.village, keys.dex]) {
@@ -144,7 +137,7 @@ function ItemDetail({
     }
   };
   const action = useMutation({
-    mutationFn: async (kind: 'equip' | 'unequip' | 'eat' | 'donate' | 'room' | 'open') => {
+    mutationFn: async (kind: 'equip' | 'unequip' | 'eat' | 'donate' | 'open') => {
       switch (kind) {
         case 'equip':
         case 'unequip':
@@ -159,12 +152,6 @@ function ItemDetail({
             itemId: item.id,
             quantity: 1,
           });
-        case 'room': {
-          const next = inRoom
-            ? inventory.roomDecorations.filter((d) => d !== item.id)
-            : [...inventory.roomDecorations, item.id].slice(-3);
-          return http.put('/me/room', { decorations: next });
-        }
         case 'open':
           return http.post<LootView>(`/me/chests/${item.id}/open`);
       }
@@ -240,15 +227,10 @@ function ItemDetail({
             🏡 {t('inventory.donate')}
           </Button>
         )}
-        {item.category === 'DECORATION' && (
-          <Button
-            size="sm"
-            variant={inRoom ? 'secondary' : 'primary'}
-            onClick={() => action.mutate('room')}
-            loading={action.isPending}
-          >
-            {inRoom ? t('inventory.removeFromRoom') : `🛋 ${t('inventory.place')}`}
-          </Button>
+        {item.decor && (
+          <Link href="/play#decorate" className={buttonClassName({ size: 'sm' })}>
+            🎨 {t('inventory.place')}
+          </Link>
         )}
         {item.category === 'CHEST' && (
           <Button size="sm" onClick={() => action.mutate('open')} loading={action.isPending}>
