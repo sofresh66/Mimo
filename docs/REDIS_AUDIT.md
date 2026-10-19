@@ -125,13 +125,15 @@ modifient ce rythme. Une fenêtre de 125 secondes est une mesure courte.
 - Vérification des jobs bloqués toutes les 60 secondes au lieu de 30. La récupération
   reste activée ; après perte de verrou, la détection peut prendre jusqu'à une minute
   au lieu d'environ 30 secondes, avant les autres délais de reprise.
-- Historique des récurrences limité à 100 succès et 1 000 échecs par file. C'est
-  l'historique technique BullMQ, pas les explorations, lettres ou sauvegardes du jeu.
+- Historique technique des récurrences : conservation des succès récents pendant
+  1 heure et des échecs récents pendant 7 jours, puis suppression des plus anciens
+  par lots de 10 maximum à chaque complétion. Un historique déjà accumulé est donc
+  résorbé progressivement. Les tâches en attente et les données du jeu restent conservées.
   L'élagage est effectué par BullMQ à la fin des jobs ; aucune purge distante exécutée.
 - Noms de connexion par rôle, sans identifiant utilisateur, afin de faciliter une future
   attribution des clients. BullMQ continue de nommer ses connexions bloquantes.
-- Sept tests d'intégration Redis explicites, refusant une URL distante avant connexion,
-  dont la reproduction du cycle d'arrêt Nest complet.
+- Huit tests d'intégration Redis explicites, refusant une URL distante avant connexion,
+  dont le cycle d'arrêt Nest complet et un historique hérité de 5 000 tâches terminées.
 
 Limite vérifiée dans le code de BullMQ installé : lorsqu'un job différé existe,
 `getBlockTimeout()` plafonne l'attente à 10 secondes. Augmenter encore `drainDelay` ne
@@ -150,9 +152,11 @@ complétion ne changent pas. Les travaux restent persistants. Le moteur Python e
 - API : 116 tests, 12 suites réussies, avec PostgreSQL local dédié ; couvre jeu,
   concurrence, courrier, sessions, accès parent/enfant, adulte joueur et temps réel.
   Suite relancée après la correction d'arrêt : à nouveau 116 tests réussis.
-- Redis : 7 tests réussis sur Redis local dédié ; réveil à vide, délai/déduplication,
-  redémarrage, erreur transitoire, récurrences/historique, arrêt du worker et cycle
-  d'arrêt Nest avec Socket.IO. Lint et TypeScript API relancés et réussis après ce complément.
+- Redis : les 7 tests initiaux ont réussi sur Redis local dédié ; réveil à vide,
+  délai/déduplication, redémarrage, erreur transitoire, récurrences, arrêt du worker
+  et cycle d'arrêt Nest avec Socket.IO. Un huitième test vérifie le nettoyage progressif
+  de 5 000 résultats anciens et la conservation d'une tâche différée ; son résultat
+  et les contrôles de la version finale figurent dans le compte rendu de publication.
 - Web : 14 tests réussis ; règles de jeu : 43 tests réussis ; garde-fous de base : 9 tests réussis.
 - Navigateur, avec PostgreSQL et Redis locaux : 16 parcours distincts validés sur mobile
   et ordinateur (enfant, parent, Mamie, courrier en direct et supervision). Premier passage :
@@ -216,3 +220,35 @@ les deux services Render suivent `main`. Publier uniquement les fichiers audité
 vérifier le commit effectivement servi, la santé HTTP et les erreurs applicatives.
 Après publication, surveiller la consommation, les jobs et les parcours familiaux ; le retour
 arrière concerne le code API et ne requiert aucune migration de schéma pour cette correction.
+
+## Publication autorisée et protection de l'historique existant
+
+Premier commit publié : `7afb2422125e81618b96706ddadad37c6f69ec6e`.
+Render `dep-dbb0lqivcj2c73anbhf0` est devenu `live` le 19 octobre à 14 h 22 min 16 s
+(Paris), et Vercel `dpl_FVuV8XXQM6p2KaiwB8boHBA59qjz` est `READY` sur le même commit.
+La commande de démarrage existante a confirmé « No pending migrations to apply » et
+resynchronisé le catalogue existant, sans ajout de migration ni famille de test.
+
+Les contrôles publics ont répondu HTTP 200 : santé API directe, santé via le site,
+accueil et connexion. PostgreSQL répond, le pilote des files est `bullmq` et Redis est distant.
+Ces contrôles ne constituent pas un parcours familial authentifié en production.
+
+À 14 h 22 min 10 s, la première complétion de maintenance a néanmoins produit
+`ERR Error running script: execution timed out`, puis `Missing lock ... moveToFinished`.
+Aucune nouvelle erreur sur cette instance lors des lectures suivantes jusqu'à 14 h 27.
+Le script installé `removeJobsByMaxCount` supprime tous les anciens résultats excédant
+le plafond dans une seule exécution Lua : cela explique probablement le dépassement,
+sans prouver le nombre réel de résultats en production, qui n'a pas été lu.
+
+L'ajustement utilise uniquement la rétention par âge avec `limit: 10`, dont le script
+`removeJobsByMaxAge` borne effectivement le nombre de suppressions. Aucun `count` n'est
+ajouté, car ce second chemin ignorerait la limite par passe. Un test Redis avec 5 000
+résultats anciens vérifie la suppression de 10 seulement, la conservation du résultat
+récent et celle d'une tâche différée. Les 8 tests Redis ont réussi ; la suite complète
+rejouée avec détection des ressources ouvertes réussit également et se termine
+normalement. Lint, TypeScript, formatage et compilation API réussissent après cet ajustement.
+
+Les mesures de 125 secondes ci-dessus concernent le premier correctif de polling et
+de rétention. La protection de nettoyage ajoutée ensuite conserve les mêmes réglages
+de polling ; ses volumes internes Redis n'ont pas été remesurés. La consommation
+réelle et la période de facturation Upstash restent à vérifier dans la console.

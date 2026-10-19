@@ -56,7 +56,9 @@ session vérifiée en base. Le moteur de jeu et les routes sont communs aux enfa
 - Les workers attendent jusqu'à 30 secondes sur une file vide ; l'arrivée d'un job les réveille
   immédiatement. Les vérifications de jobs bloqués restent actives, toutes les 60 secondes.
   BullMQ peut toujours interroger plus souvent une file contenant un job différé.
-  L'historique des tâches récurrentes est limité à 100 succès et 1 000 échecs par file.
+  L'historique des tâches récurrentes conserve les succès récents (1 heure) et les
+  échecs récents (7 jours). Les plus anciens sont supprimés par lots de 10 au maximum
+  par complétion, pour éviter un script Lua massif sur l'historique accumulé.
 - Arrêt Nest : `QueueService.beforeApplicationShutdown()` draine les workers avant la
   fermeture des transports Socket.IO ; `RedisService.onApplicationShutdown()` ferme
   les clients Redis après cette fermeture. Fermer Redis dans `onModuleDestroy()`

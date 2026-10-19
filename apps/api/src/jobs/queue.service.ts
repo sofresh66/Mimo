@@ -98,7 +98,12 @@ export class QueueService implements BeforeApplicationShutdown {
         { every: intervalMs },
         {
           name: job,
-          opts: { removeOnComplete: 100, removeOnFail: 1_000 },
+          // Un plafond de nombre ferait purger tout l'historique existant dans un
+          // seul script Lua. Limiter chaque passe protège les Redis à temps Lua limité.
+          opts: {
+            removeOnComplete: { age: 3_600, limit: 10 },
+            removeOnFail: { age: 7 * 24 * 3_600, limit: 10 },
+          },
         },
       );
       return;

@@ -108,7 +108,7 @@ describe('files BullMQ — Redis local', () => {
     expect(attempts).toBe(2);
   });
 
-  it('continue les tâches récurrentes en bornant leur historique', async () => {
+  it('continue les tâches récurrentes et conserve les résultats récents', async () => {
     let runs = 0;
     service.register(QUEUES.maintenance, 'sweep-explorations', async () => {
       runs += 1;
@@ -117,7 +117,41 @@ describe('files BullMQ — Redis local', () => {
     await eventually(() => expect(runs).toBeGreaterThan(105), 15_000);
     await maintenance.removeJobScheduler('maintenance:sweep-explorations');
     await eventually(async () => expect(await maintenance.getActiveCount()).toBe(0));
-    expect(await maintenance.getCompletedCount()).toBeLessThanOrEqual(100);
+    expect(await maintenance.getCompletedCount()).toBeGreaterThan(100);
+  });
+
+  it('nettoie un ancien historique par petits lots sans supprimer les tâches en attente', async () => {
+    const client = redis.createClient();
+    const old = Date.now() - 2 * 3_600_000;
+    const legacyCount = 5_000;
+    const batch = client.pipeline();
+    // Reconstituer des résultats de l'ancienne version, sans politique de rétention.
+    for (let i = 0; i < legacyCount; i += 1) {
+      const id = `legacy-${i}`;
+      batch.hset(maintenance.toKey(id), {
+        name: 'sweep-explorations',
+        data: '{}',
+        opts: '{}',
+        timestamp: String(old),
+        finishedOn: String(old),
+        returnvalue: 'null',
+      });
+      batch.zadd(maintenance.toKey('completed'), old, id);
+    }
+    await batch.exec();
+    const pending = await maintenance.add('cleanup', {}, { delay: 60_000, jobId: 'pending' });
+    service.register(QUEUES.maintenance, 'sweep-explorations', async () => {});
+    await service.every(QUEUES.maintenance, 'sweep-explorations', 60_000);
+    await eventually(async () => {
+      expect(await maintenance.getCompletedCount()).toBe(legacyCount - 10 + 1);
+    });
+    await maintenance.removeJobScheduler('maintenance:sweep-explorations');
+    expect(await pending.getState()).toBe('delayed');
+    const fresh = (await maintenance.getCompleted(0, 0))[0]!;
+    expect(fresh.id).not.toMatch(/^legacy-/);
+    expect(await fresh.getState()).toBe('completed');
+    expect(fresh.opts.removeOnComplete).toEqual({ age: 3_600, limit: 10 });
+    expect(fresh.opts.removeOnFail).toEqual({ age: 7 * 24 * 3_600, limit: 10 });
   });
 
   it('ferme rapidement un worker bloqué en attente', async () => {
