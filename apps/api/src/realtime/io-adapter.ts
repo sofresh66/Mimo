@@ -25,7 +25,12 @@ export class RealtimeIoAdapter extends IoAdapter {
       serveClient: false,
     }) as Server;
     if (this.redis.enabled) {
-      server.adapter(createAdapter(this.redis.createClient(), this.redis.createClient()));
+      server.adapter(
+        createAdapter(
+          this.redis.createClient({ connectionName: 'mimo:socket-pub' }),
+          this.redis.createClient({ connectionName: 'mimo:socket-sub' }),
+        ),
+      );
     }
     return server;
   }

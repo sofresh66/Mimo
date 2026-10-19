@@ -53,6 +53,14 @@ session vérifiée en base. Le moteur de jeu et les routes sont communs aux enfa
 
 - `QueueService` : BullMQ si `REDIS_URL` est défini (jobs persistants, relances), sinon minuteries en mémoire.
   Les jobs sont **idempotents** ; l'état de référence est en base.
+- Les workers attendent jusqu'à 30 secondes sur une file vide ; l'arrivée d'un job les réveille
+  immédiatement. Les vérifications de jobs bloqués restent actives, toutes les 60 secondes.
+  BullMQ peut toujours interroger plus souvent une file contenant un job différé.
+  L'historique des tâches récurrentes est limité à 100 succès et 1 000 échecs par file.
+- Arrêt Nest : `QueueService.beforeApplicationShutdown()` draine les workers avant la
+  fermeture des transports Socket.IO ; `RedisService.onApplicationShutdown()` ferme
+  les clients Redis après cette fermeture. Fermer Redis dans `onModuleDestroy()`
+  provoquerait des commandes de désabonnement sur des connexions déjà fermées.
 - Exploration : job différé à `endsAt` + balayage chaque minute + complétion à la lecture (`completeDueForChild`).
 - Maintenance horaire : parties de mini-jeu abandonnées, sessions expirées.
 - Socket.IO : authentification par le même cookie, salles `child:{id}`, `parents:{familyId}`, `family:{familyId}`.
@@ -65,6 +73,11 @@ session vérifiée en base. Le moteur de jeu et les routes sont communs aux enfa
 | Jobs (exploration, maintenance) | BullMQ                  | minuteries + balayage |
 | Rate limiting                   | partagé entre instances | mémoire locale        |
 | Diffusion Socket.IO             | adaptateur Redis        | instance unique       |
+
+Les connexions applicatives portent un nom de rôle (`mimo:rate-limit`, `mimo:socket-pub`,
+`mimo:socket-sub`, `mimo:worker:<file>`, `mimo:queue:<file>`), sans identifiant de famille.
+BullMQ nomme lui-même ses connexions bloquantes. Voir [l'audit Redis](REDIS_AUDIT.md) pour
+les mesures locales, leurs limites et les vérifications nécessaires avant déploiement.
 
 ## Web (Next.js App Router)
 

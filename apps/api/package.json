@@ -12,6 +12,8 @@
     "lint": "eslint .",
     "test": "jest --runInBand",
     "test:unit": "jest --runInBand test/unit",
+    "test:redis": "jest --runInBand --config jest.redis.config.cjs",
+    "measure:redis": "node scripts/measure-redis.cjs",
     "postinstall": "prisma generate",
     "db:migrate": "dotenv -e ../../.env -- node scripts/assert-local-db.cjs db:migrate && dotenv -e ../../.env -- prisma migrate dev",
     "db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",

@@ -27,7 +27,11 @@ import { RedisService } from './redis/redis.service';
       useFactory: (redis: RedisService) => ({
         // Limite globale généreuse ; les routes sensibles (connexion, PIN) ont leurs propres limites.
         throttlers: [{ name: 'default', ttl: 60_000, limit: 300 }],
-        storage: redis.enabled ? new ThrottlerStorageRedisService(redis.createClient()) : undefined,
+        storage: redis.enabled
+          ? new ThrottlerStorageRedisService(
+              redis.createClient({ connectionName: 'mimo:rate-limit' }),
+            )
+          : undefined,
       }),
     }),
     AuditModule,

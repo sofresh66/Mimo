@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
+import { BeforeApplicationShutdown, Injectable, Logger } from '@nestjs/common';
 import { Queue, Worker, type Job } from 'bullmq';
 import { RedisService } from '../redis/redis.service';
 
@@ -21,7 +21,7 @@ const MAX_TIMEOUT = 2_147_483_647;
  *   rattrapée par le balayage de maintenance.
  */
 @Injectable()
-export class QueueService implements OnApplicationShutdown {
+export class QueueService implements BeforeApplicationShutdown {
   private readonly logger = new Logger(QueueService.name);
   private readonly handlers = new Map<string, JobHandler>();
   private readonly queues = new Map<QueueName, Queue>();
@@ -42,8 +42,13 @@ export class QueueService implements OnApplicationShutdown {
         queue,
         (j: Job) => this.dispatch(queue, j.name, j.data as Record<string, unknown>),
         {
-          connection: this.redis.createClient(),
+          connection: this.redis.createClient({ connectionName: `mimo:worker:${queue}` }),
           concurrency: 5,
+          // BZPOPMIN est réveillé dès qu'un job arrive : allonger l'attente à vide
+          // réduit les commandes Redis sans retarder les nouveaux jobs.
+          drainDelay: 30,
+          // Conserver la récupération des jobs bloqués, avec un contrôle par minute.
+          stalledInterval: 60_000,
         },
       );
       worker.on('failed', (j, error) =>
@@ -91,7 +96,10 @@ export class QueueService implements OnApplicationShutdown {
       await this.queue(queue).upsertJobScheduler(
         `${queue}:${job}`,
         { every: intervalMs },
-        { name: job },
+        {
+          name: job,
+          opts: { removeOnComplete: 100, removeOnFail: 1_000 },
+        },
       );
       return;
     }
@@ -107,7 +115,9 @@ export class QueueService implements OnApplicationShutdown {
   private queue(name: QueueName): Queue {
     let queue = this.queues.get(name);
     if (!queue) {
-      queue = new Queue(name, { connection: this.redis.createClient() });
+      queue = new Queue(name, {
+        connection: this.redis.createClient({ connectionName: `mimo:queue:${name}` }),
+      });
       this.queues.set(name, queue);
     }
     return queue;
@@ -122,7 +132,8 @@ export class QueueService implements OnApplicationShutdown {
     await handler(data);
   }
 
-  async onApplicationShutdown(): Promise<void> {
+  // Drainer les jobs avant la fermeture des transports, puis des connexions Redis.
+  async beforeApplicationShutdown(): Promise<void> {
     for (const timer of this.timers) clearTimeout(timer);
     this.timers.clear();
     await Promise.all(this.workers.map((w) => w.close()));

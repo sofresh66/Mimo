@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
 import Redis, { type RedisOptions } from 'ioredis';
 import { APP_CONFIG, type AppConfig } from '../config/env';
 
@@ -8,7 +8,7 @@ import { APP_CONFIG, type AppConfig } from '../config/env';
  * leur implémentation en mémoire — pratique en développement, déconseillé en production.
  */
 @Injectable()
-export class RedisService implements OnModuleDestroy {
+export class RedisService implements OnApplicationShutdown {
   private readonly logger = new Logger(RedisService.name);
   private readonly clients: Redis[] = [];
   readonly enabled: boolean;
@@ -29,7 +29,8 @@ export class RedisService implements OnModuleDestroy {
     return client;
   }
 
-  async onModuleDestroy(): Promise<void> {
+  // Redis reste disponible pendant l'arrêt des workers et la fermeture de Socket.IO.
+  async onApplicationShutdown(): Promise<void> {
     await Promise.all(this.clients.map((c) => c.quit().catch(() => undefined)));
   }
 }
